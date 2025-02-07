@@ -116,10 +116,13 @@ typedef enum {
 } player_t;
 
 typedef enum {
-  NO_ERROR,
+  NO_WIN,
+  WIN_COL,
+  WIN_ROW,
   POSITION_OCCUPIED,
   PIECE_ALREADY_PLAYED,
   GAME_ALREADY_OVER,
+  DIAG,
 } quarto_return_t;
 
 // quarto_init : Retourne la structure associée à un jeu de Quarto avec comme
@@ -147,7 +150,8 @@ extern piece_t quarto_current_piece(quarto_t *q);
 //    disponible, le joueur peut choisir une pièce déjà poser et elle ne sera
 //    pas prise en compte.
 //    Retourne le code associé a ce mouvement.
-extern quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos);
+extern quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos,
+    char ***val);
 
 //  quarto_game_turn : Retourne le tour de jeu associé à q.
 extern size_t quarto_game_turn(quarto_t *q);

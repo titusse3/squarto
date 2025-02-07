@@ -111,7 +111,7 @@ static bool piece__already_played(quarto_t *q, piece_t p) {
   return false;
 }
 
-static bool check__line(quarto_t *q) {
+static bool check__line(quarto_t *q, char ***val) {
   for (int j = 0; j < 4; ++j) {
     if ((q->summary >> (31 - j * 4) & 1) == 0) {
       continue;
@@ -130,13 +130,22 @@ static bool check__line(quarto_t *q) {
       pred = v;
     }
     if (acc != 0) {
+      // j est la ligne gagnante
+      // je veux que *val pointe sur une liste de chaine de caractère qui
+      //  représente la ligne gagnante
+      *val = malloc(4 * sizeof(char *));
+      for (int i = 0; i < 4; ++i) {
+        (*val)[i] = malloc(5 * sizeof(char));
+        snprintf((*val)[i], 5, "%04b",
+            (unsigned int) (q->board >> (60 - j * 16 - i * 4) & 0b1111));
+      }
       return true;
     }
   }
   return false;
 }
 
-static bool check__column(quarto_t *q) {
+static bool check__column(quarto_t *q, char ***val) {
   for (int col = 0; col < 4; ++col) {
     if (((q->summary >> (31 - col)) & 1) == 0) {
       continue;
@@ -157,15 +166,30 @@ static bool check__column(quarto_t *q) {
       pred = v;
     }
     if (acc != 0) {
+      // j est la ligne gagnante
+      // je veux que *val pointe sur une liste de chaine de caractère qui
+      //  représente la ligne gagnante
+      *val = malloc(4 * sizeof(char *));
+      for (int i = 0; i < 4; ++i) {
+        (*val)[i] = malloc(5 * sizeof(char));
+        snprintf((*val)[i], 5, "%04b",
+            (unsigned int) (q->board >> (60 - pos * 4)) & 0b1111);
+      }
       return true;
     }
   }
   return false;
 }
 
-static bool check__diagonal(quarto_t *q) {
+static bool check__diagonal(quarto_t *q, char ***val) {
   int acc = 0b1111;
   int pred;
+  *val = malloc(4 * sizeof(char *));
+  for (int i = 0; i < 4; ++i) {
+    (*val)[i] = malloc(5 * sizeof(char));
+  }
+  snprintf((*val)[0], 5, "%04b",
+      (unsigned int) (q->board >> (60)) & 0b1111);
   if ((q->summary >> 31 & 1) != 0) {
     pred = (q->board >> 60) & 0b1111;
     for (int i = 1; i < 4; ++i) {
@@ -177,6 +201,8 @@ static bool check__diagonal(quarto_t *q) {
       if ((acc = (~(pred ^ v)) & acc) == 0) {
         break;
       }
+      snprintf((*val)[i], 5, "%04b",
+          (unsigned int) (q->board >> (60 - i * 20)) & 0b1111);
       pred = v;
     }
     if (acc != 0) {
@@ -184,10 +210,15 @@ static bool check__diagonal(quarto_t *q) {
     }
   }
   if ((q->summary >> 28 & 1) == 0) {
+    for (int i = 0; i < 4; ++i) {
+      free((*val)[i]);
+    }
     return false;
   }
   acc = 0b1111;
   pred = (q->board >> 48) & 0b1111;
+  snprintf((*val)[0], 5, "%04b",
+      (unsigned int) (q->board >> 48) & 0b1111);
   for (int i = 1; i < 4; ++i) {
     if ((q->summary >> (28 - i * 3) & 1) == 0) {
       acc = 0;
@@ -197,15 +228,21 @@ static bool check__diagonal(quarto_t *q) {
     if ((acc = (~(pred ^ v)) & acc) == 0) {
       break;
     }
+    snprintf((*val)[i], 5, "%04b",
+        (unsigned int) (q->board >> (48 - i * 12)) & 0b1111);
     pred = v;
   }
   if (acc != 0) {
     return true;
   }
-  return acc != 0;
+  for (int i = 0; i < 4; ++i) {
+    free((*val)[i]);
+  }
+  return false;
 }
 
-quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos) {
+quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos,
+    char ***val) {
   if (quarto_is_game_over(q)) {
     return GAME_ALREADY_OVER;
   }
@@ -226,10 +263,19 @@ quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos) {
   // on met la pièce sur le plateau
   q->board |= p2 & pos;
   SELECT_PIECE(q->summary, (uint32_t) (p & P15));
-  if (check__line(q) || check__column(q) || check__diagonal(q)) {
+  if (check__line(q, val)) {
     q->summary |= M_OVER_BIT;
+    return WIN_ROW;
   }
-  return NO_ERROR;
+  if (check__column(q, val)) {
+    q->summary |= M_OVER_BIT;
+    return WIN_COL;
+  }
+  if (check__diagonal(q, val)) {
+    q->summary |= M_OVER_BIT;
+    return DIAG;
+  }
+  return NO_WIN;
 }
 
 void quarto_print_board(quarto_t *q) {
