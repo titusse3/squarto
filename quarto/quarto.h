@@ -159,7 +159,13 @@ extern bool quarto_is_game_over(quarto_t *q);
 extern player_t quarto_winner(quarto_t *q);
 
 //  quarto_board : Retourne le plateau de jeu associé à q sous forme de vecteur
-//    de bit. Chaque case du plateau est représenté par 4 bits.
-extern uint64_t quarto_board(quarto_t *q)
+//    de bit. Chaque case du plateau est représenté par 4 bits. Si la case est
+//    vide alors la valeur de la case est indéterminée.
+extern uint64_t quarto_board(quarto_t *q);
+
+//  quarto_summary : Retourne le sommaire du plateau de jeu associé à q sous
+//    forme de vecteur de bit. Chaque bit représentant la vacuité de la case à
+//    l'indice.
+extern uint16_t quarto_summary(quarto_t *q);
 
 #endif

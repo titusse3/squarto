@@ -10,7 +10,10 @@ makefile_indicator = .\#makefile\#
 
 .PHONY: all clean
 
-all: $(executable)
+all: $(executable) test
+
+test: $(executable)
+	clear && ./$(executable)
 
 clean:
 	$(RM) $(objects) $(executable)

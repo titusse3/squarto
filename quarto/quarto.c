@@ -57,6 +57,14 @@ size_t quarto_game_turn(quarto_t *q) {
   return (q->summary & M_TURN_MASK) >> 5;
 }
 
+uint64_t quarto_board(quarto_t *q) {
+  return q->board;
+}
+
+uint16_t quarto_summary(quarto_t *q) {
+  return (uint16_t) q->summary >> 16;
+}
+
 player_t quarto_winner(quarto_t *q) {
   return quarto_is_game_over(q) ? (quarto_whos_turn(q)
     == PLAYER1 ? PLAYER2 : PLAYER1) : NEITHER;
@@ -230,8 +238,4 @@ quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos) {
     q->summary |= M_OVER_BIT;
   }
   return NO_ERROR;
-}
-
-uint64_t quarto_board(quarto_t *q) {
-  return q->board;
 }

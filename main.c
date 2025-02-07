@@ -2,14 +2,16 @@
 #include "raylib.h"
 #include "menu.h"
 
-#define SCREEN_WIDTH 1920
-#define SCREEN_HEIGHT 1800
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 720
+#define GAME_NAME "Quarto"
 
 int main(void) {
-  const char *game_title = "Quarto";
-  InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, game_title);
+  InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_NAME);
+  SetWindowState(FLAG_WINDOW_MAXIMIZED);
+  int screen_w = GetScreenWidth();
+  int screen_h = GetScreenHeight();
   SetExitKey(0);
-  SetTargetFPS(60);
   GameScreen currentScreen = MENU;
   Camera3D camera = {
     0
@@ -29,10 +31,8 @@ int main(void) {
   Vector3 cubePosition = {
     0.0f, 0.0f, 0.0f
   };
-  // Boucle principale
   while (!WindowShouldClose()) {
-    if (currentScreen == MENU) {
-    } else if (currentScreen == GAME) {
+    if (currentScreen == GAME) {
       if (IsKeyPressed(KEY_ESCAPE)) {
         currentScreen = MENU;
       }
@@ -40,29 +40,23 @@ int main(void) {
     }
     BeginDrawing();
     ClearBackground(RAYWHITE);
-    if (currentScreen == MENU) {
-      display_menu(SCREEN_WIDTH, SCREEN_HEIGHT, game_title, &currentScreen);
-    } else if (currentScreen == GAME) {
+    if (currentScreen == GAME) {
       Color leftColor = (Color){
         18, 25, 25, 255
       };  // couleur de gauche et droite
       Color midColor = (Color){
         39, 50, 53, 255
       };  // couleur centrale
-      DrawRectangleGradientH(0, 0, SCREEN_WIDTH / 2, SCREEN_HEIGHT, leftColor,
-          midColor);
-      // Dessiner la seconde moitié : dégradé de midColor -> leftColor
-      DrawRectangleGradientH(SCREEN_WIDTH / 2, 0,
-          SCREEN_WIDTH - SCREEN_WIDTH / 2,
-          SCREEN_HEIGHT, midColor, leftColor);
       //
       BeginMode3D(camera);
-      DrawCube(cubePosition, 2.0f, 2.0f, 2.0f, RED);// Cube plein
-      DrawCubeWires(cubePosition, 2.0f, 2.0f, 2.0f, MAROON);// Contour du
+      DrawCube(cubePosition, 2.0f, 2.0f, 2.0f, RED); // Cube plein
+      DrawCubeWires(cubePosition, 2.0f, 2.0f, 2.0f, MAROON); // Contour du
       // cube
-      DrawGrid(10, 1.0f);// Grille de référence
+      DrawGrid(10, 1.0f); // Grille de référence
       EndMode3D();
       DrawText("Appuyez sur ESC pour revenir au menu", 10, 10, 20, WHITE);
+    } else {
+      display_menu(screen_w, screen_h, GAME_NAME, &currentScreen);
     }
     EndDrawing();
   }

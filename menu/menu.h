@@ -5,7 +5,9 @@
 
 typedef enum {
   MENU,
-  GAME
+  GAME,
+  RULES,
+  HISTORY
 } GameScreen;
 
 extern void display_menu(int screen_w, int screen_h, const char *game_title,
