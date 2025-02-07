@@ -158,6 +158,8 @@ extern bool quarto_is_game_over(quarto_t *q);
 //  quarto_winner : Retourne le joueur gagnant si la partie est finie.
 extern player_t quarto_winner(quarto_t *q);
 
-extern void quarto_print_board(quarto_t *q);
+//  quarto_board : Retourne le plateau de jeu associé à q sous forme de vecteur
+//    de bit. Chaque case du plateau est représenté par 4 bits.
+extern uint64_t quarto_board(quarto_t *q)
 
 #endif

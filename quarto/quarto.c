@@ -232,24 +232,6 @@ quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos) {
   return NO_ERROR;
 }
 
-void quarto_print_board(quarto_t *q) {
-  printf("%032b\n", q->summary);
-  for (int row = 0; row < 4; ++row) {
-    for (int col = 0; col < 4; ++col) {
-      int pos = row * 4 + col;
-      int piece = (q->board >> (60 - pos * 4)) & 0b1111;
-      // Check if the position is on one of the diagonals.
-      int is_diagonal = (row == col) || (row + col == 3);
-      if ((q->summary & (1 << (31 - pos))) != 0) {
-        if (is_diagonal) {
-          printf("\033[31m%04b\033[0m ", piece);
-        } else {
-          printf("%04b ", piece);
-        }
-      } else {
-        printf("   X ");
-      }
-    }
-    printf("\n");
-  }
+uint64_t quarto_board(quarto_t *q) {
+  return q->board;
 }
