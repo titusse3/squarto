@@ -62,6 +62,7 @@ int main(void) {
       shader
       );
   Model model = LoadModel("resources/model/pp1.obj");
+  InitAudioDevice();
   while (true) {
     if (WindowShouldClose()) {
       game_info.exit_wind = true;
@@ -99,6 +100,7 @@ int main(void) {
     }
     EndDrawing();
   }
+  CloseAudioDevice();
   CloseWindow();
   return EXIT_SUCCESS;
 }
