@@ -28,12 +28,12 @@
 
 #define HISTORY_TXT                                                            \
         "Quarto est un jeu de stratégie abstrait inventé en 1991 par le\n"     \
-        "Suisse Blaise Müller. Ce jeu se distingue par son concept original:\n" \
-        "votre adversaire choisit la pièce que vous allez jouer parmi \n" \
-        "16 pièces uniques, chacune possédant quatre attributs différents.\n" \
-        "Malgré des règles simples, Quarto offre une profondeur tactique \n" \
-        "remarquable et a rapidement séduit les amateurs de jeux de réflexion\n" \
-        "à travers le monde."
+        "Suisse Blaise Müller. Ce jeu se distingue par son concept original:"  \
+        "\nvotre adversaire choisit la pièce que vous allez jouer parmi \n"    \
+        "16 pièces uniques, chacune possédant quatre attributs différents.\n"  \
+        "Malgré des règles simples, Quarto offre une profondeur tactique \n"   \
+        "remarquable et a rapidement séduit les amateurs de jeux de réflexion" \
+        "\nà travers le monde."
 
 Texture2D *load_rules_ressources(void) {
   Texture2D *textures = malloc(2 * sizeof(Texture2D));
@@ -216,28 +216,87 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
 
 static void display_menu_button(int titleWidth, game_info_t *game,
     int button_f, int button_w, menu_content_t *menu) {
-  if (GuiButton((Rectangle){titleWidth + titleWidth / TITLE_POS_DIV - button_w,
-                            game->screen_h / 2, button_w, button_f}, "Jouer")) {
-    menu->currentScreen = GAME;
-    menu->menuType = NONE;
+  // Définir la taille de la police et l'espacement
+  float fontSize = 40.0f;
+  float spacing = 1.0f;
+  Font font = GetFontDefault();
+  Vector2 histoireTextSize = MeasureTextEx(font, "Histoire", fontSize,
+      spacing);
+  {
+    Rectangle rectJouer = {
+      titleWidth + titleWidth / TITLE_POS_DIV - button_w,
+      game->screen_h / 2,
+      button_w,
+      button_f
+    };
+    bool hoverJouer = CheckCollisionPointRec(GetMousePosition(), rectJouer);
+    Color jouerColor = BLACK;  // Couleur par défaut
+    if (hoverJouer) {
+      // Changer la couleur selon l'état (survol ou pressé)
+      jouerColor = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
+      if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+        menu->currentScreen = GAME;
+        menu->menuType = NONE;
+      }
+    }
+    // Centrage du texte dans le rectangle
+    Vector2 jouerTextSize = MeasureTextEx(font, "Jouer", fontSize, spacing);
+    float jouerTextX = rectJouer.x + (rectJouer.width - jouerTextSize.x) / 2;
+    float jouerTextY = rectJouer.y + (rectJouer.height - jouerTextSize.y) / 2;
+    DrawTextEx(font, "Jouer", (Vector2){ jouerTextX, jouerTextY }, fontSize,
+        spacing, jouerColor);
   }
-  if (GuiButton((Rectangle){titleWidth + titleWidth / TITLE_POS_DIV - button_w,
-                            game->screen_h / 2 + game->screen_h
-                            / SPACE_BETWEEN_BUTTONS,
-                            button_w, button_f}, "Règles")) {
-    menu->menuType = RULES;
-    menu->content.rules_values.rules_num = 0;
-    menu->content.rules_values.rules_frames = 0;
-    menu->content.rules_values.rules_textures = load_rules_ressources();
+  {
+    Rectangle rectRegles = {
+      titleWidth + titleWidth / TITLE_POS_DIV - button_w,
+      game->screen_h / 2 + game->screen_h / SPACE_BETWEEN_BUTTONS,
+      button_w,
+      button_f
+    };
+    bool hoverRegles = CheckCollisionPointRec(GetMousePosition(), rectRegles);
+    Color reglesColor = BLACK;
+    if (hoverRegles) {
+      reglesColor = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
+      if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+        menu->menuType = RULES;
+        menu->content.rules_values.rules_num = 0;
+        menu->content.rules_values.rules_frames = 0;
+        menu->content.rules_values.rules_textures = load_rules_ressources();
+      }
+    }
+    Vector2 reglesTextSize = MeasureTextEx(font, "Règles", fontSize, spacing);
+    float reglesTextX = rectRegles.x + (rectRegles.width - reglesTextSize.x)
+        / 2;
+    float reglesTextY = rectRegles.y + (rectRegles.height - reglesTextSize.y)
+        / 2;
+    DrawTextEx(font, "Règles", (Vector2){ reglesTextX, reglesTextY }, fontSize,
+        spacing, reglesColor);
   }
-  if (GuiButton((Rectangle){titleWidth + titleWidth / TITLE_POS_DIV - button_w,
-                            game->screen_h / 2 + 2 * game->screen_h
-                            / SPACE_BETWEEN_BUTTONS, button_w, button_f},
-      "Histoire")) {
-    menu->menuType = HISTORY;
-    menu->content.history_values.history_frames = 0;
-    menu->content.history_values.history_texture
-      = LoadTexture("resources/image/histoire.png");
+  {
+    Rectangle rectHistoire = {
+      titleWidth + titleWidth / TITLE_POS_DIV - button_w,
+      game->screen_h / 2 + 2 * game->screen_h / SPACE_BETWEEN_BUTTONS,
+      button_w,
+      button_f
+    };
+    bool hoverHistoire = CheckCollisionPointRec(GetMousePosition(),
+        rectHistoire);
+    Color histoireColor = BLACK;
+    if (hoverHistoire) {
+      histoireColor = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
+      if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+        menu->menuType = HISTORY;
+        menu->content.history_values.history_frames = 0;
+        menu->content.history_values.history_texture
+          = LoadTexture("resources/image/histoire.png");
+      }
+    }
+    float histoireTextX = rectHistoire.x
+        + (rectHistoire.width - histoireTextSize.x) / 2;
+    float histoireTextY = rectHistoire.y
+        + (rectHistoire.height - histoireTextSize.y) / 2;
+    DrawTextEx(font, "Histoire", (Vector2){ histoireTextX, histoireTextY },
+        fontSize, spacing, histoireColor);
   }
 }
 
