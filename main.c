@@ -134,18 +134,15 @@ int main(void) {
       EndMode3D();
     } else {
       ClearBackground(GetColor(0x052c46ff));
-      // Draw midground image twice
       DrawTextureEx(background, (Vector2){ scrollingMid, 0 }, 0.0f,
           (float) game_info.screen_w / background.width, WHITE);
       DrawTextureEx(background,
-          (Vector2){ background.width *(float) game_info.screen_w
-                     / background.width + scrollingMid, 0 }, 0.0f,
+          (Vector2){ background.width + scrollingMid, 0 }, 0.0f,
           (float) game_info.screen_w / background.width, WHITE);
       DrawTextureEx(stars, (Vector2){ scrollingBack, 0 }, 0.0f,
           (float) game_info.screen_w / stars.width, WHITE);
       DrawTextureEx(stars,
-          (Vector2){ stars.width *(float) game_info.screen_w / stars.width
-                     + scrollingBack, 0 }, 0.0f,
+          (Vector2){ stars.width + scrollingBack, 0 }, 0.0f,
           (float) game_info.screen_w / stars.width, WHITE);
       DrawRectangle(0, 0, game_info.screen_w, game_info.screen_h,
           Fade(BLACK, 0.25f));
