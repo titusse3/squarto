@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdint.h>
 
 #include "raylib.h"
 #include <raymath.h>
@@ -14,9 +15,12 @@
 #define BASE_SCREEN_HEIGHT 720
 #define GAME_NAME "Quarto"
 
+static void draw_game(Camera3D *camera, float select[2], uint16_t *placed,
+    Model *models);
+
 int main(void) {
   InitWindow(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, GAME_NAME);
-  SetWindowState(FLAG_WINDOW_MAXIMIZED);
+  //SetWindowState(FLAG_WINDOW_MAXIMIZED);
   SetExitKey(0);
   SetTargetFPS(60);
   //
@@ -27,6 +31,10 @@ int main(void) {
   menu_content_t game = {
     .currentScreen = MENU, .menuType = NONE
   };
+  InitAudioDevice();
+  Music music = LoadMusicStream("resources/music/italian_hymn.mp3");
+  PlayMusicStream(music);
+  SetMusicVolume(music, 0.1f);
   Camera3D camera = {};
   camera.position = (Vector3) {
     10.0f, 20.0f, 10.0f
@@ -43,6 +51,7 @@ int main(void) {
       "resources/shaders/glsl330/lighting.vs",
       "resources/shaders/glsl330/lighting.fs"
       );
+  shader.locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocation(shader, "matModel");
   shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
   SetShaderValue(
       shader,
@@ -61,10 +70,14 @@ int main(void) {
       WHITE,
       shader
       );
-  InitAudioDevice();
-  Music music = LoadMusicStream("resources/music/italian_hymn.mp3");
-  PlayMusicStream(music);
-  SetMusicVolume(music, 0.1f);
+  float select[2] = {
+    -1.0f, -1.0f
+  };
+  uint16_t placed = 0;
+  Model models[] = {
+    LoadModel("resources/model/pp1.obj")
+  };
+  models[0].materials[0].shader = shader;
   while (true) {
     if (WindowShouldClose()) {
       game_info.exit_wind = true;
@@ -93,6 +106,9 @@ int main(void) {
     ClearBackground(RAYWHITE);
     if (game.currentScreen == GAME) {
       BeginMode3D(camera);
+      BeginShaderMode(shader);
+      draw_game(&camera, select, &placed, models);
+      EndShaderMode();
       EndMode3D();
     } else {
       display_menu(&game_info, &game, &camera, &shader);
@@ -105,4 +121,64 @@ int main(void) {
   CloseAudioDevice();
   CloseWindow();
   return EXIT_SUCCESS;
+}
+
+void draw_game(Camera3D *camera, float select[2], uint16_t *placed,
+    Model *models) {
+  Ray ray = {};
+  RayCollision collision = {};
+  float x = 0;
+  float z = 0;
+  collision.hit = false;
+  while (x < 4.0f && !collision.hit) {
+    z = 0;
+    while (z < 4.0f && !collision.hit) {
+      if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        ray = GetScreenToWorldRay(GetMousePosition(), *camera);
+        collision = GetRayCollisionBox(
+            ray,
+            (BoundingBox) { (Vector3) { x * 1.5f - 1.25f, 1.5f,
+                                        z * 1.5f - 1.25f },
+                            (Vector3) { x * 1.5f - 3.25f, 1.5f,
+                                        z * 1.5f - 3.25f }}
+            );
+      }
+      ++z;
+    }
+    ++x;
+  }
+  if (collision.hit) {
+    select[0] = x - 1;
+    select[1] = z - 1;
+    *placed ^= 1 << (int) ((x - 1) * 4 + z - 1);
+  }
+  for (float x = 0; x < 4.0f; ++x) {
+    for (float z = 0; z < 4.0f; ++z) {
+      DrawCube(
+          (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
+          1.5f,
+          1.5f,
+          1.5f,
+          select[0] == x && select[1] == z ? RED : LIGHTGRAY
+          );
+      DrawCubeWires(
+          (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
+          1.5f,
+          1.5f,
+          1.5f,
+          BLACK
+          );
+      if (((*placed >> (int) (x * 4 + z)) & 1) != 0) {
+        DrawModelEx(
+            models[0],
+            (Vector3) {x * 1.5f - 2.25f, 0.75f, z * 1.5f - 2.25f},
+            (Vector3) {0.0f, 0.0f, 0.0f},
+            0.0f,
+            (Vector3) {0.55f, 0.3f, 0.55f},
+            BLUE
+            );
+      }
+    }
+  }
+  DrawRay(ray, BLUE);
 }
