@@ -266,8 +266,8 @@ static void display_menu_button(int titleWidth, game_info_t *game,
     }
     // Centrage du texte dans le rectangle
     Vector2 jouerTextSize = MeasureTextEx(font, "Jouer", fontSize, spacing);
-    float jouerTextX = rectJouer.x + (rectJouer.width - jouerTextSize.x) / 2;
-    float jouerTextY = rectJouer.y + (rectJouer.height - jouerTextSize.y) / 2;
+    float jouerTextX = rectJouer.x + (rectJouer.width - jouerTextSize.x);
+    float jouerTextY = rectJouer.y + (rectJouer.height - jouerTextSize.y);
     DrawTextEx(font, "Jouer", (Vector2){ jouerTextX, jouerTextY }, fontSize,
         spacing, jouerColor);
   }
@@ -290,10 +290,8 @@ static void display_menu_button(int titleWidth, game_info_t *game,
       }
     }
     Vector2 reglesTextSize = MeasureTextEx(font, "Règles", fontSize, spacing);
-    float reglesTextX = rectRegles.x + (rectRegles.width - reglesTextSize.x)
-        / 2;
-    float reglesTextY = rectRegles.y + (rectRegles.height - reglesTextSize.y)
-        / 2;
+    float reglesTextX = rectRegles.x + (rectRegles.width - reglesTextSize.x);
+    float reglesTextY = rectRegles.y + (rectRegles.height - reglesTextSize.y);
     DrawTextEx(font, "Règles", (Vector2){ reglesTextX, reglesTextY }, fontSize,
         spacing, reglesColor);
   }
@@ -317,9 +315,9 @@ static void display_menu_button(int titleWidth, game_info_t *game,
       }
     }
     float histoireTextX = rectHistoire.x
-        + (rectHistoire.width - histoireTextSize.x) / 2;
+        + (rectHistoire.width - histoireTextSize.x);
     float histoireTextY = rectHistoire.y
-        + (rectHistoire.height - histoireTextSize.y) / 2;
+        + (rectHistoire.height - histoireTextSize.y);
     DrawTextEx(font, "Histoire", (Vector2){ histoireTextX, histoireTextY },
         fontSize, spacing, histoireColor);
   }
