@@ -78,7 +78,13 @@ int main(void) {
     LoadModel("resources/model/pp1.obj")
   };
   models[0].materials[0].shader = shader;
+  Texture2D background = LoadTexture("resources/image/blue-back.png");
+  Texture2D stars = LoadTexture("resources/image/blue-stars.png");
+  float scrollingBack = 0.0f;
+  float scrollingMid = 0.0f;
   while (true) {
+    game_info.screen_w = GetScreenWidth();
+    game_info.screen_h = GetScreenHeight();
     if (WindowShouldClose()) {
       game_info.exit_wind = true;
     }
@@ -97,10 +103,20 @@ int main(void) {
         game.currentScreen = MENU;
       }
       UpdateCamera(&camera, 0);
-    } else if (game.menuType == RULES) {
-      ++game.content.rules_values.rules_frames;
-    } else if (game.menuType == HISTORY) {
-      ++game.content.history_values.history_frames;
+    } else {
+      scrollingBack -= 0.1f;
+      scrollingMid -= 0.1f;
+      if (scrollingBack <= -background.width * 2) {
+        scrollingBack = 0;
+      }
+      if (scrollingMid <= -stars.width * 2) {
+        scrollingMid = 0;
+      }
+      if (game.menuType == RULES) {
+        ++game.content.rules_values.rules_frames;
+      } else if (game.menuType == HISTORY) {
+        ++game.content.history_values.history_frames;
+      }
     }
     BeginDrawing();
     ClearBackground(RAYWHITE);
@@ -111,6 +127,22 @@ int main(void) {
       EndShaderMode();
       EndMode3D();
     } else {
+      ClearBackground(GetColor(0x052c46ff));
+      // Draw midground image twice
+      DrawTextureEx(background, (Vector2){ scrollingMid, 0 }, 0.0f,
+          (float) game_info.screen_w / background.width, WHITE);
+      DrawTextureEx(background,
+          (Vector2){ background.width *(float) game_info.screen_w
+                     / background.width + scrollingMid, 0 }, 0.0f,
+          (float) game_info.screen_w / background.width, WHITE);
+      DrawTextureEx(stars, (Vector2){ scrollingBack, 0 }, 0.0f,
+          (float) game_info.screen_w / stars.width, WHITE);
+      DrawTextureEx(stars,
+          (Vector2){ stars.width *(float) game_info.screen_w / stars.width
+                     + scrollingBack, 0 }, 0.0f,
+          (float) game_info.screen_w / stars.width, WHITE);
+      DrawRectangle(0, 0, game_info.screen_w, game_info.screen_h,
+          Fade(BLACK, 0.25f));
       display_menu(&game_info, &game, &camera, &shader);
     }
     if (game_info.exit_wind && display_exit_menu(&game_info)) {

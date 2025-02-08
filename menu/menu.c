@@ -126,7 +126,7 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
     rectHeight
   };
   DrawRectangleRec(rulesRect, (Color) { 50, 50, 50, 200 });
-  DrawRectangleLinesEx(rulesRect, 2, BLACK);
+  DrawRectangleLinesEx(rulesRect, 2, WHITE);
   //
   {
     Rectangle pink = {
@@ -257,7 +257,7 @@ static void display_menu_button(int titleWidth, game_info_t *game,
     button_f
   };
   bool hoverJouer = CheckCollisionPointRec(GetMousePosition(), rectJouer);
-  Color jouerColor = BLACK;  // Couleur par défaut
+  Color jouerColor = WHITE;  // Couleur par défaut
   if (hoverJouer) {
     // Changer la couleur selon l'état (survol ou pressé)
     jouerColor = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
@@ -280,7 +280,7 @@ static void display_menu_button(int titleWidth, game_info_t *game,
     button_f
   };
   bool hoverRegles = CheckCollisionPointRec(GetMousePosition(), rectRegles);
-  Color reglesColor = BLACK;
+  Color reglesColor = WHITE;
   if (hoverRegles) {
     reglesColor = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
@@ -304,7 +304,7 @@ static void display_menu_button(int titleWidth, game_info_t *game,
   };
   bool hoverHistoire = CheckCollisionPointRec(GetMousePosition(),
       rectHistoire);
-  Color histoireColor = BLACK;
+  Color histoireColor = WHITE;
   if (hoverHistoire) {
     histoireColor = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
@@ -328,7 +328,7 @@ static void display_menu_button(int titleWidth, game_info_t *game,
     button_f
   };
   bool hoverQuit = CheckCollisionPointRec(GetMousePosition(), rectQuit);
-  Color quitColor = BLACK;
+  Color quitColor = WHITE;
   if (hoverQuit) {
     quitColor = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
@@ -357,7 +357,7 @@ static void display_history(game_info_t *game, int left_padding, int offset,
     rectHeight
   };
   DrawRectangleRec(rulesRect, (Color) { 50, 50, 50, 200 });
-  DrawRectangleLinesEx(rulesRect, 2, BLACK);
+  DrawRectangleLinesEx(rulesRect, 2, WHITE);
   //
   const char *t = "Histoire";
   const int title_size = MeasureText("Histoire", font_size);
@@ -390,7 +390,7 @@ void display_menu(game_info_t *game, menu_content_t *menu, Camera3D *camera,
   int titleWidth = MeasureText(game->game_name, title_size);
   DrawText(game->game_name, titleWidth / TITLE_POS_DIV,
       titleWidth / TITLE_POS_DIV,
-      title_size, BLACK);
+      title_size, WHITE);
   int button_f = game->screen_h / (TITLE_DIVIDER * 2.2);
   //
   GuiSetStyle(DEFAULT, TEXT_SIZE, button_f);
