@@ -16,7 +16,7 @@
 #define GAME_NAME "Quarto"
 
 static void draw_game(Camera3D *camera, float select[2], uint16_t *placed,
-    Model *models);
+    Model models[4]);
 
 int main(void) {
   InitWindow(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, GAME_NAME);
@@ -37,7 +37,7 @@ int main(void) {
   SetMusicVolume(music, 0.1f);
   Camera3D camera = {};
   camera.position = (Vector3) {
-    10.0f, 20.0f, 10.0f
+    7.5f, 20.0f, 7.5f
   }; // Position de la caméra
   camera.target = (Vector3) {
     0.0f, 0.0f, 0.0f
@@ -74,10 +74,16 @@ int main(void) {
     -1.0f, -1.0f
   };
   uint16_t placed = 0;
-  Model models[] = {
-    LoadModel("resources/model/pp1.obj")
+  Model models[4] = {
+    LoadModel("resources/model/HOLE_ROUND.obj"),
+    LoadModel("resources/model/HOLE_SQUARE.obj"),
+    LoadModel("resources/model/PLAIN_ROUND.obj"),
+    LoadModel("resources/model/PLAIN_SQUARE.obj")
   };
   models[0].materials[0].shader = shader;
+  models[1].materials[0].shader = shader;
+  models[2].materials[0].shader = shader;
+  models[3].materials[0].shader = shader;
   Texture2D background = LoadTexture("resources/image/blue-back.png");
   Texture2D stars = LoadTexture("resources/image/blue-stars.png");
   float scrollingBack = 0.0f;
@@ -156,7 +162,7 @@ int main(void) {
 }
 
 void draw_game(Camera3D *camera, float select[2], uint16_t *placed,
-    Model *models) {
+    Model models[4]) {
   Ray ray = {};
   RayCollision collision = {};
   float x = 0;
@@ -191,7 +197,7 @@ void draw_game(Camera3D *camera, float select[2], uint16_t *placed,
           1.5f,
           1.5f,
           1.5f,
-          select[0] == x && select[1] == z ? RED : LIGHTGRAY
+          select[0] == x && select[1] == z ? GREEN : LIGHTGRAY
           );
       DrawCubeWires(
           (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
@@ -201,13 +207,16 @@ void draw_game(Camera3D *camera, float select[2], uint16_t *placed,
           BLACK
           );
       if (((*placed >> (int) (x * 4 + z)) & 1) != 0) {
+        srand(x * 4 + z);
         DrawModelEx(
-            models[0],
+            models[(size_t) ((size_t) rand() % 4)],
             (Vector3) {x * 1.5f - 2.25f, 0.75f, z * 1.5f - 2.25f},
             (Vector3) {0.0f, 0.0f, 0.0f},
             0.0f,
-            (Vector3) {0.55f, 0.3f, 0.55f},
-            BLUE
+            (Vector3) {0.55f,
+                       (rand() / (double) RAND_MAX) > 0.5f ? 0.35f : 0.2f,
+                       0.55f},
+            (rand() / (double) RAND_MAX) > 0.5f ? BLUE : RED
             );
       }
     }
