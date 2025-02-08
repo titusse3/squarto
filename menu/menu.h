@@ -1,16 +1,38 @@
 #ifndef MENU_H
 #define MENU__H
 
+#include "raylib.h"
 #include <stdlib.h>
 
-typedef enum {
-  MENU,
-  GAME,
-  RULES,
-  HISTORY
-} GameScreen;
+typedef struct game_info_t {
+  int screen_w;
+  int screen_h;
+  const char *game_name;
+} game_info_t;
 
-extern void display_menu(int screen_w, int screen_h, const char *game_title,
-    GameScreen *currentScreen);
+typedef struct {
+  enum {
+    MENU,
+    GAME
+  } currentScreen;
+  enum {
+    RULES,
+    HISTORY,
+    NONE
+  } menuType;
+  union {
+    struct {
+      int rules_num;
+      int rules_frames;
+      Texture2D *rules_textures;
+    } rules_values;
+    struct {
+      int history_frames;
+      Texture2D history_texture;
+    } history_values;
+  } content;
+} menu_content_t;
+
+extern void display_menu(game_info_t *game, menu_content_t *menu);
 
 #endif
