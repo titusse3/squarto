@@ -8,6 +8,7 @@ typedef struct game_info_t {
   int screen_w;
   int screen_h;
   const char *game_name;
+  bool exit_wind;
 } game_info_t;
 
 typedef struct {

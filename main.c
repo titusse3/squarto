@@ -14,7 +14,7 @@ int main(void) {
   //
   game_info_t game_info = {
     .screen_w = GetScreenWidth(), .screen_h = GetScreenHeight(),
-    .game_name = "Quarto"
+    .game_name = "Quarto", .exit_wind = true
   };
   menu_content_t game = {
     .currentScreen = MENU, .menuType = NONE
@@ -34,6 +34,13 @@ int main(void) {
   camera.fovy = 45.0f;                               // Angle de vue en Y
   camera.projection = CAMERA_PERSPECTIVE;                // Type de projection
   while (!WindowShouldClose()) {
+    if (game_info.exit_wind) {
+      if (IsKeyPressed(KEY_Y)) {
+        break;
+      } else if (IsKeyPressed(KEY_N)) {
+        game_info.exit_wind = false;
+      }
+    }
     if (game.currentScreen == GAME) {
       if (IsKeyPressed(KEY_ESCAPE)) {
         game.currentScreen = MENU;
@@ -52,6 +59,14 @@ int main(void) {
       EndMode3D();
     } else {
       display_menu(&game_info, &game);
+    }
+    if (game_info.exit_wind) {
+      int rect_w = game_info.screen_w * 0.65f;
+      int rect_h = game_info.screen_h * 0.5f;
+      DrawRectangle((game_info.screen_w - rect_w) / 2,
+          (game_info.screen_h - rect_h) / 2, rect_w, rect_h, BLACK);
+      DrawText("Are you sure you want to exit program? [Y/N]", 40, 180, 30,
+          WHITE);
     }
     EndDrawing();
   }
