@@ -61,6 +61,7 @@ int main(void) {
       WHITE,
       shader
       );
+  Model model = LoadModel("resources/model/pp1.obj");
   while (true) {
     if (WindowShouldClose()) {
       game_info.exit_wind = true;
@@ -86,7 +87,9 @@ int main(void) {
     ClearBackground(RAYWHITE);
     if (game.currentScreen == GAME) {
       BeginMode3D(camera);
-      DrawCube((Vector3) {0.0f, 0.0f, 0.0f}, 2.0f, 2.0f, 2.0f, RED);
+      BeginShaderMode(shader);
+      DrawModel(model, (Vector3) {0.0f, 0.0f, 0.0f}, 0.5f, RED);
+      EndShaderMode();
       EndMode3D();
     } else {
       display_menu(&game_info, &game, &camera, &shader);
