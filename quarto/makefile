@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -std=c23 \
-  # -Wall -Wconversion -Werror -Wextra -Wpedantic -Wwrite-strings \
-  # -O2
+  -Wall -Wconversion -Werror -Wextra -Wpedantic -Wwrite-strings \
+  -O2
 objects = quarto.o main.o
 executable = main
 makefile_indicator = .\#makefile\#

@@ -167,13 +167,13 @@ static bool check__diagonal(quarto_t *q) {
   int acc = 0b1111;
   int pred;
   if ((q->summary >> 31 & 1) != 0) {
-    pred = (q->board >> 60) & 0b1111;
+    pred = (int) (q->board >> 60) & 0b1111;
     for (int i = 1; i < 4; ++i) {
       if ((q->summary >> (31 - i * 5) & 1) == 0) {
         acc = 0;
         break;
       }
-      int v = (q->board >> (60 - i * 20)) & 0b1111;
+      int v = (int) (q->board >> (60 - i * 20)) & 0b1111;
       if ((acc = (~(pred ^ v)) & acc) == 0) {
         break;
       }
@@ -187,13 +187,13 @@ static bool check__diagonal(quarto_t *q) {
     return false;
   }
   acc = 0b1111;
-  pred = (q->board >> 48) & 0b1111;
+  pred = (int) (q->board >> 48) & 0b1111;
   for (int i = 1; i < 4; ++i) {
     if ((q->summary >> (28 - i * 3) & 1) == 0) {
       acc = 0;
       break;
     }
-    int v = (q->board >> (48 - i * 12)) & 0b1111;
+    int v = (int) (q->board >> (48 - i * 12)) & 0b1111;
     if ((acc = (~(pred ^ v)) & acc) == 0) {
       break;
     }
