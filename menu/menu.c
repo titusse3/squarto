@@ -307,3 +307,48 @@ void display_menu(game_info_t *game, menu_content_t *menu) {
       break;
   }
 }
+
+bool display_exit_menu(game_info_t *game_info) {
+  int rect_w = game_info->screen_w * 0.5f;
+  int rect_h = game_info->screen_h * 0.5f;
+  DrawRectangle(0, 0, game_info->screen_w, game_info->screen_h,
+      Fade(BLACK, 0.5f));
+  DrawRectangle((game_info->screen_w - rect_w) / 2,
+      (game_info->screen_h - rect_h) / 2, rect_w, rect_h, BLACK);
+  DrawRectangle((game_info->screen_w - rect_w) / 2,
+      (game_info->screen_h - rect_h) / 2, rect_w, rect_h / 5, RED);
+  int fontSize = rect_h / 8;
+  int textWidth = MeasureText("Quit", fontSize);
+  int rectX = (game_info->screen_w - rect_w) / 2;
+  int rectY = (game_info->screen_h - rect_h) / 2;
+  int textX = rectX + (rect_w - textWidth) / 2;
+  int textY = rectY + ((rect_h / 5) - fontSize) / 2;
+  DrawText("Quit", textX, textY, fontSize, WHITE);
+  int messageFontSize = rect_h / 11;
+  int messageTextWidth
+    = MeasureText("do you really want to quit the game ?", messageFontSize);
+  int messageX = rectX + (rect_w - messageTextWidth) / 2;
+  int messageY = rectY + (rect_h - messageFontSize) / 2.5f;
+  DrawText(
+      "Do you really want to quit the game ?\nYou will miss a lot of fun...",
+      messageX, messageY,
+      messageFontSize, WHITE);
+  int buttonHeight = rect_h / 10;
+  int spacing = rect_w / 20;  // espace réduit entre les boutons
+  int buttonWidth = rect_w / 4;
+  int totalButtonsWidth = 2 * buttonWidth + spacing;
+  int buttonX_no = rectX + (rect_w - totalButtonsWidth) / 2;
+  int buttonX_yes = buttonX_no + buttonWidth + spacing;
+  int buttonY = (game_info->screen_h - rect_h) / 2 + rect_h - buttonHeight
+      - 70;
+  if (GuiButton((Rectangle){ buttonX_no, buttonY, buttonWidth,
+                             buttonHeight + 20 }, "No")) {
+    game_info->exit_wind = false;
+    return false;
+  }
+  if (GuiButton((Rectangle){ buttonX_yes, buttonY, buttonWidth,
+                             buttonHeight + 20 }, "Yes")) {
+    return true;
+  }
+  return false;
+}

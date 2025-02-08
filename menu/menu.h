@@ -36,4 +36,6 @@ typedef struct {
 
 extern void display_menu(game_info_t *game, menu_content_t *menu);
 
+bool display_exit_menu(game_info_t *game_info);
+
 #endif
