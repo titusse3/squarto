@@ -1,6 +1,6 @@
 # Blender 4.2.1 LTS
 # www.blender.org
-mtllib pp1.mtl
+mtllib PLAIN_SQUARE.mtl
 o Cube
 v 1.000000 8.000000 -1.000000
 v 1.000000 0.000000 -1.000000

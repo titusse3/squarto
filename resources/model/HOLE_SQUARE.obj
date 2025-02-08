@@ -1,6 +1,6 @@
 # Blender 4.2.1 LTS
 # www.blender.org
-mtllib quarto.mtl
+mtllib HOLE_SQUARE.mtl
 o Cube.001
 v 0.625346 8.000000 -0.625346
 v 1.000000 0.000000 -1.000000
