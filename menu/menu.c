@@ -104,7 +104,7 @@ static void display_rule_bottom_btn(game_info_t *game, menu_content_t *menu,
       menu->content.rules_values.rules_frames = 0;
     }
   }
-  if (GuiButton(midButton, "#131#") || IsKeyPressed(KEY_SPACE)) {
+  if (GuiButton(midButton, "#134#") || IsKeyPressed(KEY_SPACE)) {
     menu->content.rules_values.rules_frames += 60;
   }
   if (GuiButton(nextButton, "#131#") || IsKeyPressed(KEY_RIGHT)) {
@@ -411,6 +411,13 @@ void display_menu(game_info_t *game, menu_content_t *menu, Camera3D *camera,
       display_history(game, 2 * titleWidth / TITLE_POS_DIV + titleWidth,
           titleWidth / TITLE_POS_DIV, button_f * 0.9f, menu);
       break;
+  }
+  //
+  Rectangle buttonBounds = {
+    game->screen_w - 50, game->screen_h - 40, 40, 30
+  };
+  if (GuiButton(buttonBounds, (game->play_music ? "#132#" : "#131#"))) {
+    game->play_music = !game->play_music;
   }
 }
 

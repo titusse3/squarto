@@ -9,6 +9,7 @@ typedef struct game_info_t {
   int screen_h;
   const char *game_name;
   bool exit_wind;
+  bool play_music;
 } game_info_t;
 
 typedef struct {

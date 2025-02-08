@@ -22,7 +22,7 @@ int main(void) {
   //
   game_info_t game_info = {
     .screen_w = GetScreenWidth(), .screen_h = GetScreenHeight(),
-    .game_name = "Quarto", .exit_wind = false
+    .game_name = "Quarto", .exit_wind = false, .play_music = true
   };
   menu_content_t game = {
     .currentScreen = MENU, .menuType = NONE
@@ -61,8 +61,10 @@ int main(void) {
       WHITE,
       shader
       );
-  Model model = LoadModel("resources/model/pp1.obj");
   InitAudioDevice();
+  Music music = LoadMusicStream("resources/music/italian_hymn.mp3");
+  PlayMusicStream(music);
+  SetMusicVolume(music, 0.1f);
   while (true) {
     if (WindowShouldClose()) {
       game_info.exit_wind = true;
@@ -73,6 +75,9 @@ int main(void) {
       } else if (IsKeyPressed(KEY_N) || IsKeyPressed(KEY_ESCAPE)) {
         game_info.exit_wind = false;
       }
+    }
+    if (game_info.play_music) {
+      UpdateMusicStream(music);
     }
     if (game.currentScreen == GAME) {
       if (IsKeyPressed(KEY_ESCAPE)) {
@@ -88,9 +93,6 @@ int main(void) {
     ClearBackground(RAYWHITE);
     if (game.currentScreen == GAME) {
       BeginMode3D(camera);
-      BeginShaderMode(shader);
-      DrawModel(model, (Vector3) {0.0f, 0.0f, 0.0f}, 0.5f, RED);
-      EndShaderMode();
       EndMode3D();
     } else {
       display_menu(&game_info, &game, &camera, &shader);
