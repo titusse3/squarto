@@ -35,6 +35,8 @@
         "remarquable et a rapidement séduit les amateurs de jeux de réflexion" \
         "\nà travers le monde."
 
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
 Texture2D *load_rules_ressources(void) {
   Texture2D *textures = malloc(2 * sizeof(Texture2D));
   textures[0] = LoadTexture("resources/image/p1.png");
@@ -114,7 +116,7 @@ static void display_rule_bottom_btn(game_info_t *game, menu_content_t *menu,
 }
 
 static void display_rules(game_info_t *game, int left_padding, int offset,
-    int font_size, menu_content_t *menu) {
+    int font_size, menu_content_t *menu, Camera3D *camera, Shader *shader) {
   float rectWidth = game->screen_w - left_padding - offset;
   float rectHeight = game->screen_h - 2 * offset;
   Rectangle rulesRect = {
@@ -176,7 +178,30 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
       break;
     case 1:
       if (display_text_writing(game, menu, &rulesRect, RULE_ONE)) {
-        //faire un plateau en 3d de 4x4 qui descend un peu
+        float n = 1.25f - (MIN(menu->content.rules_values.rules_frames,
+            300)) / 240.0f;
+        BeginMode3D(*camera);
+        BeginShaderMode(*shader);
+        for (float x = 0; x < 4.0f; ++x) {
+          for (float z = 0; z < 4.0f; ++z) {
+            DrawCube(
+                (Vector3) {3.0f - n + x - 1.5f, 0, -1.0f - n + z - 2.0f},
+                1.0f,
+                1.0f,
+                1.0f,
+                LIGHTGRAY
+                );
+            DrawCubeWires(
+                (Vector3) {3.0f - n + x - 1.5f, 0, -1.0f - n + z - 2.0f},
+                1.0f,
+                1.0f,
+                1.0f,
+                BLACK
+                );
+          }
+        }
+        EndShaderMode();
+        EndMode3D();
       }
       break;
     case 2:
@@ -338,7 +363,8 @@ static void display_history(game_info_t *game, int left_padding, int offset,
       img_y + img_height + 30, 20, LIGHTGRAY);
 }
 
-void display_menu(game_info_t *game, menu_content_t *menu) {
+void display_menu(game_info_t *game, menu_content_t *menu, Camera3D *camera,
+    Shader *shader) {
   const int title_size = game->screen_h / TITLE_DIVIDER;
   int titleWidth = MeasureText(game->game_name, title_size);
   DrawText(game->game_name, titleWidth / TITLE_POS_DIV,
@@ -355,7 +381,7 @@ void display_menu(game_info_t *game, menu_content_t *menu) {
         menu->menuType = NONE;
       }
       display_rules(game, 2 * titleWidth / TITLE_POS_DIV + titleWidth,
-          titleWidth / TITLE_POS_DIV, button_f * 0.9f, menu);
+          titleWidth / TITLE_POS_DIV, button_f * 0.9f, menu, camera, shader);
       break;
     case HISTORY:
       if (IsKeyPressed(KEY_ESCAPE)) {

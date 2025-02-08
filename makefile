@@ -1,9 +1,10 @@
 menu_dir = menu/
+rlights_dir = rlights/
 CC = gcc
 CFLAGS = -std=c23 \
-	-I$(menu_dir)
-vpath %.c $(menu_dir)
-vpath %.h $(menu_dir)
+	-I$(menu_dir) -I$(rlights_dir)
+vpath %.c $(menu_dir) $(rlights_dir)
+vpath %.h $(menu_dir) $(rlights_dir)
 objects = menu.o main.o
 executable = game
 makefile_indicator = .\#makefile\#

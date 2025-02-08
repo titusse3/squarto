@@ -1,5 +1,11 @@
 #include <stdlib.h>
+
 #include "raylib.h"
+#include <raymath.h>
+
+#define RLIGHTS_IMPLEMENTATION
+#include "rlights.h"
+
 #include "menu.h"
 
 #include "raygui.h"
@@ -21,20 +27,40 @@ int main(void) {
   menu_content_t game = {
     .currentScreen = MENU, .menuType = NONE
   };
-  Camera3D camera = {
-    0
-  };
-  camera.position = (Vector3){
-    10.0f, 10.0f, 10.0f
-  };   // Position de la caméra
-  camera.target = (Vector3){
+  Camera3D camera = {};
+  camera.position = (Vector3) {
+    10.0f, 20.0f, 10.0f
+  }; // Position de la caméra
+  camera.target = (Vector3) {
     0.0f, 0.0f, 0.0f
-  };        // Point visé
-  camera.up = (Vector3){
+  }; // Point visé
+  camera.up = (Vector3) {
     0.0f, 1.0f, 0.0f
-  };        // Vecteur "up"
-  camera.fovy = 45.0f;                               // Angle de vue en Y
-  camera.projection = CAMERA_PERSPECTIVE;                // Type de projection
+  }; // Vecteur "up"
+  camera.fovy = 30.0f; // Angle de vue en Y
+  camera.projection = CAMERA_PERSPECTIVE; // Type de projection
+  Shader shader = LoadShader(
+      "resources/shaders/glsl330/lighting.vs",
+      "resources/shaders/glsl330/lighting.fs"
+      );
+  shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
+  SetShaderValue(
+      shader,
+      shader.locs[SHADER_LOC_VECTOR_VIEW],
+      (float[3]) {
+    camera.position.x,
+    camera.position.y,
+    camera.position.z,
+  },
+      SHADER_UNIFORM_VEC3
+      );
+  Light light = CreateLight(
+      LIGHT_POINT,
+      camera.position,
+      Vector3Zero(),
+      WHITE,
+      shader
+      );
   while (true) {
     if (WindowShouldClose()) {
       game_info.exit_wind = true;
@@ -63,7 +89,7 @@ int main(void) {
       DrawCube((Vector3) {0.0f, 0.0f, 0.0f}, 2.0f, 2.0f, 2.0f, RED);
       EndMode3D();
     } else {
-      display_menu(&game_info, &game);
+      display_menu(&game_info, &game, &camera, &shader);
     }
     if (game_info.exit_wind && display_exit_menu(&game_info)) {
       break;
