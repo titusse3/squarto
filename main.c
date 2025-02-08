@@ -76,8 +76,8 @@ int main(void) {
   uint16_t placed = 0;
   Model models[4] = {
     LoadModel("resources/model/HOLE_ROUND.obj"),
-    LoadModel("resources/model/HOLE_SQUARE.obj"),
     LoadModel("resources/model/PLAIN_ROUND.obj"),
+    LoadModel("resources/model/HOLE_SQUARE.obj"),
     LoadModel("resources/model/PLAIN_SQUARE.obj")
   };
   models[0].materials[0].shader = shader;
@@ -109,23 +109,34 @@ int main(void) {
         game.currentScreen = MENU;
       }
       UpdateCamera(&camera, 0);
-    } else {
-      scrollingBack -= 0.1f;
-      scrollingMid -= 0.1f;
-      if (scrollingBack <= -background.width * 2) {
-        scrollingBack = 0;
-      }
-      if (scrollingMid <= -stars.width * 2) {
-        scrollingMid = 0;
-      }
-      if (game.menuType == RULES) {
-        ++game.content.rules_values.rules_frames;
-      } else if (game.menuType == HISTORY) {
-        ++game.content.history_values.history_frames;
-      }
+    } else if (game.menuType == RULES) {
+      ++game.content.rules_values.rules_frames;
+    } else if (game.menuType == HISTORY) {
+      ++game.content.history_values.history_frames;
+    }
+    scrollingBack -= 0.1f;
+    scrollingMid -= 0.1f;
+    if (scrollingBack <= -background.width * 2) {
+      scrollingBack = 0;
+    }
+    if (scrollingMid <= -stars.width * 2) {
+      scrollingMid = 0;
     }
     BeginDrawing();
-    ClearBackground(RAYWHITE);
+    // a refaire
+    ClearBackground(GetColor(0x052c46ff));
+    DrawTextureEx(background, (Vector2){ scrollingMid, 0 }, 0.0f,
+        (float) game_info.screen_w / background.width, WHITE);
+    DrawTextureEx(background,
+        (Vector2){ background.width + scrollingMid, 0 }, 0.0f,
+        (float) game_info.screen_w / background.width, WHITE);
+    DrawTextureEx(stars, (Vector2){ scrollingBack, 0 }, 0.0f,
+        (float) game_info.screen_w / stars.width, WHITE);
+    DrawTextureEx(stars,
+        (Vector2){ stars.width + scrollingBack, 0 }, 0.0f,
+        (float) game_info.screen_w / stars.width, WHITE);
+    DrawRectangle(0, 0, game_info.screen_w, game_info.screen_h,
+        Fade(BLACK, 0.25f));
     if (game.currentScreen == GAME) {
       BeginMode3D(camera);
       BeginShaderMode(shader);
@@ -133,19 +144,6 @@ int main(void) {
       EndShaderMode();
       EndMode3D();
     } else {
-      ClearBackground(GetColor(0x052c46ff));
-      DrawTextureEx(background, (Vector2){ scrollingMid, 0 }, 0.0f,
-          (float) game_info.screen_w / background.width, WHITE);
-      DrawTextureEx(background,
-          (Vector2){ background.width + scrollingMid, 0 }, 0.0f,
-          (float) game_info.screen_w / background.width, WHITE);
-      DrawTextureEx(stars, (Vector2){ scrollingBack, 0 }, 0.0f,
-          (float) game_info.screen_w / stars.width, WHITE);
-      DrawTextureEx(stars,
-          (Vector2){ stars.width + scrollingBack, 0 }, 0.0f,
-          (float) game_info.screen_w / stars.width, WHITE);
-      DrawRectangle(0, 0, game_info.screen_w, game_info.screen_h,
-          Fade(BLACK, 0.25f));
       display_menu(&game_info, &game, &camera, &shader);
     }
     if (game_info.exit_wind && display_exit_menu(&game_info)) {
