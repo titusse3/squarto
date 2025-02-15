@@ -1,8 +1,10 @@
 #ifndef MENU_H
-#define MENU__H
+#define MENU_H
 
-#include "raylib.h"
+#include <raylib.h>
 #include <stdlib.h>
+
+#include "utils.h"
 
 typedef struct game_info_t {
   int screen_w;
@@ -35,9 +37,8 @@ typedef struct {
   } content;
 } menu_content_t;
 
-extern void display_menu(game_info_t *game, menu_content_t *menu, Camera3D
-    *camera, Shader *shader);
+extern void display_menu(game_info_t *game, menu_content_t *menu, state_t *st);
 
-bool display_exit_menu(game_info_t *game_info);
+extern bool display_exit_menu(game_info_t *game_info);
 
 #endif

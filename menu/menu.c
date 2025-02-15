@@ -1,6 +1,11 @@
 #include "menu.h"
+
+#include <raymath.h>
+
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
+
+#include "rlights.h"
 
 #define MENU_PADDING 10
 
@@ -116,7 +121,7 @@ static void display_rule_bottom_btn(game_info_t *game, menu_content_t *menu,
 }
 
 static void display_rules(game_info_t *game, int left_padding, int offset,
-    int font_size, menu_content_t *menu, Camera3D *camera, Shader *shader) {
+    int font_size, menu_content_t *menu, state_t *st) {
   float rectWidth = game->screen_w - left_padding - offset;
   float rectHeight = game->screen_h - 2 * offset;
   Rectangle rulesRect = {
@@ -178,21 +183,53 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
       break;
     case 1:
       if (display_text_writing(game, menu, &rulesRect, RULE_ONE)) {
-        float n = 1.25f - (MIN(menu->content.rules_values.rules_frames,
-            300)) / 240.0f;
-        BeginMode3D(*camera);
-        BeginShaderMode(*shader);
+        Camera3D camera = {
+          .position = (Vector3) {
+            7.5f,
+            20.0f,
+            7.5f
+          },
+          .target = (Vector3) {
+            0.0f,
+            0.0f,
+            0.0f
+          },
+          .up = (Vector3) {
+            0.0f,
+            1.0f,
+            0.0f
+          },
+          .fovy = 30.0f,
+          .projection = CAMERA_PERSPECTIVE
+        };
+        SetShaderValue(
+            st->shader,
+            st->shader.locs[SHADER_LOC_VECTOR_VIEW],
+            &camera.position,
+            SHADER_UNIFORM_VEC3
+            );
+        Light light = CreateLight(
+            LIGHT_POINT,
+            camera.position,
+            Vector3Zero(),
+            GRAY,
+            st->shader
+            );
+        float n = 0.75f - (MIN(menu->content.rules_values.rules_frames,
+            150)) / 200.0f;
+        BeginMode3D(camera);
+        BeginShaderMode(st->shader);
         for (float x = 0; x < 4.0f; ++x) {
           for (float z = 0; z < 4.0f; ++z) {
             DrawCube(
-                (Vector3) {3.0f - n + x - 1.5f, 0, -1.0f - n + z - 2.0f},
+                (Vector3) {3.0f - n + x - 2.0f, 0, -1.0f - n + z - 2.25f},
                 1.0f,
                 1.0f,
                 1.0f,
                 LIGHTGRAY
                 );
             DrawCubeWires(
-                (Vector3) {3.0f - n + x - 1.5f, 0, -1.0f - n + z - 2.0f},
+                (Vector3) {3.0f - n + x - 2.0f, 0, -1.0f - n + z - 2.25f},
                 1.0f,
                 1.0f,
                 1.0f,
@@ -206,14 +243,124 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
       break;
     case 2:
       if (display_text_writing(game, menu, &rulesRect, RULE_TWO)) {
-        // faire en 3d les 16 pièces
-        // ajouter des 4 bouttons sur la même lignes qui permettent
-        // de mettre en surbrillance les caractéristiques des pièces afficher
+        Camera3D camera = {
+          .position = (Vector3) {
+            -30.0f,
+            20.0f,
+            10.0f
+          },
+          .target = (Vector3) {
+            0.0f,
+            0.0f,
+            0.0f
+          },
+          .up = (Vector3) {
+            0.0f,
+            1.0f,
+            0.0f
+          },
+          .fovy = 30.0f,
+          .projection = CAMERA_PERSPECTIVE
+        };
+        SetShaderValue(
+            st->shader,
+            st->shader.locs[SHADER_LOC_VECTOR_VIEW],
+            &camera.position,
+            SHADER_UNIFORM_VEC3
+            );
+        Light light = CreateLight(
+            LIGHT_POINT,
+            camera.position,
+            Vector3Zero(),
+            GRAY,
+            st->shader
+            );
+        BeginMode3D(camera);
+        BeginShaderMode(st->shader);
+        for (float x = 0; x < 4.0f; ++x) {
+          for (float z = 0; z < 4.0f; ++z) {
+            DrawModelEx(
+                st->pieces[(size_t) x],
+                (Vector3) {x * 2.0f, -2.0f, z * 2.0f + 1.5f},
+                (Vector3) {0.0f, 0.0f, 0.0f},
+                0.0f,
+                (Vector3) {0.55f,
+                           (long int) z % 2 == 0 > 0.5f ? 0.35f : 0.2f,
+                           0.55f},
+                z >= 2.0f > 0.5f ? BLUE : RED
+                );
+          }
+        }
+        EndShaderMode();
+        EndMode3D();
       }
       break;
     case 3:
       if (display_text_writing(game, menu, &rulesRect, RULE_THREE)) {
-        // faire un exemple d'alignement en 3d
+        Camera3D camera = {
+          .position = (Vector3) {
+            7.5f,
+            20.0f,
+            7.5f
+          },
+          .target = (Vector3) {
+            0.0f,
+            0.0f,
+            0.0f
+          },
+          .up = (Vector3) {
+            0.0f,
+            1.0f,
+            0.0f
+          },
+          .fovy = 30.0f,
+          .projection = CAMERA_PERSPECTIVE
+        };
+        SetShaderValue(
+            st->shader,
+            st->shader.locs[SHADER_LOC_VECTOR_VIEW],
+            &camera.position,
+            SHADER_UNIFORM_VEC3
+            );
+        Light light = CreateLight(
+            LIGHT_POINT,
+            camera.position,
+            Vector3Zero(),
+            GRAY,
+            st->shader
+            );
+        BeginMode3D(camera);
+        BeginShaderMode(st->shader);
+        for (float x = 0; x < 4.0f; ++x) {
+          for (float z = 0; z < 4.0f; ++z) {
+            DrawCube(
+                (Vector3) {x + 1.25f, 0, -1.0f + z - 2.0f},
+                1.0f,
+                1.0f,
+                1.0f,
+                LIGHTGRAY
+                );
+            DrawCubeWires(
+                (Vector3) {x + 1.25f, 0, -1.0f + z - 2.0f},
+                1.0f,
+                1.0f,
+                1.0f,
+                BLACK
+                );
+            if (x == 2) {
+              DrawModelEx(
+                  st->pieces[(size_t) z],
+                  (Vector3) {x + 1.25f, 0, -1.0f + z - 2.0f},
+                  (Vector3) {0.0f, 0.0f, 0.0f},
+                  0.0f,
+                  (Vector3) {0.37f, 0.2f, 0.37},
+                  (long int) z % 2 == 0 ? BLUE : RED
+                  );
+            }
+          }
+        }
+        EndShaderMode();
+        EndMode3D();
       }
       break;
     case 4:
@@ -230,8 +377,70 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
       break;
     case 6:
       if (display_text_writing(game, menu, &rulesRect, RULE_SIX)) {
-        // montrer un exemple d'alignement de 4 pièces puis une animation de
-        // victoire
+        Camera3D camera = {
+          .position = (Vector3) {
+            7.5f,
+            20.0f,
+            7.5f
+          },
+          .target = (Vector3) {
+            0.0f,
+            0.0f,
+            0.0f
+          },
+          .up = (Vector3) {
+            0.0f,
+            1.0f,
+            0.0f
+          },
+          .fovy = 30.0f,
+          .projection = CAMERA_PERSPECTIVE
+        };
+        SetShaderValue(
+            st->shader,
+            st->shader.locs[SHADER_LOC_VECTOR_VIEW],
+            &camera.position,
+            SHADER_UNIFORM_VEC3
+            );
+        Light light = CreateLight(
+            LIGHT_POINT,
+            camera.position,
+            Vector3Zero(),
+            GRAY,
+            st->shader
+            );
+        BeginMode3D(camera);
+        BeginShaderMode(st->shader);
+        for (float x = 0; x < 4.0f; ++x) {
+          for (float z = 0; z < 4.0f; ++z) {
+            DrawCube(
+                (Vector3) {x + 1.25f, 0, -1.0f + z - 2.0f},
+                1.0f,
+                1.0f,
+                1.0f,
+                LIGHTGRAY
+                );
+            DrawCubeWires(
+                (Vector3) {x + 1.25f, 0, -1.0f + z - 2.0f},
+                1.0f,
+                1.0f,
+                1.0f,
+                BLACK
+                );
+            if (x == 2) {
+              DrawModelEx(
+                  st->pieces[(size_t) (z + 1) % 4],
+                  (Vector3) {x + 1.25f, 0, -1.0f + z - 2.0f},
+                  (Vector3) {0.0f, 0.0f, 0.0f},
+                  0.0f,
+                  (Vector3) {0.37f, 0.3f, 0.37},
+                  (long int) z % 2 != 0 ? BLUE : RED
+                  );
+            }
+          }
+        }
+        EndShaderMode();
+        EndMode3D();
       }
       break;
     default:
@@ -384,8 +593,7 @@ static void display_history(game_info_t *game, int left_padding, int offset,
       img_y + img_height + 30, 20, LIGHTGRAY);
 }
 
-void display_menu(game_info_t *game, menu_content_t *menu, Camera3D *camera,
-    Shader *shader) {
+void display_menu(game_info_t *game, menu_content_t *menu, state_t *st) {
   const int title_size = game->screen_h / TITLE_DIVIDER;
   int titleWidth = MeasureText(game->game_name, title_size);
   DrawText(game->game_name, titleWidth / TITLE_POS_DIV,
@@ -402,7 +610,7 @@ void display_menu(game_info_t *game, menu_content_t *menu, Camera3D *camera,
         menu->menuType = NONE;
       }
       display_rules(game, 2 * titleWidth / TITLE_POS_DIV + titleWidth,
-          titleWidth / TITLE_POS_DIV, button_f * 0.9f, menu, camera, shader);
+          titleWidth / TITLE_POS_DIV, button_f * 0.9f, menu, st);
       break;
     case HISTORY:
       if (IsKeyPressed(KEY_ESCAPE)) {
