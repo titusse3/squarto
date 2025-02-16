@@ -193,7 +193,6 @@ void draw_game(state_t *st, game_info_t *game, uint16_t *placed,
       = LoadRenderTexture(game->screen_h / 2, game->screen_h / 1.5);
     st->mk_screen = false;
   }
-  >> >> >> > 03f1fb7(Add selection pieces frame)
   Camera3D camera = {
     .position = (Vector3) {
       7.5f, 20.0f, 7.5f
