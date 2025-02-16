@@ -185,19 +185,13 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
       if (display_text_writing(game, menu, &rulesRect, RULE_ONE)) {
         Camera3D camera = {
           .position = (Vector3) {
-            7.5f,
-            20.0f,
-            7.5f
+            7.5f, 20.0f, 7.5f
           },
           .target = (Vector3) {
-            0.0f,
-            0.0f,
-            0.0f
+            0.0f, 0.0f, 0.0f
           },
           .up = (Vector3) {
-            0.0f,
-            1.0f,
-            0.0f
+            0.0f, 1.0f, 0.0f
           },
           .fovy = 30.0f,
           .projection = CAMERA_PERSPECTIVE
@@ -215,49 +209,61 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
             GRAY,
             st->shader
             );
+        RenderTexture screen = LoadRenderTexture(
+            rulesRect.width,
+            rulesRect.height / 1.5
+            );
         float n = 0.75f - (MIN(menu->content.rules_values.rules_frames,
             150)) / 200.0f;
+        BeginTextureMode(screen);
+        ClearBackground(BLANK);
         BeginMode3D(camera);
         BeginShaderMode(st->shader);
         for (float x = 0; x < 4.0f; ++x) {
           for (float z = 0; z < 4.0f; ++z) {
             DrawCube(
-                (Vector3) {3.0f - n + x - 2.0f, 0, -1.0f - n + z - 2.25f},
-                1.0f,
-                1.0f,
-                1.0f,
+                (Vector3) {(x - n) * 1.5f - 2.25f, 0.0f,
+                           (z - n) * 1.5f - 2.25f},
+                1.5f,
+                1.5f,
+                1.5f,
                 LIGHTGRAY
                 );
             DrawCubeWires(
-                (Vector3) {3.0f - n + x - 2.0f, 0, -1.0f - n + z - 2.25f},
-                1.0f,
-                1.0f,
-                1.0f,
+                (Vector3) {(x - n) * 1.5f - 2.25f, 0.0f,
+                           (z - n) * 1.5f - 2.25f},
+                1.5f,
+                1.5f,
+                1.5f,
                 BLACK
                 );
           }
         }
         EndShaderMode();
         EndMode3D();
+        EndTextureMode();
+        DrawTextureRec(
+            screen.texture,
+            (Rectangle) {0.0f,
+                         0.0f,
+                         (float) screen.texture.width,
+                         (float) -screen.texture.height},
+            (Vector2){ rulesRect.x, rulesRect.y + rulesRect.height / 4 },
+            WHITE
+            );
       }
       break;
     case 2:
       if (display_text_writing(game, menu, &rulesRect, RULE_TWO)) {
         Camera3D camera = {
           .position = (Vector3) {
-            -30.0f,
-            20.0f,
-            10.0f
+            7.5f, 20.0f, 7.5f
           },
           .target = (Vector3) {
-            0.0f,
-            0.0f,
-            0.0f
+            0.0f, 0.0f, 0.0f
           },
           .up = (Vector3) {
-            0.0f,
-            1.0f,
-            0.0f
+            0.0f, 1.0f, 0.0f
           },
           .fovy = 30.0f,
           .projection = CAMERA_PERSPECTIVE
@@ -275,13 +281,19 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
             GRAY,
             st->shader
             );
+        RenderTexture screen = LoadRenderTexture(
+            rulesRect.width,
+            rulesRect.height / 1.5
+            );
+        BeginTextureMode(screen);
+        ClearBackground(BLANK);
         BeginMode3D(camera);
         BeginShaderMode(st->shader);
         for (float x = 0; x < 4.0f; ++x) {
           for (float z = 0; z < 4.0f; ++z) {
             DrawModelEx(
                 st->pieces[(size_t) x],
-                (Vector3) {x * 2.0f, -2.0f, z * 2.0f + 1.5f},
+                (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
                 (Vector3) {0.0f, 0.0f, 0.0f},
                 0.0f,
                 (Vector3) {0.55f,
@@ -293,25 +305,29 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
         }
         EndShaderMode();
         EndMode3D();
+        EndTextureMode();
+        DrawTextureRec(
+            screen.texture,
+            (Rectangle) {0.0f,
+                         0.0f,
+                         (float) screen.texture.width,
+                         (float) -screen.texture.height},
+            (Vector2){ rulesRect.x, rulesRect.y + rulesRect.height / 4 },
+            WHITE
+            );
       }
       break;
     case 3:
       if (display_text_writing(game, menu, &rulesRect, RULE_THREE)) {
         Camera3D camera = {
           .position = (Vector3) {
-            7.5f,
-            20.0f,
-            7.5f
+            7.5f, 20.0f, 7.5f
           },
           .target = (Vector3) {
-            0.0f,
-            0.0f,
-            0.0f
+            0.0f, 0.0f, 0.0f
           },
           .up = (Vector3) {
-            0.0f,
-            1.0f,
-            0.0f
+            0.0f, 1.0f, 0.0f
           },
           .fovy = 30.0f,
           .projection = CAMERA_PERSPECTIVE
@@ -329,31 +345,37 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
             GRAY,
             st->shader
             );
+        RenderTexture screen = LoadRenderTexture(
+            rulesRect.width,
+            rulesRect.height / 1.5
+            );
+        BeginTextureMode(screen);
+        ClearBackground(BLANK);
         BeginMode3D(camera);
         BeginShaderMode(st->shader);
         for (float x = 0; x < 4.0f; ++x) {
           for (float z = 0; z < 4.0f; ++z) {
             DrawCube(
-                (Vector3) {x + 1.25f, 0, -1.0f + z - 2.0f},
-                1.0f,
-                1.0f,
-                1.0f,
-                LIGHTGRAY
+                (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
+                1.5f,
+                1.5f,
+                1.5f,
+                st->c_select[0] == x && st->c_select[1] == z ? GREEN : LIGHTGRAY
                 );
             DrawCubeWires(
-                (Vector3) {x + 1.25f, 0, -1.0f + z - 2.0f},
-                1.0f,
-                1.0f,
-                1.0f,
+                (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
+                1.5f,
+                1.5f,
+                1.5f,
                 BLACK
                 );
             if (x == 2) {
               DrawModelEx(
                   st->pieces[(size_t) z],
-                  (Vector3) {x + 1.25f, 0, -1.0f + z - 2.0f},
+                  (Vector3) {x * 1.5f - 2.25f, 0.75f, z * 1.5f - 2.25f},
                   (Vector3) {0.0f, 0.0f, 0.0f},
                   0.0f,
-                  (Vector3) {0.37f, 0.2f, 0.37},
+                  (Vector3) {0.55f, 0.2f, 0.55},
                   (long int) z % 2 == 0 ? BLUE : RED
                   );
             }
@@ -361,6 +383,16 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
         }
         EndShaderMode();
         EndMode3D();
+        EndTextureMode();
+        DrawTextureRec(
+            screen.texture,
+            (Rectangle) {0.0f,
+                         0.0f,
+                         (float) screen.texture.width,
+                         (float) -screen.texture.height},
+            (Vector2){ rulesRect.x, rulesRect.y + rulesRect.height / 4 },
+            WHITE
+            );
       }
       break;
     case 4:
@@ -379,19 +411,13 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
       if (display_text_writing(game, menu, &rulesRect, RULE_SIX)) {
         Camera3D camera = {
           .position = (Vector3) {
-            7.5f,
-            20.0f,
-            7.5f
+            7.5f, 20.0f, 7.5f
           },
           .target = (Vector3) {
-            0.0f,
-            0.0f,
-            0.0f
+            0.0f, 0.0f, 0.0f
           },
           .up = (Vector3) {
-            0.0f,
-            1.0f,
-            0.0f
+            0.0f, 1.0f, 0.0f
           },
           .fovy = 30.0f,
           .projection = CAMERA_PERSPECTIVE
@@ -409,31 +435,37 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
             GRAY,
             st->shader
             );
+        RenderTexture screen = LoadRenderTexture(
+            rulesRect.width,
+            rulesRect.height / 1.5
+            );
+        BeginTextureMode(screen);
+        ClearBackground(BLANK);
         BeginMode3D(camera);
         BeginShaderMode(st->shader);
         for (float x = 0; x < 4.0f; ++x) {
           for (float z = 0; z < 4.0f; ++z) {
             DrawCube(
-                (Vector3) {x + 1.25f, 0, -1.0f + z - 2.0f},
-                1.0f,
-                1.0f,
-                1.0f,
-                LIGHTGRAY
+                (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
+                1.5f,
+                1.5f,
+                1.5f,
+                st->c_select[0] == x && st->c_select[1] == z ? GREEN : LIGHTGRAY
                 );
             DrawCubeWires(
-                (Vector3) {x + 1.25f, 0, -1.0f + z - 2.0f},
-                1.0f,
-                1.0f,
-                1.0f,
+                (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
+                1.5f,
+                1.5f,
+                1.5f,
                 BLACK
                 );
             if (x == 2) {
               DrawModelEx(
                   st->pieces[(size_t) (z + 1) % 4],
-                  (Vector3) {x + 1.25f, 0, -1.0f + z - 2.0f},
+                  (Vector3) {x * 1.5f - 2.25f, 0.75f, z * 1.5f - 2.25f},
                   (Vector3) {0.0f, 0.0f, 0.0f},
                   0.0f,
-                  (Vector3) {0.37f, 0.3f, 0.37},
+                  (Vector3) {0.55f, 0.35f, 0.55},
                   (long int) z % 2 != 0 ? BLUE : RED
                   );
             }
@@ -441,6 +473,16 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
         }
         EndShaderMode();
         EndMode3D();
+        EndTextureMode();
+        DrawTextureRec(
+            screen.texture,
+            (Rectangle) {0.0f,
+                         0.0f,
+                         (float) screen.texture.width,
+                         (float) -screen.texture.height},
+            (Vector2){ rulesRect.x, rulesRect.y + rulesRect.height / 4 },
+            WHITE
+            );
       }
       break;
     default:
