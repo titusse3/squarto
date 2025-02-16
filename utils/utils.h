@@ -11,6 +11,7 @@ typedef struct {
   Shader shader;
   Model pieces[NB_PIECES];
   float c_select[2];
+  RenderTexture subscreen;
 } state_t;
 
 #endif

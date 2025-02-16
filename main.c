@@ -23,7 +23,7 @@ int main(void) {
   game_info_t game_info = {
     .screen_w = GetScreenWidth(),
     .screen_h = GetScreenHeight(),
-    .game_name = "Quarto",
+    .game_name = GAME_NAME,
     .exit_wind = false,
     .play_music = true
   };
@@ -47,7 +47,8 @@ int main(void) {
     .c_select = {
       UNDEF_COORD,
       UNDEF_COORD
-    }
+    },
+    .subscreen = LoadRenderTexture(game_info.screen_w, game_info.screen_h)
   };
   //
   st.shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(
@@ -136,19 +137,13 @@ int main(void) {
 void draw_game(state_t *st, uint16_t *placed) {
   Camera3D camera = {
     .position = (Vector3) {
-      7.5f,
-      20.0f,
-      7.5f
+      7.5f, 20.0f, 7.5f
     },
     .target = (Vector3) {
-      0.0f,
-      0.0f,
-      0.0f
+      0.0f, 0.0f, 0.0f
     },
     .up = (Vector3) {
-      0.0f,
-      1.0f,
-      0.0f
+      0.0f, 1.0f, 0.0f
     },
     .fovy = 30.0f,
     .projection = CAMERA_PERSPECTIVE
@@ -180,9 +175,11 @@ void draw_game(state_t *st, uint16_t *placed) {
         ray = GetScreenToWorldRay(GetMousePosition(), camera);
         collision = GetRayCollisionBox(
             ray,
-            (BoundingBox) { (Vector3) { x * 1.5f - 1.25f, 1.5f,
+            (BoundingBox) { (Vector3) { x * 1.5f - 1.25f,
+                                        1.5f,
                                         z * 1.5f - 1.25f },
-                            (Vector3) { x * 1.5f - 3.25f, 1.5f,
+                            (Vector3) { x * 1.5f - 3.25f,
+                                        1.5f,
                                         z * 1.5f - 3.25f }}
             );
       }
