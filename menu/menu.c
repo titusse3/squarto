@@ -401,6 +401,21 @@ static void display_rule_frame_6(menu_content_t *menu, state_t *st,
       );
 }
 
+static Rectangle rect_top_corner_title(const char *title, Rectangle parent,
+    int font_size, Color color_rect) {
+  int w_offset = 100;
+  int h_offset = 10;
+  const int title_size = MeasureText(title, font_size);
+  Rectangle rect = {
+    parent.x, parent.y, title_size + w_offset, font_size + h_offset
+  };
+  DrawRectangleRec(rect, color_rect);
+  DrawText(title,
+      rect.x + rect.width / 2 - title_size / 2,
+      rect.y + rect.height / 2 - font_size / 2, font_size, WHITE);
+  return rect;
+}
+
 static void display_rules(game_info_t *game, int left_padding, int offset,
     int font_size, menu_content_t *menu, state_t *st) {
   float rectWidth = game->screen_w - left_padding - offset;
@@ -425,14 +440,8 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
   DrawRectangleLinesEx(rulesRect, 2, WHITE);
   //
   {
-    Rectangle pink = {
-      left_padding, (game->screen_h - rectHeight) / 2,
-      MeasureText("Règle", font_size) + 2 * offset, font_size + offset / 4
-    };
-    DrawRectangleRec(pink, PINK);
-    DrawText("Règle",
-        pink.x + pink.width / 2 - MeasureText("Règle", font_size) / 2,
-        rulesRect.y + pink.height / 2 - font_size / 2, font_size, WHITE);
+    Rectangle pink = rect_top_corner_title("Rules", rulesRect, font_size,
+        PINK);
     //
     float triWidth = rulesRect.width * 0.15f;
     float triHeight = rulesRect.height * 0.15f;
@@ -524,7 +533,7 @@ static void display_menu_button(int titleWidth, game_info_t *game,
     Vector2 text_size = MeasureTextEx(font, btn_title[i], fontSize, spacing);
     Rectangle rect = {
       titleWidth + titleWidth / TITLE_POS_DIV - button_w,
-      game->screen_h / 2 + (i + 1) * game->screen_h / SPACE_BETWEEN_BUTTONS,
+      game->screen_h / 2 + i * game->screen_h / SPACE_BETWEEN_BUTTONS,
       button_w, button_f
     };
     bool is_hover = CheckCollisionPointRec(GetMousePosition(), rect);
@@ -572,19 +581,6 @@ static void display_menu_button(int titleWidth, game_info_t *game,
     DrawTextEx(font, btn_title[i], (Vector2){ x, y }, fontSize, spacing,
         text_color);
   }
-}
-
-static Rectangle rect_top_corner_title(const char *title, Rectangle parent,
-    int font_size, Color color_rect) {
-  const int title_size = MeasureText(title, font_size);
-  Rectangle rect = {
-    parent.x, parent.y, title_size, font_size
-  };
-  DrawRectangleRec(rect, color_rect);
-  DrawText(title,
-      rect.x + rect.width / 2 - title_size / 2,
-      rect.y + rect.height / 2 - font_size / 2, font_size, WHITE);
-  return rect;
 }
 
 static void display_history(game_info_t *game, int left_padding, int offset,
