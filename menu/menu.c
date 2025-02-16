@@ -657,11 +657,12 @@ static void display_history(game_info_t *game, int left_padding, int offset,
   DrawTexture(menu->content.history_values.history_texture, (int) img_x,
       (int) img_y, WHITE);
   //
-  int l = MeasureText(HISTORY_TXT, 20);
+  int font_size_txt = rulesRect.height / 30;
+  int l = MeasureText(HISTORY_TXT, font_size_txt);
   int number_to_display = menu->content.history_values.history_frames / 3;
   DrawText(TextSubtext(HISTORY_TXT, 0, number_to_display),
       pink.x + (rulesRect.width - l) / 2,
-      img_y + img_height + 30, 20, LIGHTGRAY);
+      img_y + img_height + 30, font_size_txt, LIGHTGRAY);
 }
 
 void display_menu(game_info_t *game, menu_content_t *menu, state_t *st) {
