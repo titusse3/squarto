@@ -15,6 +15,9 @@
 
 static void draw_game(state_t *st, uint16_t *placed);
 
+static void display_background(Texture2D background, Texture2D foreground,
+    float scrollingBack, float scrollingFore, float scale_bg, float scale_fg);
+
 int main(void) {
   InitWindow(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, GAME_NAME);
   SetExitKey(0);
@@ -65,13 +68,26 @@ int main(void) {
   SetMusicVolume(music, 0.1f);
   //
   Texture2D background = LoadTexture("resources/image/blue-back.png");
-  Texture2D stars = LoadTexture("resources/image/blue-stars.png");
+  Texture2D foreground = LoadTexture("resources/image/blue-stars.png");
   //
   uint16_t placed = 0;
   //
   float scrollingBack = 0.0f;
-  float scrollingMid = 0.0f;
+  float scrollingFore = 0.0f;
+  float scale_bg = (float) game_info.screen_w / background.width;
+  float scale_fg = (float) game_info.screen_w / foreground.width;
+  //
   while (true) {
+    //
+    scrollingBack -= 0.7f;
+    scrollingFore -= 1.0f;
+    if (scrollingBack <= -background.width * scale_bg) {
+      scrollingBack = 0;
+    }
+    if (scrollingFore <= -foreground.width * scale_fg) {
+      scrollingFore = 0;
+    }
+    //
     game_info.screen_w = GetScreenWidth();
     game_info.screen_h = GetScreenHeight();
     if (WindowShouldClose()) {
@@ -96,29 +112,12 @@ int main(void) {
     } else if (game.menuType == HISTORY) {
       ++game.content.history_values.history_frames;
     }
-    scrollingBack -= 0.1f;
-    scrollingMid -= 0.1f;
-    if (scrollingBack <= -background.width * 2) {
-      scrollingBack = 0;
-    }
-    if (scrollingMid <= -stars.width * 2) {
-      scrollingMid = 0;
-    }
     BeginDrawing();
-    // a refaire
-    ClearBackground(GetColor(0x052c46ff));
-    DrawTextureEx(background, (Vector2){ scrollingMid, 0 }, 0.0f,
-        (float) game_info.screen_w / background.width, WHITE);
-    DrawTextureEx(background,
-        (Vector2){ background.width + scrollingMid, 0 }, 0.0f,
-        (float) game_info.screen_w / background.width, WHITE);
-    DrawTextureEx(stars, (Vector2){ scrollingBack, 0 }, 0.0f,
-        (float) game_info.screen_w / stars.width, WHITE);
-    DrawTextureEx(stars,
-        (Vector2){ stars.width + scrollingBack, 0 }, 0.0f,
-        (float) game_info.screen_w / stars.width, WHITE);
-    DrawRectangle(0, 0, game_info.screen_w, game_info.screen_h,
-        Fade(BLACK, 0.25f));
+    display_background(background, foreground,
+        scrollingBack,
+        scrollingFore,
+        scale_bg, scale_fg);
+    //
     if (game.currentScreen == GAME) {
       draw_game(&st, &placed);
     } else {
@@ -132,6 +131,35 @@ int main(void) {
   CloseAudioDevice();
   CloseWindow();
   return EXIT_SUCCESS;
+}
+
+void display_background(Texture2D background, Texture2D foreground,
+    float scrollingBack, float scrollingFore, float scale_bg, float scale_fg) {
+  ClearBackground(GetColor(0x052c46ff));
+  DrawTextureEx(background, (Vector2){ scrollingBack, 0 }, 0.0f,
+      scale_bg, WHITE);
+  DrawTextureEx(background,
+      (Vector2){ background.width *scale_bg + scrollingBack, 0 }, 0.0f,
+      scale_bg, WHITE);
+  DrawTextureEx(background,
+      (Vector2){ scrollingBack, background.height * scale_bg }, 0.0f,
+      scale_bg, WHITE);
+  DrawTextureEx(background,
+      (Vector2){ background.width *scale_bg + scrollingBack,
+                 background.height *scale_bg }, 0.0f,
+      scale_bg, WHITE);
+  DrawTextureEx(foreground, (Vector2){ scrollingFore, 0 }, 0.0f,
+      scale_fg, WHITE);
+  DrawTextureEx(foreground,
+      (Vector2){ foreground.width *scale_fg + scrollingFore, 0 }, 0.0f,
+      scale_fg, WHITE);
+  DrawTextureEx(foreground,
+      (Vector2){ scrollingFore, foreground.height * scale_fg }, 0.0f,
+      scale_fg, WHITE);
+  DrawTextureEx(foreground,
+      (Vector2){ foreground.width *scale_fg + scrollingFore,
+                 foreground.height *scale_fg }, 0.0f,
+      scale_fg, WHITE);
 }
 
 void draw_game(state_t *st, uint16_t *placed) {
