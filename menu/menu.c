@@ -519,127 +519,58 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
   }
 }
 
-// static void display_menu_button(int titleWidth, game_info_t *game,
-//   int button_f, int button_w, menu_content_t *menu) {
-
 static void display_menu_button(int titleWidth, game_info_t *game,
     int button_f, int button_w, menu_content_t *menu) {
-  // Définir la taille de la police et l'espacement
   float fontSize = 55.0f;
   float spacing = 1.0f;
   Font font = GetFontDefault();
-  Vector2 histoireTextSize = MeasureTextEx(font, "Histoire", fontSize,
-      spacing);
-  Rectangle rectJouer = {
-    titleWidth + titleWidth / TITLE_POS_DIV - button_w,
-    game->screen_h / 2,
-    button_w,
-    button_f
+  const char *btn_title[4] = {
+    "Play", "Rules", "Histoire", "Quit"
   };
-  bool hoverJouer = CheckCollisionPointRec(GetMousePosition(), rectJouer);
-  Color jouerColor = WHITE;  // Couleur par défaut
-  if (hoverJouer) {
-    if (menu->sound_play != PLAY && !IsSoundPlaying(menu->sound)) {
-      PlaySound(menu->sound);
-      menu->sound_play = PLAY;
-    }
-    // Changer la couleur selon l'état (survol ou pressé)
-    jouerColor = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
-    if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
-      menu->currentScreen = GAME;
-      menu->menuType = NONE;
-      menu->sound_play = NONE;
-    }
-  }
-  // Centrage du texte dans le rectangle
-  Vector2 jouerTextSize = MeasureTextEx(font, "Jouer", fontSize, spacing);
-  float jouerTextX = rectJouer.x + (rectJouer.width - jouerTextSize.x);
-  float jouerTextY = rectJouer.y + (rectJouer.height - jouerTextSize.y);
-  DrawTextEx(font, "Jouer", (Vector2){ jouerTextX, jouerTextY }, fontSize,
-      spacing, jouerColor);
-  //
-  Rectangle rectRegles = {
-    titleWidth + titleWidth / TITLE_POS_DIV - button_w,
-    game->screen_h / 2 + game->screen_h / SPACE_BETWEEN_BUTTONS,
-    button_w,
-    button_f
+  btn_t btn_type[4] = {
+    PLAY, RULES, HISTORY, QUIT
   };
-  bool hoverRegles = CheckCollisionPointRec(GetMousePosition(), rectRegles);
-  Color reglesColor = WHITE;
-  if (hoverRegles) {
-    if (menu->sound_play != RULES && !IsSoundPlaying(menu->sound)) {
-      PlaySound(menu->sound);
-      menu->sound_play = RULES;
+  for (size_t i = 0; i < 4; ++i) {
+    Vector2 text_size = MeasureTextEx(font, btn_title[i], fontSize, spacing);
+    Rectangle rect = {
+      titleWidth + titleWidth / TITLE_POS_DIV - button_w,
+      game->screen_h / 2 + (i + 1) * game->screen_h / SPACE_BETWEEN_BUTTONS,
+      button_w,
+      button_f
+    };
+    bool is_hover = CheckCollisionPointRec(GetMousePosition(), rect);
+    Color text_color = WHITE;
+    if (is_hover) {
+      if (menu->sound_play != btn_type[i] && !IsSoundPlaying(menu->sound)) {
+        PlaySound(menu->sound);
+        menu->sound_play = btn_type[i];
+      }
+      text_color = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
+      if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+        if (btn_type[i] == PLAY) {
+          menu->currentScreen = GAME;
+          menu->menuType = NONE;
+        } else if (btn_type[i] == RULES) {
+          menu->menuType = RULES;
+          menu->content.rules_values.rules_num = 0;
+          menu->content.rules_values.rules_frames = 0;
+          menu->content.rules_values.rules_textures = load_rules_ressources();
+        } else if (btn_type[i] == HISTORY) {
+          menu->menuType = HISTORY;
+          menu->content.history_values.history_frames = 0;
+          menu->content.history_values.history_texture
+            = LoadTexture("resources/image/histoire.png");
+        } else if (btn_type[i] == QUIT) {
+          game->exit_wind = true;
+        }
+        menu->sound_play = NONE;
+      }
     }
-    reglesColor = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
-    if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
-      menu->menuType = RULES;
-      menu->content.rules_values.rules_num = 0;
-      menu->content.rules_values.rules_frames = 0;
-      menu->content.rules_values.rules_textures = load_rules_ressources();
-      menu->sound_play = NONE;
-    }
+    float x = rect.x + (rect.width - text_size.x);
+    float y = rect.y + (rect.height - text_size.y);
+    DrawTextEx(font, btn_title[i], (Vector2){ x, y }, fontSize, spacing,
+        text_color);
   }
-  Vector2 reglesTextSize = MeasureTextEx(font, "Règles", fontSize, spacing);
-  float reglesTextX = rectRegles.x + (rectRegles.width - reglesTextSize.x);
-  float reglesTextY = rectRegles.y + (rectRegles.height - reglesTextSize.y);
-  DrawTextEx(font, "Règles", (Vector2){ reglesTextX, reglesTextY }, fontSize,
-      spacing, reglesColor);
-  //
-  Rectangle rectHistoire = {
-    titleWidth + titleWidth / TITLE_POS_DIV - button_w,
-    game->screen_h / 2 + 2 * game->screen_h / SPACE_BETWEEN_BUTTONS,
-    button_w,
-    button_f
-  };
-  bool hoverHistoire = CheckCollisionPointRec(GetMousePosition(),
-      rectHistoire);
-  Color histoireColor = WHITE;
-  if (hoverHistoire) {
-    if (menu->sound_play != HISTORY && !IsSoundPlaying(menu->sound)) {
-      PlaySound(menu->sound);
-      menu->sound_play = HISTORY;
-    }
-    histoireColor = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
-    if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
-      menu->menuType = HISTORY;
-      menu->content.history_values.history_frames = 0;
-      menu->content.history_values.history_texture
-        = LoadTexture("resources/image/histoire.png");
-      menu->sound_play = NONE;
-    }
-  }
-  float histoireTextX = rectHistoire.x
-      + (rectHistoire.width - histoireTextSize.x);
-  float histoireTextY = rectHistoire.y
-      + (rectHistoire.height - histoireTextSize.y);
-  DrawTextEx(font, "Histoire", (Vector2){ histoireTextX, histoireTextY },
-      fontSize, spacing, histoireColor);
-  //
-  Rectangle rectQuit = {
-    titleWidth + titleWidth / TITLE_POS_DIV - button_w,
-    game->screen_h / 2 + 3 * game->screen_h / SPACE_BETWEEN_BUTTONS,
-    button_w,
-    button_f
-  };
-  bool hoverQuit = CheckCollisionPointRec(GetMousePosition(), rectQuit);
-  Color quitColor = WHITE;
-  if (hoverQuit) {
-    if (menu->sound_play != HISTORY && !IsSoundPlaying(menu->sound)) {
-      PlaySound(menu->sound);
-      menu->sound_play = HISTORY;
-    }
-    quitColor = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
-    if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
-      game->exit_wind = true;
-    }
-  }
-  Vector2 quitTextSize = MeasureTextEx(font, "Quit", fontSize, spacing);
-  float quitTextX = rectQuit.x + (rectQuit.width - quitTextSize.x);
-  float quitTextY = rectQuit.y + (rectQuit.height - quitTextSize.y);
-  DrawTextEx(font, "Quit", (Vector2){ quitTextX, quitTextY }, fontSize,
-      spacing, quitColor);
-  //
 }
 
 static void display_history(game_info_t *game, int left_padding, int offset,
