@@ -389,7 +389,7 @@ static void display_rule_frame_5(menu_content_t *menu, state_t *st,
           1.5f,
           1.5f,
           1.5f,
-          st->c_select[0] == x && st->c_select[1] == z ? GREEN : LIGHTGRAY
+          LIGHTGRAY
           );
       DrawCubeWires(
           (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
@@ -398,18 +398,28 @@ static void display_rule_frame_5(menu_content_t *menu, state_t *st,
           1.5f,
           BLACK
           );
-      if (x == 2) {
-        DrawModelEx(
-            st->pieces[(size_t) z],
-            (Vector3) {x * 1.5f - 2.25f, 0.75f, z * 1.5f - 2.25f},
-            (Vector3) {0.0f, 0.0f, 0.0f},
-            0.0f,
-            (Vector3) {0.55f, 0.2f, 0.55},
-            (long int) z % 2 == 0 ? BLUE : RED
-            );
-      }
     }
   }
+  float t = (menu->content.rules_values.rules_frames % 60) / 60.0f;
+  Vector3 start_pos = {
+    2 * 1.5f - 2.25f, 5.0f, 2 * 1.5f - 2.25f
+  };
+  Vector3 end_pos = {
+    2 * 1.5f - 2.25f, 0.75f, 2 * 1.5f - 2.25f
+  };
+  Vector3 current_pos = {
+    start_pos.x,
+    start_pos.y + (end_pos.y - start_pos.y) * t,
+    start_pos.z
+  };
+  DrawModelEx(
+      st->pieces[0],
+      current_pos,
+      (Vector3) {0.0f, 0.0f, 0.0f},
+      0.0f,
+      (Vector3) {0.55f, 0.2f, 0.55},
+      RED
+      );
   EndShaderMode();
   EndMode3D();
   EndTextureMode();
