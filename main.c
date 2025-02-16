@@ -13,7 +13,8 @@
 #define BASE_SCREEN_HEIGHT 720
 #define GAME_NAME "Quarto"
 
-static void draw_game(state_t *st, uint16_t *placed);
+static void draw_game(state_t *st, game_info_t *game, uint16_t *placed,
+    uint16_t *used);
 
 static void display_background(Texture2D background, Texture2D foreground,
     float scrollingBack, float scrollingFore, float scale_bg, float scale_fg);
@@ -43,16 +44,17 @@ int main(void) {
         "resources/shaders/glsl330/lighting.fs"
         ),
     .pieces = {
-      LoadModel("resources/model/HOLE_ROUND.obj"),
+      LoadModel("resources/model/PLAIN_SQUARE.obj"),
       LoadModel("resources/model/PLAIN_ROUND.obj"),
       LoadModel("resources/model/HOLE_SQUARE.obj"),
-      LoadModel("resources/model/PLAIN_SQUARE.obj")
+      LoadModel("resources/model/HOLE_ROUND.obj")
     },
     .c_select = {
       UNDEF_COORD,
       UNDEF_COORD
     },
-    .subscreen = LoadRenderTexture(game_info.screen_w, game_info.screen_h)
+    .mk_screen = true,
+    .screens = nullptr
   };
   //
   st.shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(
@@ -74,6 +76,7 @@ int main(void) {
   Texture2D foreground = LoadTexture("resources/image/blue-stars.png");
   //
   uint16_t placed = 0;
+  uint16_t used = 0b0000'0000'0000'0001;
   //
   float scrollingBack = 0.0f;
   float scrollingFore = 0.0f;
@@ -98,6 +101,12 @@ int main(void) {
     if (WindowShouldClose()) {
       game_info.exit_wind = true;
     }
+    if (IsWindowResized()) {
+      if (!st.mk_screen) {
+        free(st.screens);
+        st.mk_screen = true;
+      }
+    }
     if (game_info.exit_wind) {
       if (IsKeyPressed(KEY_Y)) {
         break;
@@ -111,6 +120,10 @@ int main(void) {
     if (game.currentScreen == GAME) {
       if (IsKeyPressed(KEY_ESCAPE)) {
         game.currentScreen = MENU;
+        if (!st.mk_screen) {
+          free(st.screens);
+          st.mk_screen = true;
+        }
       }
     } else if (game.menuType == RULES) {
       ++game.content.rules_values.rules_frames;
@@ -124,7 +137,7 @@ int main(void) {
         scale_bg, scale_fg);
     //
     if (game.currentScreen == GAME) {
-      draw_game(&st, &placed);
+      draw_game(&st, &game_info, &placed, &used);
     } else {
       display_menu(&game_info, &game, &st);
     }
@@ -167,7 +180,20 @@ void display_background(Texture2D background, Texture2D foreground,
       scale_fg, WHITE);
 }
 
-void draw_game(state_t *st, uint16_t *placed) {
+void draw_game(state_t *st, game_info_t *game, uint16_t *placed,
+    uint16_t *used) {
+  if (st->mk_screen) {
+    st->screens = malloc(sizeof *st->screens);
+    if (st->screens == nullptr) {
+      // error d'alloc
+      display_exit_menu(game);
+      return;
+    }
+    st->screens[0]
+      = LoadRenderTexture(game->screen_h / 2, game->screen_h / 1.5);
+    st->mk_screen = false;
+  }
+  >> >> >> > 03f1fb7(Add selection pieces frame)
   Camera3D camera = {
     .position = (Vector3) {
       7.5f, 20.0f, 7.5f
@@ -242,7 +268,7 @@ void draw_game(state_t *st, uint16_t *placed) {
           BLACK
           );
       if (((*placed >> (int) (x * 4 + z)) & 1) != 0) {
-        srand(x * 4 + z);
+        srand(x * 4 + z + rand());
         DrawModelEx(
             st->pieces[(size_t) ((size_t) rand() % 4)],
             (Vector3) {x * 1.5f - 2.25f, 0.75f, z * 1.5f - 2.25f},
@@ -258,4 +284,55 @@ void draw_game(state_t *st, uint16_t *placed) {
   }
   EndShaderMode();
   EndMode3D();
+  camera.position = (Vector3) {
+    21.0f, 5.25f, 4.0f
+  };
+  camera.target = (Vector3) {
+    0.0f, 5.25f, 4.0f
+  };
+  SetShaderValue(
+      st->shader,
+      st->shader.locs[SHADER_LOC_VECTOR_VIEW],
+      &camera.position,
+      SHADER_UNIFORM_VEC3
+      );
+  light = CreateLight(
+      LIGHT_POINT,
+      camera.position,
+      Vector3Zero(),
+      GRAY,
+      st->shader
+      );
+  BeginTextureMode(*st->screens);
+  ClearBackground(BLANK);
+  BeginMode3D(camera);
+  BeginShaderMode(st->shader);
+  for (size_t x = 0; x < 4.0f; ++x) {
+    for (size_t z = 0; z < 4.0f; ++z) {
+      if ((*used >> (x * 4 + z) & 0b1) == 0) {
+        DrawModelEx(
+            st->pieces[x],
+            (Vector3) {0.0f, x * 2.85f + 0.25f, z * 2.0f + 1.0f},
+            (Vector3) {0.0f, 0.0f, -1.0f},
+            32.0f,
+            (Vector3) {0.55f,
+                       z % 2 == 1.0f ? 0.2f : 0.1f,
+                       0.55f},
+            z >= 2.0f ? BLUE : RED
+            );
+      }
+    }
+  }
+  EndShaderMode();
+  EndMode3D();
+  EndTextureMode();
+  DrawTextureRec(
+      st->screens->texture,
+      (Rectangle) {0.0f,
+                   0.0f,
+                   (float) st->screens->texture.width,
+                   (float) -st->screens->texture.height},
+      (Vector2) {0.0f, 0.0f},
+      WHITE
+      );
 }

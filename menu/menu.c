@@ -151,7 +151,7 @@ static void display_rule_frame_1(menu_content_t *menu, state_t *st,
       );
   float n = 0.75f - (MIN(menu->content.rules_values.rules_frames,
       150)) / 200.0f;
-  BeginTextureMode(st->subscreen);
+  BeginTextureMode(*st->screens);
   ClearBackground(BLANK);
   BeginMode3D(camera);
   BeginShaderMode(st->shader);
@@ -178,19 +178,14 @@ static void display_rule_frame_1(menu_content_t *menu, state_t *st,
   EndShaderMode();
   EndMode3D();
   EndTextureMode();
-  DrawTexturePro(
-      st->subscreen.texture,
+  DrawTextureRec(
+      st->screens->texture,
       (Rectangle) {0.0f,
                    0.0f,
-                   (float) st->subscreen.texture.width,
-                   (float) -st->subscreen.texture.height},
-      (Rectangle) {rulesRect->x + 50.0f,
-                   rulesRect->y + rulesRect->height / 4,
-                   rulesRect->width - 100.0f,
-                   (rulesRect->width - 100.0f) * st->subscreen.texture.height
-                   / st->subscreen.texture.width},
-      (Vector2) {0.0f, 0.0f},
-      0.0f,
+                   (float) st->screens->texture.width,
+                   (float) -st->screens->texture.height},
+      (Vector2) {rulesRect->x,
+                 rulesRect->y + rulesRect->height / 4},
       WHITE
       );
 }
@@ -223,7 +218,7 @@ static void display_rule_frame_2(menu_content_t *menu, state_t *st,
       GRAY,
       st->shader
       );
-  BeginTextureMode(st->subscreen);
+  BeginTextureMode(*st->screens);
   ClearBackground(BLANK);
   BeginMode3D(camera);
   BeginShaderMode(st->shader);
@@ -244,19 +239,14 @@ static void display_rule_frame_2(menu_content_t *menu, state_t *st,
   EndShaderMode();
   EndMode3D();
   EndTextureMode();
-  DrawTexturePro(
-      st->subscreen.texture,
+  DrawTextureRec(
+      st->screens->texture,
       (Rectangle) {0.0f,
                    0.0f,
-                   (float) st->subscreen.texture.width,
-                   (float) -st->subscreen.texture.height},
-      (Rectangle) {rulesRect->x + 50.0f,
-                   rulesRect->y + rulesRect->height / 4,
-                   rulesRect->width - 100.0f,
-                   (rulesRect->width - 100.0f) * st->subscreen.texture.height
-                   / st->subscreen.texture.width},
-      (Vector2) {0.0f, 0.0f},
-      0.0f,
+                   (float) st->screens->texture.width,
+                   (float) -st->screens->texture.height},
+      (Vector2) {rulesRect->x,
+                 rulesRect->y + rulesRect->height / 4},
       WHITE
       );
 }
@@ -289,7 +279,7 @@ static void display_rule_frame_3(menu_content_t *menu, state_t *st,
       GRAY,
       st->shader
       );
-  BeginTextureMode(st->subscreen);
+  BeginTextureMode(*st->screens);
   ClearBackground(BLANK);
   BeginMode3D(camera);
   BeginShaderMode(st->shader);
@@ -324,19 +314,14 @@ static void display_rule_frame_3(menu_content_t *menu, state_t *st,
   EndShaderMode();
   EndMode3D();
   EndTextureMode();
-  DrawTexturePro(
-      st->subscreen.texture,
+  DrawTextureRec(
+      st->screens->texture,
       (Rectangle) {0.0f,
                    0.0f,
-                   (float) st->subscreen.texture.width,
-                   (float) -st->subscreen.texture.height},
-      (Rectangle) {rulesRect->x + 50.0f,
-                   rulesRect->y + rulesRect->height / 4,
-                   rulesRect->width - 100.0f,
-                   (rulesRect->width - 100.0f) * st->subscreen.texture.height
-                   / st->subscreen.texture.width},
-      (Vector2) {0.0f, 0.0f},
-      0.0f,
+                   (float) st->screens->texture.width,
+                   (float) -st->screens->texture.height},
+      (Vector2) {rulesRect->x,
+                 rulesRect->y + rulesRect->height / 4},
       WHITE
       );
 }
@@ -369,7 +354,7 @@ static void display_rule_frame_6(menu_content_t *menu, state_t *st,
       GRAY,
       st->shader
       );
-  BeginTextureMode(st->subscreen);
+  BeginTextureMode(*st->screens);
   ClearBackground(BLANK);
   BeginMode3D(camera);
   BeginShaderMode(st->shader);
@@ -380,7 +365,7 @@ static void display_rule_frame_6(menu_content_t *menu, state_t *st,
           1.5f,
           1.5f,
           1.5f,
-          st->c_select[0] == x && st->c_select[1] == z ? GREEN : LIGHTGRAY
+          LIGHTGRAY
           );
       DrawCubeWires(
           (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
@@ -404,19 +389,14 @@ static void display_rule_frame_6(menu_content_t *menu, state_t *st,
   EndShaderMode();
   EndMode3D();
   EndTextureMode();
-  DrawTexturePro(
-      st->subscreen.texture,
+  DrawTextureRec(
+      st->screens->texture,
       (Rectangle) {0.0f,
                    0.0f,
-                   (float) st->subscreen.texture.width,
-                   (float) -st->subscreen.texture.height},
-      (Rectangle) {rulesRect->x + 50.0f,
-                   rulesRect->y + rulesRect->height / 4,
-                   rulesRect->width - 100.0f,
-                   (rulesRect->width - 100.0f) * st->subscreen.texture.height
-                   / st->subscreen.texture.width},
-      (Vector2) {0.0f, 0.0f},
-      0.0f,
+                   (float) st->screens->texture.width,
+                   (float) -st->screens->texture.height},
+      (Vector2) {rulesRect->x,
+                 rulesRect->y + rulesRect->height / 4},
       WHITE
       );
 }
@@ -431,6 +411,16 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
     rectWidth,
     rectHeight
   };
+  if (st->mk_screen) {
+    st->screens = malloc(sizeof *st->screens);
+    if (st->screens == nullptr) {
+      // error d'alloc
+      display_exit_menu(game);
+      return;
+    }
+    *st->screens = LoadRenderTexture(rulesRect.width, rulesRect.height / 1.5f);
+    st->mk_screen = false;
+  }
   DrawRectangleRec(rulesRect, (Color) { 50, 50, 50, 200 });
   DrawRectangleLinesEx(rulesRect, 2, WHITE);
   //
@@ -520,7 +510,7 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
 }
 
 static void display_menu_button(int titleWidth, game_info_t *game,
-    int button_f, int button_w, menu_content_t *menu) {
+    int button_f, int button_w, menu_content_t *menu, state_t *st) {
   float fontSize = 55.0f;
   float spacing = 1.0f;
   Font font = GetFontDefault();
@@ -550,16 +540,28 @@ static void display_menu_button(int titleWidth, game_info_t *game,
         if (btn_type[i] == PLAY) {
           menu->currentScreen = GAME;
           menu->menuType = NONE;
+          if (!st->mk_screen) {
+            free(st->screens);
+            st->mk_screen = true;
+          }
         } else if (btn_type[i] == RULES) {
           menu->menuType = RULES;
           menu->content.rules_values.rules_num = 0;
           menu->content.rules_values.rules_frames = 0;
           menu->content.rules_values.rules_textures = load_rules_ressources();
+          if (!st->mk_screen) {
+            free(st->screens);
+            st->mk_screen = true;
+          }
         } else if (btn_type[i] == HISTORY) {
           menu->menuType = HISTORY;
           menu->content.history_values.history_frames = 0;
           menu->content.history_values.history_texture
             = LoadTexture("resources/image/histoire.png");
+          if (!st->mk_screen) {
+            free(st->screens);
+            st->mk_screen = true;
+          }
         } else if (btn_type[i] == QUIT) {
           game->exit_wind = true;
         }
@@ -625,7 +627,7 @@ void display_menu(game_info_t *game, menu_content_t *menu, state_t *st) {
   //
   GuiSetStyle(DEFAULT, TEXT_SIZE, button_f);
   int button_w = MeasureText("Histoire", button_f);
-  display_menu_button(titleWidth, game, button_f, button_w, menu);
+  display_menu_button(titleWidth, game, button_f, button_w, menu, st);
   switch (menu->menuType) {
     case RULES:
       if (IsKeyPressed(KEY_ESCAPE)) {
