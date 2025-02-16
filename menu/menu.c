@@ -519,6 +519,9 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
   }
 }
 
+// static void display_menu_button(int titleWidth, game_info_t *game,
+//   int button_f, int button_w, menu_content_t *menu) {
+
 static void display_menu_button(int titleWidth, game_info_t *game,
     int button_f, int button_w, menu_content_t *menu) {
   // Définir la taille de la police et l'espacement
@@ -527,9 +530,6 @@ static void display_menu_button(int titleWidth, game_info_t *game,
   Font font = GetFontDefault();
   Vector2 histoireTextSize = MeasureTextEx(font, "Histoire", fontSize,
       spacing);
-  // Sound s = LoadSound("resources/sound/select.wav");
-  // SetSoundVolume(s, 0.3f); // Set volume to 50%
-  //
   Rectangle rectJouer = {
     titleWidth + titleWidth / TITLE_POS_DIV - button_w,
     game->screen_h / 2,
@@ -539,11 +539,16 @@ static void display_menu_button(int titleWidth, game_info_t *game,
   bool hoverJouer = CheckCollisionPointRec(GetMousePosition(), rectJouer);
   Color jouerColor = WHITE;  // Couleur par défaut
   if (hoverJouer) {
+    if (menu->sound_play != PLAY && !IsSoundPlaying(menu->sound)) {
+      PlaySound(menu->sound);
+      menu->sound_play = PLAY;
+    }
     // Changer la couleur selon l'état (survol ou pressé)
     jouerColor = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
       menu->currentScreen = GAME;
       menu->menuType = NONE;
+      menu->sound_play = NONE;
     }
   }
   // Centrage du texte dans le rectangle
@@ -562,12 +567,17 @@ static void display_menu_button(int titleWidth, game_info_t *game,
   bool hoverRegles = CheckCollisionPointRec(GetMousePosition(), rectRegles);
   Color reglesColor = WHITE;
   if (hoverRegles) {
+    if (menu->sound_play != RULES && !IsSoundPlaying(menu->sound)) {
+      PlaySound(menu->sound);
+      menu->sound_play = RULES;
+    }
     reglesColor = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
       menu->menuType = RULES;
       menu->content.rules_values.rules_num = 0;
       menu->content.rules_values.rules_frames = 0;
       menu->content.rules_values.rules_textures = load_rules_ressources();
+      menu->sound_play = NONE;
     }
   }
   Vector2 reglesTextSize = MeasureTextEx(font, "Règles", fontSize, spacing);
@@ -586,12 +596,17 @@ static void display_menu_button(int titleWidth, game_info_t *game,
       rectHistoire);
   Color histoireColor = WHITE;
   if (hoverHistoire) {
+    if (menu->sound_play != HISTORY && !IsSoundPlaying(menu->sound)) {
+      PlaySound(menu->sound);
+      menu->sound_play = HISTORY;
+    }
     histoireColor = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
       menu->menuType = HISTORY;
       menu->content.history_values.history_frames = 0;
       menu->content.history_values.history_texture
         = LoadTexture("resources/image/histoire.png");
+      menu->sound_play = NONE;
     }
   }
   float histoireTextX = rectHistoire.x
@@ -610,6 +625,10 @@ static void display_menu_button(int titleWidth, game_info_t *game,
   bool hoverQuit = CheckCollisionPointRec(GetMousePosition(), rectQuit);
   Color quitColor = WHITE;
   if (hoverQuit) {
+    if (menu->sound_play != HISTORY && !IsSoundPlaying(menu->sound)) {
+      PlaySound(menu->sound);
+      menu->sound_play = HISTORY;
+    }
     quitColor = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
       game->exit_wind = true;

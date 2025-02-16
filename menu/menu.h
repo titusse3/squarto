@@ -12,18 +12,23 @@ typedef struct game_info_t {
   const char *game_name;
   bool exit_wind;
   bool play_music;
+  bool play_sound;
 } game_info_t;
+
+typedef enum {
+  RULES,
+  HISTORY,
+  PLAY,
+  QUIT,
+  NONE
+} btn_t;
 
 typedef struct {
   enum {
     MENU,
     GAME
   } currentScreen;
-  enum {
-    RULES,
-    HISTORY,
-    NONE
-  } menuType;
+  btn_t menuType;
   union {
     struct {
       int rules_num;
@@ -35,6 +40,8 @@ typedef struct {
       Texture2D history_texture;
     } history_values;
   } content;
+  btn_t sound_play;
+  Sound sound;
 } menu_content_t;
 
 extern void display_menu(game_info_t *game, menu_content_t *menu, state_t *st);

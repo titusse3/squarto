@@ -33,7 +33,8 @@ int main(void) {
   //
   menu_content_t game = {
     .currentScreen = MENU,
-    .menuType = NONE
+    .menuType = NONE,
+    .sound_play = NONE
   };
   //
   state_t st = {
@@ -66,6 +67,8 @@ int main(void) {
   Music music = LoadMusicStream("resources/music/italian_hymn.mp3");
   PlayMusicStream(music);
   SetMusicVolume(music, 0.1f);
+  game.sound = LoadSound("resources/sound/select.wav");
+  SetSoundVolume(game.sound, 0.6f);
   //
   Texture2D background = LoadTexture("resources/image/blue-back.png");
   Texture2D foreground = LoadTexture("resources/image/blue-stars.png");
@@ -79,6 +82,8 @@ int main(void) {
   //
   while (true) {
     //
+    scale_bg = (float) game_info.screen_w / background.width;
+    scale_fg = (float) game_info.screen_w / foreground.width;
     scrollingBack -= 0.7f;
     scrollingFore -= 1.0f;
     if (scrollingBack <= -background.width * scale_bg) {
