@@ -46,6 +46,7 @@ typedef struct {
 
 extern void display_menu(game_info_t *game, menu_content_t *menu, state_t *st);
 
-extern bool display_exit_menu(game_info_t *game_info);
+extern bool display_exit_menu(game_info_t *game_info, int fontSize,
+    const char *msg, int msg_size);
 
 #endif

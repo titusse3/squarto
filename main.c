@@ -12,6 +12,8 @@
 #define BASE_SCREEN_WIDTH 1280
 #define BASE_SCREEN_HEIGHT 720
 #define GAME_NAME "Quarto"
+#define QUIT_MSG \
+        "Do you really want to quit the game ?\nYou will miss a lot of fun..."
 
 static void draw_game(state_t *st, game_info_t *game, uint16_t *placed,
     uint16_t *used);
@@ -141,8 +143,13 @@ int main(void) {
     } else {
       display_menu(&game_info, &game, &st);
     }
-    if (game_info.exit_wind && display_exit_menu(&game_info)) {
-      break;
+    if (game_info.exit_wind) {
+      int font_size = game_info.screen_h / 26;
+      int size = MeasureText("Do you really want to quit the game ?",
+          font_size);
+      if (display_exit_menu(&game_info, font_size, QUIT_MSG, size)) {
+        break;
+      }
     }
     EndDrawing();
   }
@@ -186,7 +193,8 @@ void draw_game(state_t *st, game_info_t *game, uint16_t *placed,
     st->screens = malloc(sizeof *st->screens);
     if (st->screens == nullptr) {
       // error d'alloc
-      display_exit_menu(game);
+      display_exit_menu(game, game->screen_h / 16, "Error during allocation",
+          MeasureText("Error during allocation", game->screen_h / 16));
       return;
     }
     st->screens[0]

@@ -209,15 +209,13 @@ static void display_rule_frame_2(menu_content_t *menu, state_t *st,
       st->shader,
       st->shader.locs[SHADER_LOC_VECTOR_VIEW],
       &camera.position,
-      SHADER_UNIFORM_VEC3
-      );
+      SHADER_UNIFORM_VEC3);
   Light light = CreateLight(
       LIGHT_POINT,
       camera.position,
       Vector3Zero(),
       GRAY,
-      st->shader
-      );
+      st->shader);
   BeginTextureMode(*st->screens);
   ClearBackground(BLANK);
   BeginMode3D(camera);
@@ -232,23 +230,16 @@ static void display_rule_frame_2(menu_content_t *menu, state_t *st,
           (Vector3) {0.55f,
                      (long int) z % 2 == 0 > 0.5f ? 0.35f : 0.2f,
                      0.55f},
-          z >= 2.0f > 0.5f ? BLUE : RED
-          );
+          z >= 2.0f > 0.5f ? BLUE : RED);
     }
   }
   EndShaderMode();
   EndMode3D();
   EndTextureMode();
-  DrawTextureRec(
-      st->screens->texture,
-      (Rectangle) {0.0f,
-                   0.0f,
-                   (float) st->screens->texture.width,
+  DrawTextureRec(st->screens->texture,
+      (Rectangle) {0.0f, 0.0f, (float) st->screens->texture.width,
                    (float) -st->screens->texture.height},
-      (Vector2) {rulesRect->x,
-                 rulesRect->y + rulesRect->height / 4},
-      WHITE
-      );
+      (Vector2) {rulesRect->x, rulesRect->y + rulesRect->height / 4}, WHITE);
 }
 
 static void display_rule_frame_3(menu_content_t *menu, state_t *st,
@@ -262,9 +253,7 @@ static void display_rule_frame_3(menu_content_t *menu, state_t *st,
     },
     .up = (Vector3) {
       0.0f, 1.0f, 0.0f
-    },
-    .fovy = 30.0f,
-    .projection = CAMERA_PERSPECTIVE
+    }, .fovy = 30.0f, .projection = CAMERA_PERSPECTIVE
   };
   SetShaderValue(
       st->shader,
@@ -453,7 +442,8 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
     st->screens = malloc(sizeof *st->screens);
     if (st->screens == nullptr) {
       // error d'alloc
-      display_exit_menu(game);
+      display_exit_menu(game, font_size, "Error during allocation",
+          MeasureText("Error during allocation", font_size));
       return;
     }
     *st->screens = LoadRenderTexture(rulesRect.width, rulesRect.height / 1.5f);
@@ -525,6 +515,7 @@ static void display_menu_button(int titleWidth, game_info_t *game,
   btn_t btn_type[4] = {
     PLAY, RULES, HISTORY, QUIT
   };
+  bool is_mouse_over = false;
   for (size_t i = 0; i < 4; ++i) {
     Vector2 text_size = MeasureTextEx(font, btn_title[i], fontSize, spacing);
     Rectangle rect = {
@@ -534,6 +525,7 @@ static void display_menu_button(int titleWidth, game_info_t *game,
     };
     Color text_color = WHITE;
     if (CheckCollisionPointRec(GetMousePosition(), rect)) {
+      is_mouse_over = true;
       if (menu->sound_play != btn_type[i] && !IsSoundPlaying(menu->sound)) {
         PlaySound(menu->sound);
         menu->sound_play = btn_type[i];
@@ -575,6 +567,9 @@ static void display_menu_button(int titleWidth, game_info_t *game,
     float y = rect.y + (rect.height - text_size.y);
     DrawTextEx(font, btn_title[i], (Vector2){ x, y }, fontSize, spacing,
         text_color);
+  }
+  if (!is_mouse_over) {
+    menu->sound_play = NONE;
   }
 }
 
@@ -645,38 +640,32 @@ void display_menu(game_info_t *game, menu_content_t *menu, state_t *st) {
   }
 }
 
-bool display_exit_menu(game_info_t *game_info) {
+bool display_exit_menu(game_info_t *game_info, int fontSize, const char *msg,
+    int msg_size) {
   int rect_w = game_info->screen_w * 0.5f;
   int rect_h = game_info->screen_h * 0.5f;
-  DrawRectangle(0, 0, game_info->screen_w, game_info->screen_h,
-      Fade(BLACK, 0.5f));
-  DrawRectangle((game_info->screen_w - rect_w) / 2,
-      (game_info->screen_h - rect_h) / 2, rect_w, rect_h, BLACK);
-  DrawRectangle((game_info->screen_w - rect_w) / 2,
-      (game_info->screen_h - rect_h) / 2, rect_w, rect_h / 5, RED);
-  int fontSize = rect_h / 8;
-  int textWidth = MeasureText("Quit", fontSize);
   int rectX = (game_info->screen_w - rect_w) / 2;
   int rectY = (game_info->screen_h - rect_h) / 2;
+  DrawRectangle(0, 0, game_info->screen_w, game_info->screen_h,
+      Fade(BLACK, 0.5f));
+  DrawRectangle(rectX, rectY, rect_w, rect_h, BLACK);
+  DrawRectangle(rectX, rectY, rect_w, rect_h / 5, RED);
+  int quit_font_size = game_info->screen_h / 16;
+  int textWidth = MeasureText("Quit", quit_font_size);
   DrawText("Quit", rectX + (rect_w - textWidth) / 2,
-      rectY + ((rect_h / 5) - fontSize) / 2, fontSize, WHITE);
-  int messageFontSize = rect_h / 11;
-  int messageTextWidth
-    = MeasureText("do you really want to quit the game ?", messageFontSize);
-  int messageX = rectX + (rect_w - messageTextWidth) / 2;
-  int messageY = rectY + (rect_h - messageFontSize) / 2.5f;
+      rectY + ((rect_h / 5) - quit_font_size) / 2, quit_font_size, WHITE);
+  int messageX = rectX + (rect_w - msg_size) / 2;
+  int messageY = rectY + (rect_h - fontSize) / 2.5f;
   DrawText(
-      "Do you really want to quit the game ?\nYou will miss a lot of fun...",
-      messageX, messageY,
-      messageFontSize, WHITE);
+      msg,
+      messageX, messageY, fontSize, WHITE);
   int buttonHeight = rect_h / 10;
-  int spacing = rect_w / 20;  // espace réduit entre les boutons
+  int spacing = rect_w / 20;
   int buttonWidth = rect_w / 4;
   int totalButtonsWidth = 2 * buttonWidth + spacing;
   int buttonX_no = rectX + (rect_w - totalButtonsWidth) / 2;
   int buttonX_yes = buttonX_no + buttonWidth + spacing;
-  int buttonY = (game_info->screen_h - rect_h) / 2 + rect_h - buttonHeight
-      - 70;
+  int buttonY = rectY + rect_h - buttonHeight - 70;
   if (GuiButton((Rectangle){ buttonX_no, buttonY, buttonWidth,
                              buttonHeight + 20 }, "No")) {
     game_info->exit_wind = false;
