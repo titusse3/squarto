@@ -416,15 +416,38 @@ static Rectangle rect_top_corner_title(const char *title, Rectangle parent,
   return rect;
 }
 
+static void bottom_corner_pagging(menu_content_t *menu, Rectangle parent) {
+  float triWidth = parent.width * 0.15f;
+  float triHeight = parent.height * 0.15f;
+  Vector2 vertex1 = {
+    parent.x + parent.width,
+    parent.y + parent.height - triHeight
+  };
+  Vector2 vertex2 = {
+    parent.x + parent.width - triWidth,
+    parent.y + parent.height
+  };
+  Vector2 vertex3 = {
+    parent.x + parent.width,
+    parent.y + parent.height
+  };
+  DrawTriangle(vertex1, vertex2, vertex3, BLUE);
+  char s[4];
+  snprintf(s, 4, "%d/%d", menu->content.rules_values.rules_num + 1,
+      MAX_RULES + 1);
+  int tri_fsize = (int) (triHeight * 0.25f);
+  float center_x = (vertex1.x + vertex2.x + vertex3.x) / 3.0f;
+  float center_y = (vertex1.y + vertex2.y + vertex3.y) / 3.0f;
+  DrawText(s, center_x - MeasureText(s, tri_fsize) / 2,
+      center_y - tri_fsize / 3, tri_fsize, WHITE);
+}
+
 static void display_rules(game_info_t *game, int left_padding, int offset,
     int font_size, menu_content_t *menu, state_t *st) {
   float rectWidth = game->screen_w - left_padding - offset;
   float rectHeight = game->screen_h - 2 * offset;
   Rectangle rulesRect = {
-    left_padding,
-    (game->screen_h - rectHeight) / 2,
-    rectWidth,
-    rectHeight
+    left_padding, (game->screen_h - rectHeight) / 2, rectWidth, rectHeight
   };
   if (st->mk_screen) {
     st->screens = malloc(sizeof *st->screens);
@@ -439,35 +462,9 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
   DrawRectangleRec(rulesRect, (Color) { 50, 50, 50, 200 });
   DrawRectangleLinesEx(rulesRect, 2, WHITE);
   //
-  {
-    Rectangle pink = rect_top_corner_title("Rules", rulesRect, font_size,
-        PINK);
-    //
-    float triWidth = rulesRect.width * 0.15f;
-    float triHeight = rulesRect.height * 0.15f;
-    Vector2 vertex1 = {
-      rulesRect.x + rulesRect.width,
-      rulesRect.y + rulesRect.height - triHeight
-    };
-    Vector2 vertex2 = {
-      rulesRect.x + rulesRect.width - triWidth,
-      rulesRect.y + rulesRect.height
-    };
-    Vector2 vertex3 = {
-      rulesRect.x + rulesRect.width,
-      rulesRect.y + rulesRect.height
-    };
-    DrawTriangle(vertex1, vertex2, vertex3, BLUE);
-    char s[4];
-    snprintf(s, 4, "%d/%d", menu->content.rules_values.rules_num + 1,
-        MAX_RULES + 1);
-    int tri_fsize = (int) (triHeight * 0.25f);
-    float center_x = (vertex1.x + vertex2.x + vertex3.x) / 3.0f;
-    float center_y = (vertex1.y + vertex2.y + vertex3.y) / 3.0f;
-    DrawText(s, center_x - MeasureText(s, tri_fsize) / 2,
-        center_y - tri_fsize / 3,
-        tri_fsize, WHITE);
-  }
+  Rectangle pink = rect_top_corner_title("Rules", rulesRect, font_size,
+      PINK);
+  bottom_corner_pagging(menu, rulesRect);
   //
   display_rule_bottom_btn(game, menu, &rulesRect);
   switch (menu->content.rules_values.rules_num) {
@@ -476,7 +473,6 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
         float t = menu->content.rules_values.rules_frames / 180.0f;
         if (t > 1.0f) {
           t = 1.0f;
-          // menu->content.rules_values.rules_num = 1;
         }
         display_img_player(menu, &rulesRect, t);
       }
@@ -536,9 +532,8 @@ static void display_menu_button(int titleWidth, game_info_t *game,
       game->screen_h / 2 + i * game->screen_h / SPACE_BETWEEN_BUTTONS,
       button_w, button_f
     };
-    bool is_hover = CheckCollisionPointRec(GetMousePosition(), rect);
     Color text_color = WHITE;
-    if (is_hover) {
+    if (CheckCollisionPointRec(GetMousePosition(), rect)) {
       if (menu->sound_play != btn_type[i] && !IsSoundPlaying(menu->sound)) {
         PlaySound(menu->sound);
         menu->sound_play = btn_type[i];
@@ -591,10 +586,7 @@ static void display_history(game_info_t *game, int left_padding, int offset,
   float rectWidth = game->screen_w - left_padding - offset;
   float rectHeight = game->screen_h - 2 * offset;
   Rectangle rulesRect = {
-    left_padding,
-    (game->screen_h - rectHeight) / 2,
-    rectWidth,
-    rectHeight
+    left_padding, (game->screen_h - rectHeight) / 2, rectWidth, rectHeight
   };
   DrawRectangleRec(rulesRect, (Color) { 50, 50, 50, 200 });
   DrawRectangleLinesEx(rulesRect, 2, WHITE);
@@ -666,9 +658,8 @@ bool display_exit_menu(game_info_t *game_info) {
   int textWidth = MeasureText("Quit", fontSize);
   int rectX = (game_info->screen_w - rect_w) / 2;
   int rectY = (game_info->screen_h - rect_h) / 2;
-  int textX = rectX + (rect_w - textWidth) / 2;
-  int textY = rectY + ((rect_h / 5) - fontSize) / 2;
-  DrawText("Quit", textX, textY, fontSize, WHITE);
+  DrawText("Quit", rectX + (rect_w - textWidth) / 2,
+      rectY + ((rect_h / 5) - fontSize) / 2, fontSize, WHITE);
   int messageFontSize = rect_h / 11;
   int messageTextWidth
     = MeasureText("do you really want to quit the game ?", messageFontSize);
