@@ -74,11 +74,12 @@ static void display_img_player(menu_content_t *menu, Rectangle *container,
 
 static bool display_text_writing(game_info_t *game, menu_content_t *menu,
     Rectangle *container, const char *text) {
-  int l = MeasureText(text, 30);
+  int font_size = container->height / 20;
+  int l = MeasureText(text, font_size);
   int number_to_display = menu->content.rules_values.rules_frames / 3;
   DrawText(TextSubtext(text, 0, number_to_display),
       container->x + (container->width - l) / 2,
-      container->y + container->height / 5, 30, LIGHTGRAY);
+      container->y + container->height / 5, font_size, LIGHTGRAY);
   return number_to_display >= strlen(text);
 }
 
