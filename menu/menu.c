@@ -26,8 +26,8 @@
 #define RULE_FOUR                                                              \
         "Le second joueur choisi une pièce\n qu'il donne au premier"
 #define RULE_FIVE                                                              \
-        "Le premier joueur place la pièce sur le plateau\n et donne une pièce" \
-        "au second joueur"
+        "Le premier joueur place la pièce sur le plateau\n et on recommance "  \
+        "avec le second joueur"
 #define RULE_SIX                                                               \
         "Le jeu se termine lorsqu'un joueur aligne 4 pièces"
 
@@ -315,6 +315,116 @@ static void display_rule_frame_3(menu_content_t *menu, state_t *st,
       );
 }
 
+static void display_rule_frame_4(menu_content_t *menu, Rectangle *rulesRect) {
+  float scale = 0.4f;
+  int img_width = menu->content.rules_values.rules_textures[0].width;
+  int total_width = 2 * (img_width * scale) + SPACE_BETWEEN_BUTTONS;
+  int start_x = rulesRect->x + (rulesRect->width - total_width) / 2;
+  int final_y = rulesRect->y + rulesRect->height / 2.5f;
+  Vector2 pos1 = {
+    start_x, final_y
+  };
+  Vector2 pos2 = {
+    start_x + (img_width * scale) + SPACE_BETWEEN_BUTTONS, final_y
+  };
+  DrawTextureEx(menu->content.rules_values.rules_textures[0], pos1, 0.0f,
+      scale, WHITE);
+  DrawTextureEx(menu->content.rules_values.rules_textures[1], pos2, 0.0f,
+      scale, WHITE);
+  //
+  float piece_scale = 0.2f;
+  int piece_width = menu->content.rules_values.rules_textures[0].width;
+  int piece_height = menu->content.rules_values.rules_textures[0].height;
+  int scaled_piece_width = (int) (piece_width * piece_scale);
+  int piece_start_x = pos1.x + scaled_piece_width / 2;
+  int piece_start_y = pos1.y + scaled_piece_width / 2;
+  int piece_end_x = pos2.x + scaled_piece_width / 2;
+  int piece_end_y = pos2.y + scaled_piece_width / 2;
+  float piece = (menu->content.rules_values.rules_frames % 60) / 60.0f;
+  int piece_current_x = piece_start_x
+      + (int) ((piece_end_x - piece_start_x) * piece);
+  int piece_current_y = piece_start_y
+      + (int) ((piece_end_y - piece_start_y) * piece);
+  Vector2 piece_pos = {
+    piece_current_x, piece_current_y
+  };
+  DrawTextureEx(menu->content.rules_values.rules_textures[0], piece_pos, 0.0f,
+      piece_scale, WHITE);
+}
+
+static void display_rule_frame_5(menu_content_t *menu, state_t *st,
+    Rectangle *rulesRect) {
+  Camera3D camera = {
+    .position = (Vector3) {
+      7.5f, 20.0f, 7.5f
+    },
+    .target = (Vector3) {
+      0.0f, 0.0f, 0.0f
+    },
+    .up = (Vector3) {
+      0.0f, 1.0f, 0.0f
+    }, .fovy = 30.0f, .projection = CAMERA_PERSPECTIVE
+  };
+  SetShaderValue(
+      st->shader,
+      st->shader.locs[SHADER_LOC_VECTOR_VIEW],
+      &camera.position,
+      SHADER_UNIFORM_VEC3
+      );
+  Light light = CreateLight(
+      LIGHT_POINT,
+      camera.position,
+      Vector3Zero(),
+      GRAY,
+      st->shader
+      );
+  BeginTextureMode(*st->screens);
+  ClearBackground(BLANK);
+  BeginMode3D(camera);
+  BeginShaderMode(st->shader);
+  for (float x = 0; x < 4.0f; ++x) {
+    for (float z = 0; z < 4.0f; ++z) {
+      DrawCube(
+          (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
+          1.5f,
+          1.5f,
+          1.5f,
+          st->c_select[0] == x && st->c_select[1] == z ? GREEN : LIGHTGRAY
+          );
+      DrawCubeWires(
+          (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
+          1.5f,
+          1.5f,
+          1.5f,
+          BLACK
+          );
+      if (x == 2) {
+        DrawModelEx(
+            st->pieces[(size_t) z],
+            (Vector3) {x * 1.5f - 2.25f, 0.75f, z * 1.5f - 2.25f},
+            (Vector3) {0.0f, 0.0f, 0.0f},
+            0.0f,
+            (Vector3) {0.55f, 0.2f, 0.55},
+            (long int) z % 2 == 0 ? BLUE : RED
+            );
+      }
+    }
+  }
+  EndShaderMode();
+  EndMode3D();
+  EndTextureMode();
+  DrawTextureRec(
+      st->screens->texture,
+      (Rectangle) {0.0f,
+                   0.0f,
+                   (float) st->screens->texture.width,
+                   (float) -st->screens->texture.height},
+      (Vector2) {rulesRect->x,
+                 rulesRect->y + rulesRect->height / 4},
+      WHITE
+      );
+}
+
 static void display_rule_frame_6(menu_content_t *menu, state_t *st,
     Rectangle *rulesRect) {
   Camera3D camera = {
@@ -482,14 +592,12 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
       break;
     case 4:
       if (display_text_writing(game, menu, &rulesRect, RULE_FOUR)) {
-        // remettre les deux joueurs dès le début et montrer que le j1
-        // donne une pièce au j2 par une animation
+        display_rule_frame_4(menu, &rulesRect);
       }
       break;
     case 5:
       if (display_text_writing(game, menu, &rulesRect, RULE_FIVE)) {
-        // montrer le joueur 1 qui place la pièce sur le plateau et après qu'il
-        //    donne une pièce au joueur 2
+        display_rule_frame_5(menu, st, &rulesRect);
       }
       break;
     case 6:
