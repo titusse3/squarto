@@ -525,8 +525,7 @@ static void display_menu_button(int titleWidth, game_info_t *game,
     Rectangle rect = {
       titleWidth + titleWidth / TITLE_POS_DIV - button_w,
       game->screen_h / 2 + (i + 1) * game->screen_h / SPACE_BETWEEN_BUTTONS,
-      button_w,
-      button_f
+      button_w, button_f
     };
     bool is_hover = CheckCollisionPointRec(GetMousePosition(), rect);
     Color text_color = WHITE;
@@ -575,6 +574,19 @@ static void display_menu_button(int titleWidth, game_info_t *game,
   }
 }
 
+static Rectangle rect_top_corner_title(const char *title, Rectangle parent,
+    int font_size, Color color_rect) {
+  const int title_size = MeasureText(title, font_size);
+  Rectangle rect = {
+    parent.x, parent.y, title_size, font_size
+  };
+  DrawRectangleRec(rect, color_rect);
+  DrawText(title,
+      rect.x + rect.width / 2 - title_size / 2,
+      rect.y + rect.height / 2 - font_size / 2, font_size, WHITE);
+  return rect;
+}
+
 static void display_history(game_info_t *game, int left_padding, int offset,
     int font_size, menu_content_t *menu) {
   if (IsKeyPressed(KEY_SPACE)) {
@@ -591,16 +603,8 @@ static void display_history(game_info_t *game, int left_padding, int offset,
   DrawRectangleRec(rulesRect, (Color) { 50, 50, 50, 200 });
   DrawRectangleLinesEx(rulesRect, 2, WHITE);
   //
-  const char *t = "Histoire";
-  const int title_size = MeasureText("Histoire", font_size);
-  Rectangle pink = {
-    left_padding, (game->screen_h - rectHeight) / 2,
-    title_size + 2 * offset, font_size + offset / 4
-  };
-  DrawRectangleRec(pink, BROWN);
-  DrawText("Histoire",
-      pink.x + pink.width / 2 - title_size / 2,
-      rulesRect.y + pink.height / 2 - font_size / 2, font_size, WHITE);
+  Rectangle pink = rect_top_corner_title("Histoire", rulesRect, font_size,
+      BROWN);
   //
   int img_width = menu->content.history_values.history_texture.width;
   int img_height = menu->content.history_values.history_texture.height;
