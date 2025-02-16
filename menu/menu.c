@@ -385,9 +385,7 @@ static void display_rule_frame_6(menu_content_t *menu, state_t *st,
                    (float) st->screens->texture.width,
                    (float) -st->screens->texture.height},
       (Vector2) {rulesRect->x,
-                 rulesRect->y + rulesRect->height / 4},
-      WHITE
-      );
+                 rulesRect->y + rulesRect->height / 4}, WHITE);
 }
 
 static Rectangle rect_top_corner_title(const char *title, Rectangle parent,
@@ -676,4 +674,37 @@ bool display_exit_menu(game_info_t *game_info, int fontSize, const char *msg,
     return true;
   }
   return false;
+}
+
+void display_winning_animation(game_info_t *game_info, win_display_info *info) {
+  info->has_win = true;
+  Rectangle destRec = {
+    (game_info->screen_w - info->frameRec.width
+    * (game_info->screen_w / (info->frameRec.width * 1.4f))) / 2,
+    (game_info->screen_h - info->frameRec.height
+    * (game_info->screen_w / (info->frameRec.height * 1.3f))) / 2,
+    info->frameRec.width
+    * (game_info->screen_w / (info->frameRec.width * 1.4f)),
+    info->frameRec.height
+    * (game_info->screen_w / (info->frameRec.width * 1.4f))
+  };
+  Vector2 origin = {
+    0, 0
+  };
+  DrawTexturePro(info->explosion, info->frameRec, destRec, origin, 0.0f, WHITE);
+  //
+  int font_size = info->f.baseSize * 8;
+  static float waveOffset = 0.0f;
+  waveOffset += 0.1f;
+  const char *text = "You W in !";
+  Vector2 textSize = MeasureTextEx(info->f, text, font_size, 1);
+  for (int i = 0; i < strlen(text); i++) {
+    float offset = sinf(waveOffset + i * 0.5f) * 10.0f;
+    DrawTextPro(info->f, (char[]){ text[i], '\0' },
+        (Vector2){ game_info->screen_w / 2 - textSize.x / 2 + i * (textSize.x
+                   / strlen(text)),
+                   game_info->screen_h / 2 - info->f.baseSize * 2.5f + offset },
+        (Vector2){ 0, 0 }, 0.0f, font_size, 1, GREEN);
+  }
+  //
 }

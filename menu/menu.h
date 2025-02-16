@@ -24,6 +24,13 @@ typedef enum {
 } btn_t;
 
 typedef struct {
+  Font f;
+  Texture2D explosion;
+  Rectangle frameRec;
+  bool has_win;
+} win_display_info;
+
+typedef struct {
   enum {
     MENU,
     GAME
@@ -42,11 +49,15 @@ typedef struct {
   } content;
   btn_t sound_play;
   Sound sound;
+  win_display_info win_info;
 } menu_content_t;
 
 extern void display_menu(game_info_t *game, menu_content_t *menu, state_t *st);
 
 extern bool display_exit_menu(game_info_t *game_info, int fontSize,
     const char *msg, int msg_size);
+
+extern void display_winning_animation(game_info_t *game_info,
+    win_display_info *info);
 
 #endif

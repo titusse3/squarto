@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <raylib.h>
 #include <raymath.h>
@@ -37,7 +38,7 @@ int main(void) {
   menu_content_t game = {
     .currentScreen = MENU,
     .menuType = NONE,
-    .sound_play = NONE
+    .sound_play = NONE,
   };
   //
   state_t st = {
@@ -85,7 +86,36 @@ int main(void) {
   float scale_bg = (float) game_info.screen_w / background.width;
   float scale_fg = (float) game_info.screen_w / foreground.width;
   //
+  game.win_info.explosion = LoadTexture("resources/image/explosion.png");
+  game.win_info.frameRec = (Rectangle) {
+    0, 0, game.win_info.explosion.width / 4, game.win_info.explosion.height / 4
+  };
+  game.win_info.f = LoadFont("resources/fonts/alagard.png");
+  game.win_info.has_win = false;
+  int currentFrame = 0;
+  int currentLine = 0;
+  int framesCounter = 0;
+  //
   while (true) {
+    //
+    if (game.win_info.has_win) {
+      framesCounter++;
+      if (framesCounter > 2) {
+        currentFrame++;
+        if (currentFrame >= 4) {
+          currentFrame = 0;
+          currentLine++;
+          if (currentLine >= 4) {
+            currentLine = 0;
+          }
+        }
+        framesCounter = 0;
+      }
+      game.win_info.frameRec.x = game.win_info.frameRec.width
+          * currentFrame;
+      game.win_info.frameRec.y = game.win_info.frameRec.height
+          * currentLine;
+    }
     //
     scale_bg = (float) game_info.screen_w / background.width;
     scale_fg = (float) game_info.screen_w / foreground.width;
@@ -133,9 +163,7 @@ int main(void) {
       ++game.content.history_values.history_frames;
     }
     BeginDrawing();
-    display_background(background, foreground,
-        scrollingBack,
-        scrollingFore,
+    display_background(background, foreground, scrollingBack, scrollingFore,
         scale_bg, scale_fg);
     //
     if (game.currentScreen == GAME) {
@@ -153,6 +181,11 @@ int main(void) {
     }
     EndDrawing();
   }
+  UnloadTexture(background);
+  UnloadTexture(foreground);
+  UnloadTexture(game.win_info.explosion);
+  UnloadFont(game.win_info.f);
+  UnloadSound(game.sound);
   CloseAudioDevice();
   CloseWindow();
   return EXIT_SUCCESS;
