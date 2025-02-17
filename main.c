@@ -17,8 +17,8 @@
 #define QUIT_MSG \
         "Do you really want to quit the game ?\nYou will miss a lot of fun..."
 
-static void draw_game(state_t *st, game_info_t *game, quarto_t **quarto,
-    piece_t *pieces, position_t *positions, uint16_t *used);
+static void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
+    quarto_t **quarto, piece_t *pieces, position_t *positions, uint16_t *used);
 
 static void display_background(Texture2D background, Texture2D foreground,
     float scrollingBack, float scrollingFore, float scale_bg, float scale_fg);
@@ -197,6 +197,11 @@ int main(void) {
           free(st.screens);
           st.mk_screen = true;
         }
+        quarto_dispose(&quarto);
+        used = 0;
+        st.round = 0;
+        st.c_select[0] = UNDEF_COORD;
+        st.c_select[1] = UNDEF_COORD;
       }
     } else if (game.menuType == RULES) {
       ++game.content.rules_values.rules_frames;
@@ -208,7 +213,7 @@ int main(void) {
         scale_bg, scale_fg);
     //
     if (game.currentScreen == GAME) {
-      draw_game(&st, &game_info, &quarto, pieces, positions, &used);
+      draw_game(&st, &game_info, &game, &quarto, pieces, positions, &used);
     } else {
       display_menu(&game_info, &game, &st);
     }
@@ -261,8 +266,8 @@ void display_background(Texture2D background, Texture2D foreground,
       scale_fg, WHITE);
 }
 
-void draw_game(state_t *st, game_info_t *game, quarto_t **quarto,
-    piece_t *pieces, position_t *positions, uint16_t *used) {
+void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
+    quarto_t **quarto, piece_t *pieces, position_t *positions, uint16_t *used) {
   if (st->mk_screen) {
     st->screens = malloc(sizeof *st->screens);
     if (st->screens == nullptr) {
@@ -305,41 +310,44 @@ void draw_game(state_t *st, game_info_t *game, quarto_t **quarto,
       );
   st->lights[0].position = camera.position;
   UpdateLightValues(st->shader, st->lights[0]);
-  BeginMode3D(camera);
-  BeginShaderMode(st->shader);
   Ray ray = {};
   RayCollision collision = {};
   float x = 0;
   float z = 0;
   collision.hit = false;
-  while (x < 4.0f && !collision.hit) {
-    z = 0;
-    while (z < 4.0f && !collision.hit) {
-      if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-        ray = GetScreenToWorldRay(GetMousePosition(), camera);
-        collision = GetRayCollisionBox(
-            ray,
-            (BoundingBox) { (Vector3) { x * 1.5f - 1.25f,
-                                        1.5f,
-                                        z * 1.5f - 1.25f },
-                            (Vector3) { x * 1.5f - 3.25f,
-                                        1.5f,
-                                        z * 1.5f - 3.25f }}
-            );
+  bool win = quarto_is_game_over(*quarto);
+  if (!win) {
+    while (x < 4.0f && !collision.hit) {
+      z = 0;
+      while (z < 4.0f && !collision.hit) {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+          ray = GetScreenToWorldRay(GetMousePosition(), camera);
+          collision = GetRayCollisionBox(
+              ray,
+              (BoundingBox) { (Vector3) { x * 1.5f - 1.25f,
+                                          1.5f,
+                                          z * 1.5f - 1.25f },
+                              (Vector3) { x * 1.5f - 3.25f,
+                                          1.5f,
+                                          z * 1.5f - 3.25f }}
+              );
+        }
+        ++z;
       }
-      ++z;
+      ++x;
     }
-    ++x;
-  }
-  if (collision.hit) {
-    st->c_select[0] = x - 1;
-    st->c_select[1] = z - 1;
-    if (quarto_play(*quarto, pieces[st->round],
-        positions[15 - (size_t) ((x - 1) * 4 + (z - 1))]) == NO_ERROR) {
-      *used |= 0b1 << (uint16_t) st->round;
-      ++st->round;
+    if (collision.hit) {
+      st->c_select[0] = x - 1;
+      st->c_select[1] = z - 1;
+      if (quarto_play(*quarto, pieces[st->round],
+          positions[15 - (size_t) ((x - 1) * 4 + (z - 1))]) == NO_ERROR) {
+        *used |= 0b1 << (uint16_t) st->round;
+        ++st->round;
+      }
     }
   }
+  BeginMode3D(camera);
+  BeginShaderMode(st->shader);
   uint16_t sum = quarto_summary(*quarto);
   uint64_t board = quarto_board(*quarto);
   for (size_t x = 0; x < 4; ++x) {
@@ -420,4 +428,7 @@ void draw_game(state_t *st, game_info_t *game, quarto_t **quarto,
       (Vector2) {0.0f, 0.0f},
       WHITE
       );
+  if (win) {
+    display_winning_animation(game, &info->win_info);
+  }
 }
