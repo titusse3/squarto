@@ -278,7 +278,9 @@ void draw_game(state_t *st, game_info_t *game, quarto_t **quarto,
   if (*quarto == nullptr) {
     *quarto = quarto_init(pieces[st->round++]);
     if (*quarto == nullptr) {
-      display_exit_menu(game);
+      display_exit_menu(game, game->screen_h / 16, "Error during allocation",
+          MeasureText("Error during allocation", game->screen_h / 16));
+      return;
     }
     *used = 1;
   }

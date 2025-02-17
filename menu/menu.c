@@ -364,13 +364,10 @@ static void display_rule_frame_5(menu_content_t *menu, state_t *st,
       &camera.position,
       SHADER_UNIFORM_VEC3
       );
-  Light light = CreateLight(
-      LIGHT_POINT,
-      camera.position,
-      Vector3Zero(),
-      GRAY,
-      st->shader
-      );
+  st->lights[0].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[0]);
+  st->lights[1].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[1]);
   BeginTextureMode(*st->screens);
   ClearBackground(BLANK);
   BeginMode3D(camera);
