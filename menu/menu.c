@@ -142,13 +142,10 @@ static void display_rule_frame_1(menu_content_t *menu, state_t *st,
       &camera.position,
       SHADER_UNIFORM_VEC3
       );
-  Light light = CreateLight(
-      LIGHT_POINT,
-      camera.position,
-      Vector3Zero(),
-      GRAY,
-      st->shader
-      );
+  st->lights[0].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[0]);
+  st->lights[1].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[1]);
   float n = 0.75f - (MIN(menu->content.rules_values.rules_frames,
       150)) / 200.0f;
   BeginTextureMode(*st->screens);
@@ -209,13 +206,12 @@ static void display_rule_frame_2(menu_content_t *menu, state_t *st,
       st->shader,
       st->shader.locs[SHADER_LOC_VECTOR_VIEW],
       &camera.position,
-      SHADER_UNIFORM_VEC3);
-  Light light = CreateLight(
-      LIGHT_POINT,
-      camera.position,
-      Vector3Zero(),
-      GRAY,
-      st->shader);
+      SHADER_UNIFORM_VEC3
+      );
+  st->lights[0].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[0]);
+  st->lights[1].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[1]);
   BeginTextureMode(*st->screens);
   ClearBackground(BLANK);
   BeginMode3D(camera);
@@ -261,13 +257,10 @@ static void display_rule_frame_3(menu_content_t *menu, state_t *st,
       &camera.position,
       SHADER_UNIFORM_VEC3
       );
-  Light light = CreateLight(
-      LIGHT_POINT,
-      camera.position,
-      Vector3Zero(),
-      GRAY,
-      st->shader
-      );
+  st->lights[0].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[0]);
+  st->lights[1].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[1]);
   BeginTextureMode(*st->screens);
   ClearBackground(BLANK);
   BeginMode3D(camera);
@@ -279,7 +272,7 @@ static void display_rule_frame_3(menu_content_t *menu, state_t *st,
           1.5f,
           1.5f,
           1.5f,
-          st->c_select[0] == x && st->c_select[1] == z ? GREEN : LIGHTGRAY
+          LIGHTGRAY
           );
       DrawCubeWires(
           (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
@@ -456,13 +449,10 @@ static void display_rule_frame_6(menu_content_t *menu, state_t *st,
       &camera.position,
       SHADER_UNIFORM_VEC3
       );
-  Light light = CreateLight(
-      LIGHT_POINT,
-      camera.position,
-      Vector3Zero(),
-      GRAY,
-      st->shader
-      );
+  st->lights[0].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[0]);
+  st->lights[1].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[1]);
   BeginTextureMode(*st->screens);
   ClearBackground(BLANK);
   BeginMode3D(camera);

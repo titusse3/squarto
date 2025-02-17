@@ -82,7 +82,10 @@ int main(void) {
     }
   }
   TEST;
-  quarto_print_board(q);
+  printf("Summary: %016b\n", quarto_summary(q));
+  uint64_t b = quarto_board(q);
+  printf("Board : %032b%032b\n", GW(b, 1), GW(b, 0));
+  // quarto_print_board(q);
   quarto_dispose(&q);
   return EXIT_SUCCESS;
 }

@@ -9,6 +9,7 @@
 #include "rlights.h"
 #include "menu.h"
 #include "raygui.h"
+#include "quarto.h"
 
 #define BASE_SCREEN_WIDTH 1280
 #define BASE_SCREEN_HEIGHT 720
@@ -16,8 +17,8 @@
 #define QUIT_MSG \
         "Do you really want to quit the game ?\nYou will miss a lot of fun..."
 
-static void draw_game(state_t *st, game_info_t *game, uint16_t *placed,
-    uint16_t *used);
+static void draw_game(state_t *st, game_info_t *game, quarto_t **quarto,
+    piece_t *pieces, position_t *positions, uint16_t *used);
 
 static void display_background(Texture2D background, Texture2D foreground,
     float scrollingBack, float scrollingFore, float scale_bg, float scale_fg);
@@ -56,9 +57,28 @@ int main(void) {
       UNDEF_COORD,
       UNDEF_COORD
     },
+    .lights = {},
+    .round = 0,
     .mk_screen = true,
     .screens = nullptr
   };
+  //
+  st.lights[0]
+    = CreateLight(
+      LIGHT_POINT,
+      Vector3Zero(),
+      Vector3Zero(),
+      WHITE,
+      st.shader
+      );
+  st.lights[1]
+    = CreateLight(
+      LIGHT_POINT,
+      Vector3Zero(),
+      Vector3Zero(),
+      WHITE,
+      st.shader
+      );
   //
   st.shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(
       st.shader,
@@ -78,8 +98,29 @@ int main(void) {
   Texture2D background = LoadTexture("resources/image/blue-back.png");
   Texture2D foreground = LoadTexture("resources/image/blue-stars.png");
   //
-  uint16_t placed = 0;
-  uint16_t used = 0b0000'0000'0000'0001;
+  uint16_t used = 0;
+  piece_t pieces[] = {
+    C1_SMALL_PLAIN_SQUARE,
+    C1_SMALL_PLAIN_ROUND,
+    C1_SMALL_HOLE_SQUARE,
+    C1_SMALL_HOLE_ROUND,
+    C1_HUGE_PLAIN_SQUARE,
+    C1_HUGE_PLAIN_ROUND,
+    C1_HUGE_HOLE_SQUARE,
+    C1_HUGE_HOLE_ROUND,
+    C2_SMALL_PLAIN_SQUARE,
+    C2_SMALL_PLAIN_ROUND,
+    C2_SMALL_HOLE_SQUARE,
+    C2_SMALL_HOLE_ROUND,
+    C2_HUGE_PLAIN_SQUARE,
+    C2_HUGE_PLAIN_ROUND,
+    C2_HUGE_HOLE_SQUARE,
+    C2_HUGE_HOLE_ROUND,
+  };
+  position_t positions[] = {
+    P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15
+  };
+  quarto_t *quarto = nullptr;
   //
   float scrollingBack = 0.0f;
   float scrollingFore = 0.0f;
@@ -167,7 +208,7 @@ int main(void) {
         scale_bg, scale_fg);
     //
     if (game.currentScreen == GAME) {
-      draw_game(&st, &game_info, &placed, &used);
+      draw_game(&st, &game_info, &quarto, pieces, positions, &used);
     } else {
       display_menu(&game_info, &game, &st);
     }
@@ -220,8 +261,8 @@ void display_background(Texture2D background, Texture2D foreground,
       scale_fg, WHITE);
 }
 
-void draw_game(state_t *st, game_info_t *game, uint16_t *placed,
-    uint16_t *used) {
+void draw_game(state_t *st, game_info_t *game, quarto_t **quarto,
+    piece_t *pieces, position_t *positions, uint16_t *used) {
   if (st->mk_screen) {
     st->screens = malloc(sizeof *st->screens);
     if (st->screens == nullptr) {
@@ -233,6 +274,13 @@ void draw_game(state_t *st, game_info_t *game, uint16_t *placed,
     st->screens[0]
       = LoadRenderTexture(game->screen_h / 2, game->screen_h / 1.5);
     st->mk_screen = false;
+  }
+  if (*quarto == nullptr) {
+    *quarto = quarto_init(pieces[st->round++]);
+    if (*quarto == nullptr) {
+      display_exit_menu(game);
+    }
+    *used = 1;
   }
   Camera3D camera = {
     .position = (Vector3) {
@@ -253,13 +301,8 @@ void draw_game(state_t *st, game_info_t *game, uint16_t *placed,
       &camera.position,
       SHADER_UNIFORM_VEC3
       );
-  Light light = CreateLight(
-      LIGHT_POINT,
-      camera.position,
-      Vector3Zero(),
-      GRAY,
-      st->shader
-      );
+  st->lights[0].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[0]);
   BeginMode3D(camera);
   BeginShaderMode(st->shader);
   Ray ray = {};
@@ -289,10 +332,16 @@ void draw_game(state_t *st, game_info_t *game, uint16_t *placed,
   if (collision.hit) {
     st->c_select[0] = x - 1;
     st->c_select[1] = z - 1;
-    *placed ^= 1 << (int) ((x - 1) * 4 + z - 1);
+    if (quarto_play(*quarto, pieces[st->round],
+        positions[15 - (size_t) ((x - 1) * 4 + (z - 1))]) == NO_ERROR) {
+      *used |= 0b1 << (uint16_t) st->round;
+      ++st->round;
+    }
   }
-  for (float x = 0; x < 4.0f; ++x) {
-    for (float z = 0; z < 4.0f; ++z) {
+  uint16_t sum = quarto_summary(*quarto);
+  uint64_t board = quarto_board(*quarto);
+  for (size_t x = 0; x < 4; ++x) {
+    for (size_t z = 0; z < 4; ++z) {
       DrawCube(
           (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
           1.5f,
@@ -307,17 +356,17 @@ void draw_game(state_t *st, game_info_t *game, uint16_t *placed,
           1.5f,
           BLACK
           );
-      if (((*placed >> (int) (x * 4 + z)) & 1) != 0) {
-        srand(x * 4 + z + rand());
+      if (((sum >> (uint16_t) (x * 4 + z)) & 0b1) != 0) {
+        unsigned char p = (board >> (4 * (x * 4 + z))) & 0b1111;
         DrawModelEx(
-            st->pieces[(size_t) ((size_t) rand() % 4)],
+            st->pieces[p & 0b0011],
             (Vector3) {x * 1.5f - 2.25f, 0.75f, z * 1.5f - 2.25f},
             (Vector3) {0.0f, 0.0f, 0.0f},
             0.0f,
             (Vector3) {0.55f,
-                       (rand() / (double) RAND_MAX) > 0.5f ? 0.35f : 0.2f,
+                       (p & 0b0100) != 0 ? 0.35f : 0.2f,
                        0.55f},
-            (rand() / (double) RAND_MAX) > 0.5f ? BLUE : RED
+            (p & 0b1000) != 0 ? BLUE : RED
             );
       }
     }
@@ -336,31 +385,25 @@ void draw_game(state_t *st, game_info_t *game, uint16_t *placed,
       &camera.position,
       SHADER_UNIFORM_VEC3
       );
-  light = CreateLight(
-      LIGHT_POINT,
-      camera.position,
-      Vector3Zero(),
-      GRAY,
-      st->shader
-      );
+  st->lights[1].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[1]);
   BeginTextureMode(*st->screens);
   ClearBackground(BLANK);
   BeginMode3D(camera);
   BeginShaderMode(st->shader);
-  for (size_t x = 0; x < 4.0f; ++x) {
-    for (size_t z = 0; z < 4.0f; ++z) {
-      if ((*used >> (x * 4 + z) & 0b1) == 0) {
-        DrawModelEx(
-            st->pieces[x],
-            (Vector3) {0.0f, x * 2.85f + 0.25f, z * 2.0f + 1.0f},
-            (Vector3) {0.0f, 0.0f, -1.0f},
-            32.0f,
-            (Vector3) {0.55f,
-                       z % 2 == 1.0f ? 0.2f : 0.1f,
-                       0.55f},
-            z >= 2.0f ? BLUE : RED
-            );
-      }
+  for (size_t x = 0; x < 4; ++x) {
+    for (size_t z = 0; z < 4; ++z) {
+      DrawModelEx(
+          st->pieces[(x * 4 + z) & 0b0011],
+          (Vector3) {0.0f, x * 2.85f + 0.25f, z * 2.0f + 1.0f},
+          (Vector3) {0.0f, 0.0f, -1.0f},
+          32.0f,
+          (Vector3) {0.55f,
+                     ((x * 4 + z) & 0b0100) != 0 ? 0.2f : 0.1f,
+                     0.55f},
+          (*used >> (x * 4 + z) & 0b1) != 0
+          ? DARKGRAY : ((x * 4 + z) & 0b1000) != 0 ? BLUE : RED
+          );
     }
   }
   EndShaderMode();

@@ -62,7 +62,7 @@ uint64_t quarto_board(quarto_t *q) {
 }
 
 uint16_t quarto_summary(quarto_t *q) {
-  return (uint16_t) q->summary >> 16;
+  return (uint16_t) (q->summary >> 16);
 }
 
 player_t quarto_winner(quarto_t *q) {

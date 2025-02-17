@@ -2,6 +2,7 @@
 #define QUARTO__H
 
 #include <stdlib.h>
+#include <stdint.h>
 
 // quarto_t : Structure et type de structure représentant une partie de Quarto.
 typedef struct quarto_t quarto_t;
