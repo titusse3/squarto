@@ -91,7 +91,7 @@ int main(void) {
   InitAudioDevice();
   Music music = LoadMusicStream("resources/music/italian_hymn.mp3");
   PlayMusicStream(music);
-  SetMusicVolume(music, 0.1f);
+  SetMusicVolume(music, 0.6f);
   game.sound = LoadSound("resources/sound/select.wav");
   SetSoundVolume(game.sound, 0.6f);
   //
@@ -211,6 +211,7 @@ int main(void) {
     BeginDrawing();
     display_background(background, foreground, scrollingBack, scrollingFore,
         scale_bg, scale_fg);
+    display_winning_animation(&game_info, &game.win_info);
     //
     if (game.currentScreen == GAME) {
       draw_game(&st, &game_info, &game, &quarto, pieces, positions, &used);
