@@ -20,6 +20,10 @@
 static void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
     quarto_t **quarto, piece_t *pieces, position_t *positions, uint16_t *used);
 
+static void draw_pieces(state_t *st, Camera3D *camera, uint16_t *used);
+static void draw_board_game(state_t *st, quarto_t *quarto);
+static void select_case(state_t *st, Camera3D *camera);
+
 static void display_background(Texture2D background, Texture2D foreground,
     float scrollingBack, float scrollingFore, float scale_bg, float scale_fg);
 
@@ -309,46 +313,71 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
       );
   st->lights[0].position = camera.position;
   UpdateLightValues(st->shader, st->lights[0]);
-  Ray ray = {};
-  RayCollision collision = {};
-  float x = 0;
-  float z = 0;
-  collision.hit = false;
-  bool win = quarto_is_game_over(*quarto);
-  if (!win) {
-    while (x < 4.0f && !collision.hit) {
-      z = 0;
-      while (z < 4.0f && !collision.hit) {
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-          ray = GetScreenToWorldRay(GetMousePosition(), camera);
-          collision = GetRayCollisionBox(
-              ray,
-              (BoundingBox) { (Vector3) { x * 1.5f - 1.25f,
-                                          1.5f,
-                                          z * 1.5f - 1.25f },
-                              (Vector3) { x * 1.5f - 3.25f,
-                                          1.5f,
-                                          z * 1.5f - 3.25f }}
-              );
-        }
-        ++z;
-      }
-      ++x;
-    }
-    if (collision.hit) {
-      st->c_select[0] = x - 1;
-      st->c_select[1] = z - 1;
-      if (quarto_play(*quarto, pieces[st->round],
-          positions[15 - (size_t) ((x - 1) * 4 + (z - 1))]) == NO_ERROR) {
-        *used |= 0b1 << (uint16_t) st->round;
-        ++st->round;
-      }
+  if (!quarto_is_game_over(*quarto)) {
+    select_case(st, &camera);
+    if (st->c_select[0] != UNDEF_COORD && quarto_play(*quarto,
+        pieces[st->round],
+        positions[15 - (size_t) (st->c_select[0] * 4 + st->c_select[1])])
+        == NO_ERROR) {
+      *used |= 0b1 << (uint16_t) st->round;
+      ++st->round;
     }
   }
   BeginMode3D(camera);
   BeginShaderMode(st->shader);
-  uint16_t sum = quarto_summary(*quarto);
-  uint64_t board = quarto_board(*quarto);
+  draw_board_game(st, *quarto);
+  EndShaderMode();
+  EndMode3D();
+  draw_pieces(st, &camera, used);
+  DrawTextureRec(
+      st->screens->texture,
+      (Rectangle) {0.0f,
+                   0.0f,
+                   (float) st->screens->texture.width,
+                   (float) -st->screens->texture.height},
+      (Vector2) {0.0f, 0.0f},
+      WHITE
+      );
+  if (quarto_winner(*quarto) == PLAYER1) {
+    display_end_animation(game, &info->win_info, "You w in !", true);
+  } else if (quarto_winner(*quarto) == PLAYER2) {
+    display_end_animation(game, &info->win_info, "You Loose !", false);
+  }
+}
+
+void select_case(state_t *st, Camera3D *camera) {
+  Ray ray = {};
+  RayCollision collision = {};
+  float x = 0;
+  float z = 0;
+  while (x < 4.0f && !collision.hit) {
+    z = 0;
+    while (z < 4.0f && !collision.hit) {
+      if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        ray = GetScreenToWorldRay(GetMousePosition(), *camera);
+        collision = GetRayCollisionBox(
+            ray,
+            (BoundingBox) { (Vector3) { x * 1.5f - 1.25f,
+                                        1.5f,
+                                        z * 1.5f - 1.25f },
+                            (Vector3) { x * 1.5f - 3.25f,
+                                        1.5f,
+                                        z * 1.5f - 3.25f }}
+            );
+      }
+      ++z;
+    }
+    ++x;
+  }
+  if (collision.hit) {
+    st->c_select[0] = x - 1;
+    st->c_select[1] = z - 1;
+  }
+}
+
+void draw_board_game(state_t *st, quarto_t *quarto) {
+  uint16_t sum = quarto_summary(quarto);
+  uint64_t board = quarto_board(quarto);
   for (size_t x = 0; x < 4; ++x) {
     for (size_t z = 0; z < 4; ++z) {
       DrawCube(
@@ -380,25 +409,26 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
       }
     }
   }
-  EndShaderMode();
-  EndMode3D();
-  camera.position = (Vector3) {
+}
+
+void draw_pieces(state_t *st, Camera3D *camera, uint16_t *used) {
+  camera->position = (Vector3) {
     21.0f, 5.25f, 4.0f
   };
-  camera.target = (Vector3) {
+  camera->target = (Vector3) {
     0.0f, 5.25f, 4.0f
   };
   SetShaderValue(
       st->shader,
       st->shader.locs[SHADER_LOC_VECTOR_VIEW],
-      &camera.position,
+      &camera->position,
       SHADER_UNIFORM_VEC3
       );
-  st->lights[1].position = camera.position;
+  st->lights[1].position = camera->position;
   UpdateLightValues(st->shader, st->lights[1]);
   BeginTextureMode(*st->screens);
   ClearBackground(BLANK);
-  BeginMode3D(camera);
+  BeginMode3D(*camera);
   BeginShaderMode(st->shader);
   for (size_t x = 0; x < 4; ++x) {
     for (size_t z = 0; z < 4; ++z) {
@@ -418,18 +448,4 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
   EndShaderMode();
   EndMode3D();
   EndTextureMode();
-  DrawTextureRec(
-      st->screens->texture,
-      (Rectangle) {0.0f,
-                   0.0f,
-                   (float) st->screens->texture.width,
-                   (float) -st->screens->texture.height},
-      (Vector2) {0.0f, 0.0f},
-      WHITE
-      );
-  if (quarto_winner(*quarto) == PLAYER1) {
-    display_end_animation(game, &info->win_info, "You w in !", true);
-  } else if (quarto_winner(*quarto) == PLAYER2) {
-    display_end_animation(game, &info->win_info, "You Loose !", false);
-  }
 }
