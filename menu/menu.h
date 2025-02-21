@@ -27,7 +27,7 @@ typedef struct {
   Font f;
   Texture2D explosion;
   Rectangle frameRec;
-  bool has_win;
+  bool has_end;
 } win_display_info;
 
 typedef struct {
@@ -57,7 +57,7 @@ extern void display_menu(game_info_t *game, menu_content_t *menu, state_t *st);
 extern bool display_exit_menu(game_info_t *game_info, int fontSize,
     const char *msg, int msg_size);
 
-extern void display_winning_animation(game_info_t *game_info,
-    win_display_info *info);
+extern void display_end_animation(game_info_t *game_info,
+    win_display_info *info, const char *text, bool win);
 
 #endif

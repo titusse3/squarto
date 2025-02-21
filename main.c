@@ -132,14 +132,14 @@ int main(void) {
     0, 0, game.win_info.explosion.width / 4, game.win_info.explosion.height / 4
   };
   game.win_info.f = LoadFont("resources/fonts/alagard.png");
-  game.win_info.has_win = false;
+  game.win_info.has_end = false;
   int currentFrame = 0;
   int currentLine = 0;
   int framesCounter = 0;
   //
   while (true) {
     //
-    if (game.win_info.has_win) {
+    if (game.win_info.has_end) {
       framesCounter++;
       if (framesCounter > 2) {
         currentFrame++;
@@ -211,7 +211,6 @@ int main(void) {
     BeginDrawing();
     display_background(background, foreground, scrollingBack, scrollingFore,
         scale_bg, scale_fg);
-    display_winning_animation(&game_info, &game.win_info);
     //
     if (game.currentScreen == GAME) {
       draw_game(&st, &game_info, &game, &quarto, pieces, positions, &used);
@@ -272,7 +271,6 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
   if (st->mk_screen) {
     st->screens = malloc(sizeof *st->screens);
     if (st->screens == nullptr) {
-      // error d'alloc
       display_exit_menu(game, game->screen_h / 16, "Error during allocation",
           MeasureText("Error during allocation", game->screen_h / 16));
       return;
@@ -429,7 +427,9 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
       (Vector2) {0.0f, 0.0f},
       WHITE
       );
-  if (win) {
-    display_winning_animation(game, &info->win_info);
+  if (quarto_winner(*quarto) == PLAYER1) {
+    display_end_animation(game, &info->win_info, "You w in !", true);
+  } else if (quarto_winner(*quarto) == PLAYER2) {
+    display_end_animation(game, &info->win_info, "You Loose !", false);
   }
 }

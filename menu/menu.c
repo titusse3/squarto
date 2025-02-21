@@ -710,9 +710,10 @@ static void display_history(game_info_t *game, int left_padding, int offset,
 void display_menu(game_info_t *game, menu_content_t *menu, state_t *st) {
   const int title_size = game->screen_h / TITLE_DIVIDER;
   int titleWidth = MeasureText(game->game_name, title_size);
-  DrawText(game->game_name, titleWidth / TITLE_POS_DIV,
-      titleWidth / TITLE_POS_DIV,
-      title_size, WHITE);
+  Vector2 titlePos = {
+    titleWidth / TITLE_POS_DIV, titleWidth / TITLE_POS_DIV
+  };
+  DrawTextEx(menu->win_info.f, game->game_name, titlePos, title_size, 2, WHITE);
   int button_f = game->screen_h / (TITLE_DIVIDER * 2.2);
   //
   GuiSetStyle(DEFAULT, TEXT_SIZE, button_f);
@@ -781,8 +782,9 @@ bool display_exit_menu(game_info_t *game_info, int fontSize, const char *msg,
   return false;
 }
 
-void display_winning_animation(game_info_t *game_info, win_display_info *info) {
-  info->has_win = true;
+void display_end_animation(game_info_t *game_info, win_display_info *info,
+    const char *text, bool win) {
+  info->has_end = true;
   Rectangle destRec = {
     (game_info->screen_w - info->frameRec.width
     * (game_info->screen_w / (info->frameRec.width * 1.4f))) / 2,
@@ -801,7 +803,6 @@ void display_winning_animation(game_info_t *game_info, win_display_info *info) {
   int font_size = info->f.baseSize * 8;
   static float waveOffset = 0.0f;
   waveOffset += 0.1f;
-  const char *text = "You W in !";
   Vector2 textSize = MeasureTextEx(info->f, text, font_size, 1);
   for (int i = 0; i < strlen(text); i++) {
     float offset = sinf(waveOffset + i * 0.5f) * 10.0f;
@@ -809,7 +810,7 @@ void display_winning_animation(game_info_t *game_info, win_display_info *info) {
         (Vector2){ game_info->screen_w / 2 - textSize.x / 2 + i * (textSize.x
                    / strlen(text)),
                    game_info->screen_h / 2 - info->f.baseSize * 2.5f + offset },
-        (Vector2){ 0, 0 }, 0.0f, font_size, 1, GREEN);
+        (Vector2){ 0, 0 }, 0.0f, font_size, 1, (win ? GREEN : RED));
   }
   //
 }
