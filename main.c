@@ -27,6 +27,8 @@ static void select_case(state_t *st, Camera3D *camera);
 static void display_background(Texture2D background, Texture2D foreground,
     float scrollingBack, float scrollingFore, float scale_bg, float scale_fg);
 
+static void pieces_selectors(state_t *st, uint16_t *used);
+
 int main(void) {
   InitWindow(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, GAME_NAME);
   SetExitKey(0);
@@ -58,6 +60,10 @@ int main(void) {
       LoadModel("resources/model/HOLE_ROUND.obj")
     },
     .c_select = {
+      UNDEF_COORD,
+      UNDEF_COORD
+    },
+    .p_select = {
       UNDEF_COORD,
       UNDEF_COORD
     },
@@ -335,9 +341,7 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
                    0.0f,
                    (float) st->screens->texture.width,
                    (float) -st->screens->texture.height},
-      (Vector2) {0.0f, 0.0f},
-      WHITE
-      );
+      (Vector2) {0.0f, 0.0f}, WHITE);
   if (quarto_winner(*quarto) == PLAYER1) {
     display_end_animation(game, &info->win_info, "You w in !", true);
   } else if (quarto_winner(*quarto) == PLAYER2) {
@@ -411,6 +415,31 @@ void draw_board_game(state_t *st, quarto_t *quarto) {
   }
 }
 
+void pieces_selectors(state_t *st, uint16_t *used) {
+  float rect_heigth = st->screens->texture.height / 4.0f;
+  float rect_width = st->screens->texture.width / 4.0f;
+  for (size_t i = 0; i < 4; ++i) {
+    for (size_t j = 0; j < 4; ++j) {
+      Rectangle r = {
+        .x = j * rect_width, .y = i * rect_heigth,
+        .width = rect_width, .height = rect_heigth
+      };
+      bool is_selected = (st->p_select[0] == 3 - i && st->p_select[1] == 3 - j);
+      if (CheckCollisionPointRec(GetMousePosition(), r) && !is_selected
+          && (*used >> ((3 - i) * 4 + 3 - j) & 0b1) == 0) {
+        DrawRectangleRec(r, Fade(LIGHTGRAY, 0.8f));
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+          st->p_select[0] = 3 - i;
+          st->p_select[1] = 3 - j;
+        }
+      }
+      if (is_selected) {
+        DrawRectangleRec(r, Fade(PURPLE, 0.8f));
+      }
+    }
+  }
+}
+
 void draw_pieces(state_t *st, Camera3D *camera, uint16_t *used) {
   camera->position = (Vector3) {
     21.0f, 5.25f, 4.0f
@@ -427,6 +456,7 @@ void draw_pieces(state_t *st, Camera3D *camera, uint16_t *used) {
   st->lights[1].position = camera->position;
   UpdateLightValues(st->shader, st->lights[1]);
   BeginTextureMode(*st->screens);
+  pieces_selectors(st, used);
   ClearBackground(BLANK);
   BeginMode3D(*camera);
   BeginShaderMode(st->shader);
