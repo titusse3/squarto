@@ -112,7 +112,7 @@ piece_t quarto_current_piece(quarto_t *q) {
 static bool piece__already_played(quarto_t *q, piece_t p) {
   for (int i = 0; i < 16; i++) {
     int v = (q->board >> (60 - i * 4)) & 0b1111;
-    if (v == (int) (p & P15)) {
+    if ((q->summary >> (31 - i) & 1) == 1 && v == (int) (p & P15)) {
       return true;
     }
   }

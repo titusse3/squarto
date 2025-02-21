@@ -68,7 +68,6 @@ int main(void) {
       UNDEF_COORD
     },
     .lights = {},
-    .round = 0,
     .mk_screen = true,
     .screens = nullptr
   };
@@ -209,9 +208,10 @@ int main(void) {
         }
         quarto_dispose(&quarto);
         used = 0;
-        st.round = 0;
         st.c_select[0] = UNDEF_COORD;
         st.c_select[1] = UNDEF_COORD;
+        st.p_select[0] = UNDEF_COORD;
+        st.p_select[1] = UNDEF_COORD;
       }
     } else if (game.menuType == RULES) {
       ++game.content.rules_values.rules_frames;
@@ -290,13 +290,14 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
     st->mk_screen = false;
   }
   if (*quarto == nullptr) {
-    *quarto = quarto_init(pieces[st->round++]);
+    size_t p = rand() % NB_PIECES;
+    *quarto = quarto_init(pieces[p]);
     if (*quarto == nullptr) {
       display_exit_menu(game, game->screen_h / 16, "Error during allocation",
           MeasureText("Error during allocation", game->screen_h / 16));
       return;
     }
-    *used = 1;
+    *used = 1 << (uint16_t) p;
   }
   Camera3D camera = {
     .position = (Vector3) {
@@ -321,12 +322,12 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
   UpdateLightValues(st->shader, st->lights[0]);
   if (!quarto_is_game_over(*quarto)) {
     select_case(st, &camera);
-    if (st->c_select[0] != UNDEF_COORD && quarto_play(*quarto,
-        pieces[st->round],
+    if (st->c_select[0] != UNDEF_COORD && st->p_select[0] != UNDEF_COORD
+        && quarto_play(*quarto,
+        pieces[(size_t) (st->p_select[0] * 4 + st->p_select[1])],
         positions[15 - (size_t) (st->c_select[0] * 4 + st->c_select[1])])
         == NO_ERROR) {
-      *used |= 0b1 << (uint16_t) st->round;
-      ++st->round;
+      *used |= 0b1 << (uint16_t) (st->p_select[0] * 4 + st->p_select[1]);
     }
   }
   BeginMode3D(camera);

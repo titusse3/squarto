@@ -15,7 +15,6 @@ typedef struct {
   float c_select[2];
   float p_select[2];
   Light lights[2];
-  size_t round;
   bool mk_screen;
   RenderTexture *screens;
 } state_t;
