@@ -8,6 +8,7 @@
 
 #include "rlights.h"
 #include "menu.h"
+#include "mbck.h"
 #include "raygui.h"
 #include "quarto.h"
 
@@ -18,16 +19,16 @@
         "Do you really want to quit the game ?\nYou will miss a lot of fun..."
 
 static void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
-    quarto_t **quarto, piece_t *pieces, position_t *positions, uint16_t *used);
+    piece_t *pieces, position_t *positions, game_state_t *gs);
 
-static void draw_pieces(state_t *st, Camera3D *camera, uint16_t *used);
+static void draw_pieces(state_t *st, game_state_t *gs, Camera3D *camera);
 static void draw_board_game(state_t *st, quarto_t *quarto);
 static void select_case(state_t *st, Camera3D *camera);
 
 static void display_background(Texture2D background, Texture2D foreground,
     float scrollingBack, float scrollingFore, float scale_bg, float scale_fg);
 
-static void pieces_selectors(state_t *st, uint16_t *used);
+static void pieces_selectors(state_t *st, game_state_t *gs);
 
 int main(void) {
   InitWindow(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, GAME_NAME);
@@ -48,54 +49,13 @@ int main(void) {
     .sound_play = NONE,
   };
   //
-  state_t st = {
-    .shader = LoadShader(
-        "resources/shaders/glsl330/lighting.vs",
-        "resources/shaders/glsl330/lighting.fs"
-        ),
-    .pieces = {
-      LoadModel("resources/model/PLAIN_SQUARE.obj"),
-      LoadModel("resources/model/PLAIN_ROUND.obj"),
-      LoadModel("resources/model/HOLE_SQUARE.obj"),
-      LoadModel("resources/model/HOLE_ROUND.obj")
-    },
-    .c_select = {
-      UNDEF_COORD,
-      UNDEF_COORD
-    },
-    .p_select = {
-      UNDEF_COORD,
-      UNDEF_COORD
-    },
-    .lights = {},
-    .mk_screen = true,
-    .screens = nullptr
-  };
-  //
-  st.lights[0]
-    = CreateLight(
-      LIGHT_POINT,
-      Vector3Zero(),
-      Vector3Zero(),
-      WHITE,
-      st.shader
-      );
-  st.lights[1]
-    = CreateLight(
-      LIGHT_POINT,
-      Vector3Zero(),
-      Vector3Zero(),
-      WHITE,
-      st.shader
-      );
-  //
-  st.shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(
-      st.shader,
-      "viewPos"
-      );
-  for (size_t k = 0; k < NB_PIECES; ++k) {
-    st.pieces[k].materials[0].shader = st.shader;
-  }
+  state_t st = init_state(
+      (const char *[]){ "resources/shaders/glsl330/base.vs",
+                        "resources/shaders/glsl330/base.fs" },
+      (const char *[]){ "resources/model/piece1.obj",
+                        "resources/model/piece2.obj",
+                        "resources/model/piece3.obj",
+                        "resources/model/piece4.obj" });
   //
   InitAudioDevice();
   Music music = LoadMusicStream("resources/music/italian_hymn.mp3");
@@ -104,8 +64,10 @@ int main(void) {
   game.sound = LoadSound("resources/sound/select.wav");
   SetSoundVolume(game.sound, 0.6f);
   //
-  Texture2D background = LoadTexture("resources/image/blue-back.png");
-  Texture2D foreground = LoadTexture("resources/image/blue-stars.png");
+  mbck_t *m_bck = init_mbck("resources/image/blue-back.png",
+      game_info.screen_w, game_info.screen_h);
+  mbck_t *m_fg = init_mbck("resources/image/blue-stars.png",
+      game_info.screen_w, game_info.screen_h);
   //
   uint16_t used = 0;
   piece_t pieces[] = {
@@ -129,12 +91,12 @@ int main(void) {
   position_t positions[] = {
     P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15
   };
-  quarto_t *quarto = nullptr;
   //
-  float scrollingBack = 0.0f;
-  float scrollingFore = 0.0f;
-  float scale_bg = (float) game_info.screen_w / background.width;
-  float scale_fg = (float) game_info.screen_w / foreground.width;
+  game_state_t gs = {
+    .q = nullptr, .used = 0, .p_select = {
+      UNDEF_COORD, UNDEF_COORD
+    }
+  };
   //
   game.win_info.explosion = LoadTexture("resources/image/explosion.png");
   game.win_info.frameRec = (Rectangle) {
@@ -167,17 +129,6 @@ int main(void) {
           * currentLine;
     }
     //
-    scale_bg = (float) game_info.screen_w / background.width;
-    scale_fg = (float) game_info.screen_w / foreground.width;
-    scrollingBack -= 0.7f;
-    scrollingFore -= 1.0f;
-    if (scrollingBack <= -background.width * scale_bg) {
-      scrollingBack = 0;
-    }
-    if (scrollingFore <= -foreground.width * scale_fg) {
-      scrollingFore = 0;
-    }
-    //
     game_info.screen_w = GetScreenWidth();
     game_info.screen_h = GetScreenHeight();
     if (WindowShouldClose()) {
@@ -206,12 +157,12 @@ int main(void) {
           free(st.screens);
           st.mk_screen = true;
         }
-        quarto_dispose(&quarto);
+        quarto_dispose(&(gs.q));
         used = 0;
         st.c_select[0] = UNDEF_COORD;
         st.c_select[1] = UNDEF_COORD;
-        st.p_select[0] = UNDEF_COORD;
-        st.p_select[1] = UNDEF_COORD;
+        gs.p_select[0] = UNDEF_COORD;
+        gs.p_select[1] = UNDEF_COORD;
       }
     } else if (game.menuType == RULES) {
       ++game.content.rules_values.rules_frames;
@@ -219,11 +170,12 @@ int main(void) {
       ++game.content.history_values.history_frames;
     }
     BeginDrawing();
-    display_background(background, foreground, scrollingBack, scrollingFore,
-        scale_bg, scale_fg);
+    ClearBackground(GetColor(0x052c46ff));
+    mbck_physics_process(m_bck, 0.7f);
+    mbck_physics_process(m_fg, 1.0f);
     //
     if (game.currentScreen == GAME) {
-      draw_game(&st, &game_info, &game, &quarto, pieces, positions, &used);
+      draw_game(&st, &game_info, &game, pieces, positions, &gs);
     } else {
       display_menu(&game_info, &game, &st);
     }
@@ -237,8 +189,10 @@ int main(void) {
     }
     EndDrawing();
   }
-  UnloadTexture(background);
-  UnloadTexture(foreground);
+  //
+  dispose_mbck(&m_bck);
+  dispose_mbck(&m_fg);
+  //
   UnloadTexture(game.win_info.explosion);
   UnloadFont(game.win_info.f);
   UnloadSound(game.sound);
@@ -249,35 +203,10 @@ int main(void) {
 
 void display_background(Texture2D background, Texture2D foreground,
     float scrollingBack, float scrollingFore, float scale_bg, float scale_fg) {
-  ClearBackground(GetColor(0x052c46ff));
-  DrawTextureEx(background, (Vector2){ scrollingBack, 0 }, 0.0f,
-      scale_bg, WHITE);
-  DrawTextureEx(background,
-      (Vector2){ background.width *scale_bg + scrollingBack, 0 }, 0.0f,
-      scale_bg, WHITE);
-  DrawTextureEx(background,
-      (Vector2){ scrollingBack, background.height * scale_bg }, 0.0f,
-      scale_bg, WHITE);
-  DrawTextureEx(background,
-      (Vector2){ background.width *scale_bg + scrollingBack,
-                 background.height *scale_bg }, 0.0f,
-      scale_bg, WHITE);
-  DrawTextureEx(foreground, (Vector2){ scrollingFore, 0 }, 0.0f,
-      scale_fg, WHITE);
-  DrawTextureEx(foreground,
-      (Vector2){ foreground.width *scale_fg + scrollingFore, 0 }, 0.0f,
-      scale_fg, WHITE);
-  DrawTextureEx(foreground,
-      (Vector2){ scrollingFore, foreground.height * scale_fg }, 0.0f,
-      scale_fg, WHITE);
-  DrawTextureEx(foreground,
-      (Vector2){ foreground.width *scale_fg + scrollingFore,
-                 foreground.height *scale_fg }, 0.0f,
-      scale_fg, WHITE);
 }
 
 void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
-    quarto_t **quarto, piece_t *pieces, position_t *positions, uint16_t *used) {
+    piece_t *pieces, position_t *positions, game_state_t *gs) {
   if (st->mk_screen) {
     st->screens = malloc(sizeof *st->screens);
     if (st->screens == nullptr) {
@@ -289,15 +218,15 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
       = LoadRenderTexture(game->screen_h / 2, game->screen_h / 1.5);
     st->mk_screen = false;
   }
-  if (*quarto == nullptr) {
+  if (gs->q == nullptr) {
     size_t p = rand() % NB_PIECES;
-    *quarto = quarto_init(pieces[p]);
-    if (*quarto == nullptr) {
+    gs->q = quarto_init(pieces[p]);
+    if (gs->q == nullptr) {
       display_exit_menu(game, game->screen_h / 16, "Error during allocation",
           MeasureText("Error during allocation", game->screen_h / 16));
       return;
     }
-    *used = 1 << (uint16_t) p;
+    gs->used = 1 << (uint16_t) p;
   }
   Camera3D camera = {
     .position = (Vector3) {
@@ -320,22 +249,22 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
       );
   st->lights[0].position = camera.position;
   UpdateLightValues(st->shader, st->lights[0]);
-  if (!quarto_is_game_over(*quarto)) {
+  if (!quarto_is_game_over(gs->q)) {
     select_case(st, &camera);
-    if (st->c_select[0] != UNDEF_COORD && st->p_select[0] != UNDEF_COORD
-        && quarto_play(*quarto,
-        pieces[(size_t) (st->p_select[0] * 4 + st->p_select[1])],
+    if (st->c_select[0] != UNDEF_COORD && gs->p_select[0] != UNDEF_COORD
+        && quarto_play(gs->q,
+        pieces[(size_t) (gs->p_select[0] * 4 + gs->p_select[1])],
         positions[15 - (size_t) (st->c_select[0] * 4 + st->c_select[1])])
         == NO_ERROR) {
-      *used |= 0b1 << (uint16_t) (st->p_select[0] * 4 + st->p_select[1]);
+      gs->used |= 0b1 << (uint16_t) (gs->p_select[0] * 4 + gs->p_select[1]);
     }
   }
   BeginMode3D(camera);
   BeginShaderMode(st->shader);
-  draw_board_game(st, *quarto);
+  draw_board_game(st, gs->q);
   EndShaderMode();
   EndMode3D();
-  draw_pieces(st, &camera, used);
+  draw_pieces(st, gs, &camera);
   DrawTextureRec(
       st->screens->texture,
       (Rectangle) {0.0f,
@@ -343,9 +272,9 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
                    (float) st->screens->texture.width,
                    (float) -st->screens->texture.height},
       (Vector2) {0.0f, 0.0f}, WHITE);
-  if (quarto_winner(*quarto) == PLAYER1) {
+  if (quarto_winner(gs->q) == PLAYER1) {
     display_end_animation(game, &info->win_info, "You w in !", true);
-  } else if (quarto_winner(*quarto) == PLAYER2) {
+  } else if (quarto_winner(gs->q) == PLAYER2) {
     display_end_animation(game, &info->win_info, "You Loose !", false);
   }
 }
@@ -416,7 +345,7 @@ void draw_board_game(state_t *st, quarto_t *quarto) {
   }
 }
 
-void pieces_selectors(state_t *st, uint16_t *used) {
+void pieces_selectors(state_t *st, game_state_t *gs) {
   float rect_heigth = st->screens->texture.height / 4.0f;
   float rect_width = st->screens->texture.width / 4.0f;
   for (size_t i = 0; i < 4; ++i) {
@@ -425,13 +354,13 @@ void pieces_selectors(state_t *st, uint16_t *used) {
         .x = j * rect_width, .y = i * rect_heigth,
         .width = rect_width, .height = rect_heigth
       };
-      bool is_selected = (st->p_select[0] == 3 - i && st->p_select[1] == 3 - j);
+      bool is_selected = (gs->p_select[0] == 3 - i && gs->p_select[1] == 3 - j);
       if (CheckCollisionPointRec(GetMousePosition(), r) && !is_selected
-          && (*used >> ((3 - i) * 4 + 3 - j) & 0b1) == 0) {
+          && (gs->used >> ((3 - i) * 4 + 3 - j) & 0b1) == 0) {
         DrawRectangleRec(r, Fade(LIGHTGRAY, 0.8f));
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-          st->p_select[0] = 3 - i;
-          st->p_select[1] = 3 - j;
+          gs->p_select[0] = 3 - i;
+          gs->p_select[1] = 3 - j;
         }
       }
       if (is_selected) {
@@ -441,7 +370,7 @@ void pieces_selectors(state_t *st, uint16_t *used) {
   }
 }
 
-void draw_pieces(state_t *st, Camera3D *camera, uint16_t *used) {
+void draw_pieces(state_t *st, game_state_t *gs, Camera3D *camera) {
   camera->position = (Vector3) {
     21.0f, 5.25f, 4.0f
   };
@@ -457,7 +386,7 @@ void draw_pieces(state_t *st, Camera3D *camera, uint16_t *used) {
   st->lights[1].position = camera->position;
   UpdateLightValues(st->shader, st->lights[1]);
   BeginTextureMode(*st->screens);
-  pieces_selectors(st, used);
+  pieces_selectors(st, gs);
   ClearBackground(BLANK);
   BeginMode3D(*camera);
   BeginShaderMode(st->shader);
@@ -471,7 +400,7 @@ void draw_pieces(state_t *st, Camera3D *camera, uint16_t *used) {
           (Vector3) {0.55f,
                      ((x * 4 + z) & 0b0100) != 0 ? 0.2f : 0.1f,
                      0.55f},
-          (*used >> (x * 4 + z) & 0b1) != 0
+          (gs->used >> (x * 4 + z) & 0b1) != 0
           ? DARKGRAY : ((x * 4 + z) & 0b1000) != 0 ? BLUE : RED
           );
     }

@@ -74,7 +74,7 @@ static void display_img_player(menu_content_t *menu, Rectangle *container,
 
 static bool display_text_writing(game_info_t *game, menu_content_t *menu,
     Rectangle *container, const char *text) {
-  int font_size = container->height / 20;
+  int font_size = container->width / 30;
   int l = MeasureText(text, font_size);
   int number_to_display = menu->content.rules_values.rules_frames / 3;
   DrawText(TextSubtext(text, 0, number_to_display),
@@ -699,12 +699,16 @@ static void display_history(game_info_t *game, int left_padding, int offset,
   DrawTexture(menu->content.history_values.history_texture, (int) img_x,
       (int) img_y, WHITE);
   //
-  int font_size_txt = rulesRect.height / 30;
+  int font_size_txt = rulesRect.width / 40;
   int l = MeasureText(HISTORY_TXT, font_size_txt);
   int number_to_display = menu->content.history_values.history_frames / 3;
+  int text_y = img_y + img_height + 30;
+  int text_height = MeasureTextEx(GetFontDefault(), HISTORY_TXT, font_size_txt,
+      1).y;
+  int centered_y = text_y + (rulesRect.height - text_y - text_height) / 2;
   DrawText(TextSubtext(HISTORY_TXT, 0, number_to_display),
       pink.x + (rulesRect.width - l) / 2,
-      img_y + img_height + 30, font_size_txt, LIGHTGRAY);
+      centered_y, font_size_txt, LIGHTGRAY);
 }
 
 void display_menu(game_info_t *game, menu_content_t *menu, state_t *st) {
