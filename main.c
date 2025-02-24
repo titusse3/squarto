@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include <raylib.h>
 #include <raymath.h>
@@ -50,12 +51,12 @@ int main(void) {
   };
   //
   state_t st = init_state(
-      (const char *[]){ "resources/shaders/glsl330/base.vs",
-                        "resources/shaders/glsl330/base.fs" },
-      (const char *[]){ "resources/model/piece1.obj",
-                        "resources/model/piece2.obj",
-                        "resources/model/piece3.obj",
-                        "resources/model/piece4.obj" });
+      (const char *[2]){ "resources/shaders/glsl330/lighting.vs",
+                         "resources/shaders/glsl330/lighting.fs" },
+      (const char *[NB_PIECES]){ "resources/model/PLAIN_SQUARE.obj",
+                                 "resources/model/PLAIN_ROUND.obj",
+                                 "resources/model/HOLE_SQUARE.obj",
+                                 "resources/model/HOLE_ROUND.obj" });
   //
   InitAudioDevice();
   Music music = LoadMusicStream("resources/music/italian_hymn.mp3");
@@ -219,6 +220,7 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
     st->mk_screen = false;
   }
   if (gs->q == nullptr) {
+    srand(time(nullptr));
     size_t p = rand() % NB_PIECES;
     gs->q = quarto_init(pieces[p]);
     if (gs->q == nullptr) {
@@ -257,6 +259,8 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
         positions[15 - (size_t) (st->c_select[0] * 4 + st->c_select[1])])
         == NO_ERROR) {
       gs->used |= 0b1 << (uint16_t) (gs->p_select[0] * 4 + gs->p_select[1]);
+      gs->p_select[0] = UNDEF_COORD;
+      gs->p_select[1] = UNDEF_COORD;
     }
   }
   BeginMode3D(camera);
@@ -362,9 +366,11 @@ void pieces_selectors(state_t *st, game_state_t *gs) {
           gs->p_select[0] = 3 - i;
           gs->p_select[1] = 3 - j;
         }
-      }
-      if (is_selected) {
+      } else if (is_selected) {
         DrawRectangleRec(r, Fade(PURPLE, 0.8f));
+      } else if ((quarto_current_piece(gs->q) & 0b1111)
+          == (3 - i) * 4 + 3 - j) {
+        DrawRectangleRec(r, Fade(SKYBLUE, 0.8f));
       }
     }
   }
