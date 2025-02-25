@@ -308,7 +308,45 @@ static void display_rule_frame_3(menu_content_t *menu, state_t *st,
       );
 }
 
-static void display_rule_frame_4(menu_content_t *menu, Rectangle *rulesRect) {
+static void display_rule_frame_4(menu_content_t *menu, state_t *st,
+    Rectangle *rulesRect) {
+  Camera3D camera = {
+    .position = (Vector3) {
+      10.0f, 20.0f, 10.0f
+    },
+    .target = (Vector3) {
+      0.0f, 0.0f, 0.0f
+    },
+    .up = (Vector3) {
+      0.0f, 1.0f, 0.0f
+    }, .fovy = 30.0f, .projection = CAMERA_PERSPECTIVE
+  };
+  SetShaderValue(
+      st->shader,
+      st->shader.locs[SHADER_LOC_VECTOR_VIEW],
+      &camera.position,
+      SHADER_UNIFORM_VEC3
+      );
+  st->lights[0].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[0]);
+  st->lights[1].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[1]);
+  BeginTextureMode(*st->screens);
+  ClearBackground(BLANK);
+  BeginMode3D(camera);
+  BeginShaderMode(st->shader);
+  float piece = MIN(menu->content.rules_values.rules_frames - 170, 60) / 60.0f;
+  DrawModelEx(
+      st->pieces[0],
+      (Vector3) {-4.0f * piece + 2.0f, 0.0f, 4.0f * piece - 2.0f},
+      (Vector3) {0.0f, 0.0f, 0.0f},
+      0.0f,
+      (Vector3) {0.55f, 0.2f, 0.55},
+      RED
+      );
+  EndShaderMode();
+  EndMode3D();
+  EndTextureMode();
   float scale = 0.4f;
   int img_width = menu->content.rules_values.rules_textures[0].width;
   int total_width = 2 * (img_width * scale) + SPACE_BETWEEN_BUTTONS;
@@ -325,24 +363,16 @@ static void display_rule_frame_4(menu_content_t *menu, Rectangle *rulesRect) {
   DrawTextureEx(menu->content.rules_values.rules_textures[1], pos2, 0.0f,
       scale, WHITE);
   //
-  float piece_scale = 0.2f;
-  int piece_width = menu->content.rules_values.rules_textures[0].width;
-  int piece_height = menu->content.rules_values.rules_textures[0].height;
-  int scaled_piece_width = (int) (piece_width * piece_scale);
-  int piece_start_x = pos1.x + scaled_piece_width / 2;
-  int piece_start_y = pos1.y + scaled_piece_width / 2;
-  int piece_end_x = pos2.x + scaled_piece_width / 2;
-  int piece_end_y = pos2.y + scaled_piece_width / 2;
-  float piece = (menu->content.rules_values.rules_frames % 60) / 60.0f;
-  int piece_current_x = piece_start_x
-      + (int) ((piece_end_x - piece_start_x) * piece);
-  int piece_current_y = piece_start_y
-      + (int) ((piece_end_y - piece_start_y) * piece);
-  Vector2 piece_pos = {
-    piece_current_x, piece_current_y
-  };
-  DrawTextureEx(menu->content.rules_values.rules_textures[0], piece_pos, 0.0f,
-      piece_scale, WHITE);
+  DrawTextureRec(
+      st->screens->texture,
+      (Rectangle) {0.0f,
+                   0.0f,
+                   (float) st->screens->texture.width,
+                   (float) -st->screens->texture.height},
+      (Vector2) {rulesRect->x,
+                 rulesRect->y + rulesRect->height / 4},
+      WHITE
+      );
 }
 
 static void display_rule_frame_5(menu_content_t *menu, state_t *st,
@@ -390,7 +420,7 @@ static void display_rule_frame_5(menu_content_t *menu, state_t *st,
           );
     }
   }
-  float t = (menu->content.rules_values.rules_frames % 60) / 60.0f;
+  float t = MIN(menu->content.rules_values.rules_frames - 260, 60) / 60.0f;
   Vector3 start_pos = {
     2 * 1.5f - 2.25f, 5.0f, 2 * 1.5f - 2.25f
   };
@@ -589,7 +619,7 @@ static void display_rules(game_info_t *game, int left_padding, int offset,
       break;
     case 4:
       if (display_text_writing(game, menu, &rulesRect, RULE_FOUR)) {
-        display_rule_frame_4(menu, &rulesRect);
+        display_rule_frame_4(menu, st, &rulesRect);
       }
       break;
     case 5:
