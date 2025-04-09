@@ -66,9 +66,9 @@ int main(void) {
   SetSoundVolume(game.sound, 0.6f);
   //
   mbck_t *m_bck = init_mbck("resources/image/blue-back.png",
-      game_info.screen_w, game_info.screen_h);
+      game_info.screen_w, game_info.screen_h, true);
   mbck_t *m_fg = init_mbck("resources/image/blue-stars.png",
-      game_info.screen_w, game_info.screen_h);
+      game_info.screen_w, game_info.screen_h, true);
   //
   uint16_t used = 0;
   piece_t pieces[] = {
@@ -200,10 +200,6 @@ int main(void) {
   CloseAudioDevice();
   CloseWindow();
   return EXIT_SUCCESS;
-}
-
-void display_background(Texture2D background, Texture2D foreground,
-    float scrollingBack, float scrollingFore, float scale_bg, float scale_fg) {
 }
 
 void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
