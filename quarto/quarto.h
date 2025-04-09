@@ -129,6 +129,11 @@ typedef enum {
 //    succès, nullptr dans le cas contraire.
 extern quarto_t *quarto_init(piece_t start);
 
+// quarto_copy : Retourne une copie du plateau de jeu associé à q.
+// Retourne un pointeur vers la structure associée à un jeu de Quarto en cas de
+//    succès, nullptr dans le cas contraire.
+extern quarto_t *quarto_copy(const quarto_t *q);
+
 //  quarto_dispose : Libère la mémoire associée au jeu de Quarto associé à
 //    *qptr et met *qptr à la valeur nullptr.
 extern void quarto_dispose(quarto_t **qptr);

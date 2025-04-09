@@ -37,6 +37,16 @@ quarto_t *quarto_init(piece_t start) {
   return q;
 }
 
+quarto_t *quarto_copy(const quarto_t *q) {
+  quarto_t *copy = malloc(sizeof *q);
+  if (copy == nullptr) {
+    return nullptr;
+  }
+  copy->summary = q->summary;
+  copy->board = q->board;
+  return copy;
+}
+
 void quarto_dispose(quarto_t **qptr) {
   if (*qptr == nullptr) {
     return;
