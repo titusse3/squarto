@@ -212,7 +212,7 @@ int heuristic(const quarto_t *q) {
       case PLAYER1:
         return INT_MAX;
       case PLAYER2:
-        return INT_MIN;
+        return -INT_MAX;
       default:
         return 0;
     }

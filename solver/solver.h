@@ -12,39 +12,42 @@ typedef struct {
 
 // min_max : Met dans *move le meilleur coup à jouer selon l'algorihtme Min-Max
 //    à l'aide de l'heuristique heur. Qui sera appliquer au maximum à la
-//    profondeur depth et comment noeud racine Max ou Min selon is_max
+//    profondeur depth et comment noeud racine Max ou Min selon is_max.
 // Retourne true si le meilleur coup à bien pu être calculé, false dans le cas
 //    contraire et *move renvoie une valeur indéterminé.
 extern bool min_max(const quarto_t *quarto, int (*heur)(const quarto_t *),
     unsigned int depth, bool is_max, move_t *move);
 
-// nega_max : Renvoie le meilleur coup à jouer selon l'algorihtme Nega-Max à
-//    l'aide de l'heuristique heur. Qui sera appliquer au maximum à la
-//    profondeur depth.
-extern move_t nega_max(const quarto_t *quarto, int (*heur)(const quarto_t *),
-    unsigned int depth);
+// nega_max : Met dans *move le meilleur coup à jouer selon l'algorihtme
+//    Méga-Max à l'aide de l'heuristique heur. Qui sera appliquer au maximum à
+//    la profondeur depth.
+// Retourne true si le meilleur coup à bien pu être calculé, false dans le cas
+//    contraire et *move renvoie une valeur indéterminé.
+extern bool nega_max(const quarto_t *quarto, int (*heur)(const quarto_t *),
+    unsigned int depth, move_t *move);
 
-// alpha_beta : Renvoie le meilleur coup à jouer selon l'algorihtme Alpha-Beta
-//    à l'aide de l'heuristique heur. Qui sera appliquer au maximum à la
-//    profondeur depth.
-extern move_t alpha_beta(const quarto_t *quarto, int (*heur)(const quarto_t *),
-    unsigned int depth);
+// alpha_beta : Met dans *move le meilleur coup à jouer selon l'algorihtme
+//    alpha beta à l'aide de l'heuristique heur. Qui sera appliquer au maximum à
+//    la profondeur depth et comment noeud racine Max ou Min selon is_max
+// Retourne true si le meilleur coup à bien pu être calculé, false dans le cas
+//    contraire et *move renvoie une valeur indéterminé.
+extern bool alpha_beta(const quarto_t *quarto, int (*heur)(const quarto_t *),
+    unsigned int depth, bool is_max, int alpha, int beta, move_t *move);
 
-// neg_alpha_beta : Renvoie le meilleur coup à jouer selon l'algorihtme
-//    Nega-Alpha-Beta à l'aide de l'heuristique heur. Qui sera appliquer au
+// negalpha_beta : Met dans *move le meilleur coup à jouer selon l'algorihtme
+//    Negaplha beta à l'aide de l'heuristique heur. Qui sera appliquer au
 //    maximum à la profondeur depth.
-extern move_t neg_alpha_beta(const quarto_t *quarto,
-    int (*heur)(const quarto_t *), unsigned int depth);
+// Retourne true si le meilleur coup à bien pu être calculé, false dans le cas
+//    contraire et *move renvoie une valeur indéterminé.
+extern bool negalpha_beta(const quarto_t *quarto, int (*heur)(const quarto_t *),
+    unsigned int depth, int alpha, int beta, move_t *move);
 
-// sss_star : Renvoie le meilleur coup à jouer selon l'algorihtme SSS* à
-//    l'aide de l'heuristique heur. Qui sera appliquer au maximum à la
-//    profondeur depth.
-extern move_t sss_star(const quarto_t *quarto, int (*heur)(const quarto_t *),
-    unsigned int depth);
-
-// magick : Renvoie le meilleur coup à jouer selon un algorithme secret. Qui
-//    sera appliquer au maximum à la profondeur depth.
-extern move_t magick(const quarto_t *quarto, int (*heur)(const quarto_t *),
-    unsigned int depth);
+// sss_star : Met dans *move le meilleur coup à jouer selon l'algorihtme
+//    SSS* à l'aide de l'heuristique heur. Qui sera appliquer au maximum à
+//    la profondeur depth et comment noeud racine Max ou Min selon is_max
+// Retourne true si le meilleur coup à bien pu être calculé, false dans le cas
+//    contraire et *move renvoie une valeur indéterminé.
+extern bool sss_star(const quarto_t *quarto, int (*heur)(const quarto_t *),
+    unsigned int depth, bool is_max, move_t *move);
 
 #endif

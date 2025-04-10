@@ -1,0 +1,688 @@
+desc: (none)
+cmd: ./exemple
+time_unit: i
+#-----------
+snapshot=0
+#-----------
+time=0
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=1
+#-----------
+time=159646
+mem_heap_B=64
+mem_heap_extra_B=32
+mem_stacks_B=0
+heap_tree=detailed
+n2: 64 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 48 0x109D61: quarto_copy (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n2: 48 0x1094EB: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n2: 32 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 16 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+      n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+ n1: 16 0x109D31: quarto_init (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n0: 16 0x109104: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+#-----------
+snapshot=2
+#-----------
+time=356341353
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=3
+#-----------
+time=685946718
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=4
+#-----------
+time=1006115480
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=5
+#-----------
+time=1276139174
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=6
+#-----------
+time=1589720602
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=7
+#-----------
+time=1798770692
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=8
+#-----------
+time=2077508666
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=9
+#-----------
+time=2303996219
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=10
+#-----------
+time=2591461066
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=11
+#-----------
+time=3035724353
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=12
+#-----------
+time=3297057330
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=13
+#-----------
+time=3731694324
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=14
+#-----------
+time=3963225310
+mem_heap_B=64
+mem_heap_extra_B=32
+mem_stacks_B=0
+heap_tree=detailed
+n2: 64 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 48 0x109D61: quarto_copy (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n2: 48 0x1094EB: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n2: 32 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 16 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+      n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+ n1: 16 0x109D31: quarto_init (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n0: 16 0x109104: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+#-----------
+snapshot=15
+#-----------
+time=4379984081
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=16
+#-----------
+time=4657822790
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=17
+#-----------
+time=4889354226
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=detailed
+n2: 48 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 32 0x109D61: quarto_copy (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n2: 32 0x1094EB: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n2: 16 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 0 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n1: 0 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+      n0: 0 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+ n1: 16 0x109D31: quarto_init (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n0: 16 0x109104: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+#-----------
+snapshot=18
+#-----------
+time=5120882641
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=19
+#-----------
+time=5398719306
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=20
+#-----------
+time=5847567874
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=detailed
+n2: 48 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 32 0x109D61: quarto_copy (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n2: 32 0x1094EB: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n2: 16 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 0 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n1: 0 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+      n0: 0 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+ n1: 16 0x109D31: quarto_init (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n0: 16 0x109104: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+#-----------
+snapshot=21
+#-----------
+time=6161173649
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=22
+#-----------
+time=6474777894
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=23
+#-----------
+time=6709981702
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=24
+#-----------
+time=7101987181
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=25
+#-----------
+time=7415591656
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=detailed
+n2: 48 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 32 0x109D61: quarto_copy (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n2: 32 0x1094EB: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n2: 16 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 0 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n1: 0 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+      n0: 0 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+ n1: 16 0x109D31: quarto_init (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n0: 16 0x109104: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+#-----------
+snapshot=26
+#-----------
+time=7807599678
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=27
+#-----------
+time=8042802553
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=28
+#-----------
+time=8278006763
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=29
+#-----------
+time=8670012537
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=30
+#-----------
+time=8983617195
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=detailed
+n2: 48 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 32 0x109D61: quarto_copy (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n2: 32 0x1094EB: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n2: 16 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 0 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n1: 0 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+      n0: 0 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+ n1: 16 0x109D31: quarto_init (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n0: 16 0x109104: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+#-----------
+snapshot=31
+#-----------
+time=9375624778
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=32
+#-----------
+time=9689228169
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=33
+#-----------
+time=9919834078
+mem_heap_B=64
+mem_heap_extra_B=32
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=34
+#-----------
+time=10265742977
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=35
+#-----------
+time=10611654274
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=36
+#-----------
+time=10957566288
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=detailed
+n2: 48 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 32 0x109D61: quarto_copy (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n2: 32 0x1094EB: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n2: 16 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 0 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n1: 0 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+      n0: 0 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+ n1: 16 0x109D31: quarto_init (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n0: 16 0x109104: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+#-----------
+snapshot=37
+#-----------
+time=11303478679
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=38
+#-----------
+time=11649389706
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=39
+#-----------
+time=12110603987
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=detailed
+n2: 48 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 32 0x109D61: quarto_copy (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n2: 32 0x1094EB: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n2: 16 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 0 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n1: 0 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+      n0: 0 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+ n1: 16 0x109D31: quarto_init (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n0: 16 0x109104: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+#-----------
+snapshot=40
+#-----------
+time=12456516866
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=41
+#-----------
+time=12687125329
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=42
+#-----------
+time=13148339935
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=43
+#-----------
+time=13494250923
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=44
+#-----------
+time=13840161725
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=45
+#-----------
+time=14070768929
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=46
+#-----------
+time=14416679933
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=detailed
+n2: 48 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 32 0x109D61: quarto_copy (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n2: 32 0x1094EB: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n2: 16 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 0 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n1: 0 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+      n0: 0 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+ n1: 16 0x109D31: quarto_init (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n0: 16 0x109104: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+#-----------
+snapshot=47
+#-----------
+time=14762592557
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=48
+#-----------
+time=15108503181
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=49
+#-----------
+time=15454417156
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=50
+#-----------
+time=15663468006
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=detailed
+n2: 48 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 32 0x109D61: quarto_copy (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n2: 32 0x1094EB: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n2: 16 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 0 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n1: 0 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+      n0: 0 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+ n1: 16 0x109D31: quarto_init (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n0: 16 0x109104: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+#-----------
+snapshot=51
+#-----------
+time=15872518196
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=52
+#-----------
+time=16081568431
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=53
+#-----------
+time=16290619689
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=54
+#-----------
+time=16499670064
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=55
+#-----------
+time=16708722069
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=56
+#-----------
+time=16917773715
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=57
+#-----------
+time=17126824819
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=58
+#-----------
+time=17335875454
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=59
+#-----------
+time=17544926836
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=60
+#-----------
+time=17753978280
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=detailed
+n2: 48 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 32 0x109D61: quarto_copy (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n2: 32 0x1094EB: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n2: 16 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n1: 0 0x109531: min__max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+     n1: 0 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+      n0: 0 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+   n1: 16 0x109617: min_max (in /home/renauth6/git/quarto/solver/exemple/exemple)
+    n0: 16 0x10912C: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+ n1: 16 0x109D31: quarto_init (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n0: 16 0x109104: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+#-----------
+snapshot=61
+#-----------
+time=17963029750
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=62
+#-----------
+time=18172081653
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=63
+#-----------
+time=18381131809
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=64
+#-----------
+time=18590183158
+mem_heap_B=48
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=65
+#-----------
+time=18737486638
+mem_heap_B=1040
+mem_heap_extra_B=16
+mem_stacks_B=0
+heap_tree=peak
+n3: 1040 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 1024 0x48FA3D6: _IO_file_doallocate (filedoalloc.c:101)
+  n1: 1024 0x490A833: _IO_doallocbuf (genops.c:374)
+   n1: 1024 0x49082BF: _IO_file_overflow@@GLIBC_2.2.5 (fileops.c:745)
+    n1: 1024 0x4908DDF: _IO_new_file_xsputn (fileops.c:1244)
+     n1: 1024 0x4908DDF: _IO_file_xsputn@@GLIBC_2.2.5 (fileops.c:1197)
+      n1: 1024 0x48D3A18: __printf_buffer_flush_to_file (printf_buffer_to_file.c:59)
+       n1: 1024 0x48D3A18: __printf_buffer_to_file_done (printf_buffer_to_file.c:120)
+        n1: 1024 0x48DF45A: __vfprintf_internal (vfprintf-internal.c:1545)
+         n1: 1024 0x49B1E2C: __printf_chk (printf_chk.c:33)
+          n0: 1024 0x109165: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+ n1: 16 0x109D31: quarto_init (in /home/renauth6/git/quarto/solver/exemple/exemple)
+  n0: 16 0x109104: main (in /home/renauth6/git/quarto/solver/exemple/exemple)
+ n0: 0 in 1 place, below massif's threshold (1.00%)

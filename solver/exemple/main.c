@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbit.h>
+#include <limits.h>
 
 #include "quarto.h"
 #include "solver.h"
@@ -12,9 +13,39 @@ int main(void) {
     fprintf(stderr, "Failed to initialize quarto\n");
     return EXIT_FAILURE;
   }
-#if true
+#if false
   move_t move;
   if (!min_max(q, max_heuristic, 3, true, &move)) {
+    fprintf(stderr, "Failed to calculate move\n");
+    quarto_dispose(&q);
+    return EXIT_FAILURE;
+  }
+  unsigned int ps = (stdc_first_leading_one_ull(move.pos) - 1) / 4;
+  printf("Best move: piece %04b, position %u\n", (int) (move.piece & 0b1111),
+      ps);
+#elif false
+  move_t move;
+  if (!nega_max(q, heuristic, 3, &move)) {
+    fprintf(stderr, "Failed to calculate move\n");
+    quarto_dispose(&q);
+    return EXIT_FAILURE;
+  }
+  unsigned int ps = (stdc_first_leading_one_ull(move.pos) - 1) / 4;
+  printf("Best move: piece %04b, position %u\n", (int) (move.piece & 0b1111),
+      ps);
+#elif false
+  move_t move;
+  if (!alpha_beta(q, max_heuristic, 5, true, -INT_MAX, INT_MAX, &move)) {
+    fprintf(stderr, "Failed to calculate move\n");
+    quarto_dispose(&q);
+    return EXIT_FAILURE;
+  }
+  unsigned int ps = (stdc_first_leading_one_ull(move.pos) - 1) / 4;
+  printf("Best move: piece %04b, position %u\n", (int) (move.piece & 0b1111),
+      ps);
+#elif true
+  move_t move;
+  if (!negalpha_beta(q, heuristic, 5, -INT_MAX, INT_MAX, &move)) {
     fprintf(stderr, "Failed to calculate move\n");
     quarto_dispose(&q);
     return EXIT_FAILURE;
