@@ -352,6 +352,8 @@ static bool make_tree(unsigned int depth, ktree_t *k, size_t root,
             || !make_tree(depth - 1, k, child, hn)) {
           return false;
         }
+      } else {
+        quarto_dispose(&copy);
       }
     }
   }
