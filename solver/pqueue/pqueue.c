@@ -1,5 +1,7 @@
 #include "pqueue.h"
 
+#include <stdio.h>
+
 typedef struct cell_t cell_t;
 
 struct cell_t {
@@ -25,17 +27,17 @@ pqueue_t *pqueue_empty(int (*compar)(const void *, const void *)) {
 }
 
 void pqueue_dispose(pqueue_t **pptr) {
-  if (*p == nullptr) {
+  if (*pptr == nullptr) {
     return;
   }
-  cell_t *cell = (*p)->head;
+  cell_t *cell = (*pptr)->head;
   while (cell != nullptr) {
     cell_t *next = cell->next;
     free(cell);
     cell = next;
   }
-  free(*p);
-  *p = nullptr;
+  free(*pptr);
+  *pptr = nullptr;
 }
 
 void *pqueue_enqueue(pqueue_t *p, const void *ref) {
@@ -67,6 +69,10 @@ void *pqueue_dequeue(pqueue_t *p) {
   free(cell);
   --p->size;
   return (void *) ref;
+}
+
+size_t pqueue_size(const pqueue_t *p) {
+  return p->size;
 }
 
 void pqueue_filter_cntxt(pqueue_t *p,

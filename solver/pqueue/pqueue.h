@@ -41,11 +41,10 @@ extern pqueue_t *pqueue_empty(int (*compar)(const void *, const void *));
 // pqueue_dispose : sans effet si *pptr vaut nullptr, Libère sinon les
 //    ressources allouées à la gestion de la file de priorité associé à *pptr
 //    puis affecte nullptr à *pptr.
-extern pqueue_t *pqueue_dispose(pqueue_t **pptr);
+extern void pqueue_dispose(pqueue_t **pptr);
 
 // pqueue_insert : renvoie nullptr si ref vaut nullptr. Insère ref dans la file
-// de
-//    priorité pointé par p.
+//    de priorité pointé par p.
 //    Renvoie nullptr en cas de dépassement de capacité ; renvoie sinon ref.
 extern void *pqueue_enqueue(pqueue_t *p, const void *ref);
 
@@ -54,6 +53,9 @@ extern void *pqueue_enqueue(pqueue_t *p, const void *ref);
 //    Renvoie sinon la référence de l'objet en tête de file et le retire de
 //    celle-ci.
 extern void *pqueue_dequeue(pqueue_t *p);
+
+// pqueue_peek : renvoie la taille de la file de priorité pointée par p.
+extern size_t pqueue_size(const pqueue_t *p);
 
 // pqueue_filter : modifie la file de priorité pointée par p en supprimant tous
 //    les objets pour lesquels la fonction de filtrage filter prenant en

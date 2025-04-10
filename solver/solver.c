@@ -2,8 +2,10 @@
 
 #include <stdint.h>
 #include <limits.h>
-
 #include <stdio.h>
+
+#include "ktree.h"
+#include "pqueue.h"
 
 // min__max : Met dans *val la valeur min-max associée au plateau quarto selon
 //    l'heuristique heur et dans *move le coup qui à permis d'avoir cette
@@ -287,6 +289,96 @@ bool negalpha_beta(const quarto_t *quarto, int (*heur)(const quarto_t *),
     && negalpha__beta(quarto, heur, depth, alpha, beta, &val, move);
 }
 
+typedef struct {
+  const quarto_t *quarto;
+  move_t move;
+} sss_t;
+
+// make_tree: Construit l'arbre de jeu associé à la racine root de l'arbre k. Si
+//    root n'est pas un numéro valide de l'arbre k alors le résultat est
+//    indeterminé.
+//  Renvoie false en cas d'erreur d'allocation, sinon renvois true.
+static bool make_tree(unsigned int depth, ktree_t *k, size_t root) {
+  sss_t *s = ktree_get_ref_by_num(k, root);
+  if (depth == 0 || quarto_is_game_over(s->quarto)) {
+    return true;
+  }
+  piece_t pieces[] = {
+    C1_SMALL_PLAIN_SQUARE,
+    C1_SMALL_PLAIN_ROUND,
+    C1_SMALL_HOLE_SQUARE,
+    C1_SMALL_HOLE_ROUND,
+    C1_HUGE_PLAIN_SQUARE,
+    C1_HUGE_PLAIN_ROUND,
+    C1_HUGE_HOLE_SQUARE,
+    C1_HUGE_HOLE_ROUND,
+    C2_SMALL_PLAIN_SQUARE,
+    C2_SMALL_PLAIN_ROUND,
+    C2_SMALL_HOLE_SQUARE,
+    C2_SMALL_HOLE_ROUND,
+    C2_HUGE_PLAIN_SQUARE,
+    C2_HUGE_PLAIN_ROUND,
+    C2_HUGE_HOLE_SQUARE,
+    C2_HUGE_HOLE_ROUND,
+  }
+  position_t positions[] = {
+    P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15
+  };
+  for (size_t i = 0; i < sizeof pieces / sizeof *pieces; ++i) {
+    for (size_t j = 0; j < sizeof positions / sizeof *positions; ++j) {
+      quarto_t *copy = quarto_copy(quarto);
+      if (copy == nullptr) {
+        return false;
+      }
+      if (quarto_play(copy, pieces[i], positions[j]) == NO_ERROR) {
+        sss_t *s = malloc(sizeof *s);
+        if (s == nullptr) {
+          quarto_dispose(&copy);
+          return false;
+        }
+        s->quarto = copy;
+        s->move.pos = positions[j];
+        s->move.piece = pieces[i];
+        size_t child;
+        if ((child = ktree_insert(k, root, s)) == SIZE_MAX) {
+          quarto_dispose(&copy);
+          free(s);
+          return false;
+        }
+        if (!make_tree(depth - 1, k, child)) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
+
 bool sss_star(const quarto_t *quarto, int (*heur)(const quarto_t *),
     unsigned int depth, bool is_max, move_t *move) {
+  if (depth != 0 && !quarto_is_game_over(quarto)) {
+    return false;
+  }
+  ktree_t *k = ktree_empty();
+  if (k == nullptr) {
+    return false;
+  }
+  sss_t *s = malloc(sizeof *s);
+  if (s == nullptr) {
+    ktree_dispose(&k);
+    return false;
+  }
+  s->quarto = quarto;
+  size_t root;
+  pqueue_t *p = pqueue_empty();
+  if (p == nullptr) {
+    ktree_dispose(&k);
+    free(s);
+    return false;
+  }
+  if ((root = ktree_insert(k, SIZE_MAX, s)) == SIZE_MAX) {
+    ktree_dispose(&k);
+    return false;
+  }
+  make_tree(depth, k, root);
 }
