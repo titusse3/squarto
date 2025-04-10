@@ -6,6 +6,7 @@
 
 #include "ktree.h"
 #include "pqueue.h"
+#include "holdall.h"
 
 // min__max : Met dans *val la valeur min-max associée au plateau quarto selon
 //    l'heuristique heur et dans *move le coup qui à permis d'avoir cette
@@ -290,16 +291,23 @@ bool negalpha_beta(const quarto_t *quarto, int (*heur)(const quarto_t *),
 }
 
 typedef struct {
-  const quarto_t *quarto;
+  quarto_t *quarto;
   move_t move;
+} node_t;
+
+typedef struct {
+  int val;
+  size_t node;
+  bool resolve;
 } sss_t;
 
 // make_tree: Construit l'arbre de jeu associé à la racine root de l'arbre k. Si
 //    root n'est pas un numéro valide de l'arbre k alors le résultat est
 //    indeterminé.
 //  Renvoie false en cas d'erreur d'allocation, sinon renvois true.
-static bool make_tree(unsigned int depth, ktree_t *k, size_t root) {
-  sss_t *s = ktree_get_ref_by_num(k, root);
+static bool make_tree(unsigned int depth, ktree_t *k, size_t root,
+    holdall *hn) {
+  node_t *s = ktree_get_ref_by_num(k, root);
   if (depth == 0 || quarto_is_game_over(s->quarto)) {
     return true;
   }
@@ -320,32 +328,28 @@ static bool make_tree(unsigned int depth, ktree_t *k, size_t root) {
     C2_HUGE_PLAIN_ROUND,
     C2_HUGE_HOLE_SQUARE,
     C2_HUGE_HOLE_ROUND,
-  }
+  };
   position_t positions[] = {
     P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15
   };
   for (size_t i = 0; i < sizeof pieces / sizeof *pieces; ++i) {
     for (size_t j = 0; j < sizeof positions / sizeof *positions; ++j) {
-      quarto_t *copy = quarto_copy(quarto);
+      quarto_t *copy = quarto_copy(s->quarto);
       if (copy == nullptr) {
         return false;
       }
       if (quarto_play(copy, pieces[i], positions[j]) == NO_ERROR) {
-        sss_t *s = malloc(sizeof *s);
-        if (s == nullptr) {
+        node_t *n = malloc(sizeof *n);
+        if (n == nullptr || holdall_put(hn, n) != 0) {
           quarto_dispose(&copy);
           return false;
         }
-        s->quarto = copy;
-        s->move.pos = positions[j];
-        s->move.piece = pieces[i];
+        n->quarto = copy;
+        n->move.pos = positions[j];
+        n->move.piece = pieces[i];
         size_t child;
-        if ((child = ktree_insert(k, root, s)) == SIZE_MAX) {
-          quarto_dispose(&copy);
-          free(s);
-          return false;
-        }
-        if (!make_tree(depth - 1, k, child)) {
+        if ((child = ktree_insert(k, root, n)) == SIZE_MAX
+            || !make_tree(depth - 1, k, child, hn)) {
           return false;
         }
       }
@@ -354,31 +358,99 @@ static bool make_tree(unsigned int depth, ktree_t *k, size_t root) {
   return true;
 }
 
+static int sss_compar(const sss_t *s1, const sss_t *s2) {
+  return (s1->val > s2->val) - (s1->val < s2->val);
+}
+
+static int node_dispose(node_t *n) {
+  quarto_dispose(&(n->quarto));
+  free(n);
+  return 0;
+}
+
+static int fake_free(void *p) {
+  free(p);
+  return 0;
+}
+
 bool sss_star(const quarto_t *quarto, int (*heur)(const quarto_t *),
     unsigned int depth, bool is_max, move_t *move) {
-  if (depth != 0 && !quarto_is_game_over(quarto)) {
+  if (depth == 0 && !quarto_is_game_over(quarto)) {
     return false;
   }
-  ktree_t *k = ktree_empty();
-  if (k == nullptr) {
-    return false;
-  }
-  sss_t *s = malloc(sizeof *s);
-  if (s == nullptr) {
+  holdall *hf = nullptr;
+  holdall *hn = nullptr;
+  ktree_t *k = nullptr;
+  pqueue_t *p = nullptr;
+  node_t *n = nullptr;
+  sss_t *s = nullptr;
+  if ((hf = holdall_empty()) == nullptr
+      || (hn = holdall_empty()) == nullptr
+      || (k = ktree_empty()) == nullptr
+      || (p = pqueue_empty(
+          (int (*)(const void *, const void *)) sss_compar)) == nullptr
+      || (n = malloc(sizeof *n)) == nullptr
+      || (s = malloc(sizeof *s)) == nullptr) {
+    holdall_dispose(&hn);
+    holdall_dispose(&hf);
     ktree_dispose(&k);
+    pqueue_dispose(&p);
+    free(n);
     return false;
   }
-  s->quarto = quarto;
-  size_t root;
-  pqueue_t *p = pqueue_empty();
-  if (p == nullptr) {
+  n->quarto = (quarto_t *) quarto;
+  if ((s->node = ktree_insert(k, SIZE_MAX, n)) == SIZE_MAX) {
+    holdall_dispose(&hn);
+    holdall_dispose(&hf);
     ktree_dispose(&k);
+    pqueue_dispose(&p);
+    free(n);
     free(s);
     return false;
   }
-  if ((root = ktree_insert(k, SIZE_MAX, s)) == SIZE_MAX) {
+  s->resolve = false;
+  s->val = INT_MAX;
+  if (pqueue_enqueue(p, s) == nullptr) {
+    holdall_dispose(&hn);
+    holdall_dispose(&hf);
     ktree_dispose(&k);
+    pqueue_dispose(&p);
+    free(n);
+    free(s);
     return false;
   }
-  make_tree(depth, k, root);
+  if (holdall_put(hn, n) != 0 || holdall_put(hf, s) != 0) {
+    holdall_dispose(&hn);
+    holdall_dispose(&hf);
+    ktree_dispose(&k);
+    pqueue_dispose(&p);
+    free(n);
+    free(s);
+    return false;
+  }
+  if (!make_tree(depth, k, s->node, hn)) {
+    n->quarto = nullptr;
+    holdall_apply(hn, (int (*)(void *)) node_dispose);
+    holdall_apply(hf, (int (*)(void *)) fake_free);
+    holdall_dispose(&hn);
+    holdall_dispose(&hf);
+    ktree_dispose(&k);
+    pqueue_dispose(&p);
+    return false;
+  }
+  //*
+  //*
+  n->quarto = nullptr;
+  holdall_apply(hn, (int (*)(void *)) node_dispose);
+  holdall_apply(hf, (int (*)(void *)) fake_free);
+  holdall_dispose(&hn);
+  holdall_dispose(&hf);
+  ktree_dispose(&k);
+  pqueue_dispose(&p);
+  //*
+  //*
+  is_max = is_max;
+  move = move;
+  heur = heur;
+  return true;
 }

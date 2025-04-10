@@ -43,9 +43,19 @@ int main(void) {
   unsigned int ps = (stdc_first_leading_one_ull(move.pos) - 1) / 4;
   printf("Best move: piece %04b, position %u\n", (int) (move.piece & 0b1111),
       ps);
-#elif true
+#elif false
   move_t move;
   if (!negalpha_beta(q, heuristic, 5, -INT_MAX, INT_MAX, &move)) {
+    fprintf(stderr, "Failed to calculate move\n");
+    quarto_dispose(&q);
+    return EXIT_FAILURE;
+  }
+  unsigned int ps = (stdc_first_leading_one_ull(move.pos) - 1) / 4;
+  printf("Best move: piece %04b, position %u\n", (int) (move.piece & 0b1111),
+      ps);
+#elif true
+  move_t move;
+  if (!sss_star(q, max_heuristic, 2, true, &move)) {
     fprintf(stderr, "Failed to calculate move\n");
     quarto_dispose(&q);
     return EXIT_FAILURE;
