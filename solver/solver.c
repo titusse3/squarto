@@ -1,6 +1,7 @@
 #include "solver.h"
 
 #include <stdint.h>
+#include <limits.h>
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -44,7 +45,7 @@ static bool min__max(const quarto_t *quarto, int (*heur)(const quarto_t *),
       if (copy == NULL) {
         return false;
       }
-      if (quarto_play(copy, pieces[i], positions[k]) == NO_ERROR) {
+      if (quarto_play(copy, pieces[i], positions[j]) == NO_ERROR) {
         int val2;
         move_t move2;
         if (!min__max(copy, heur, depth - 1, !is_max, &val2, &move2)) {

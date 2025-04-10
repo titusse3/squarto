@@ -55,32 +55,32 @@ void quarto_dispose(quarto_t **qptr) {
   *qptr = nullptr;
 }
 
-player_t quarto_whos_turn(quarto_t *q) {
+player_t quarto_whos_turn(const quarto_t *q) {
   return (q->summary & M_TURN_BIT) == 0 ? PLAYER1 : PLAYER2;
 }
 
-bool quarto_is_game_over(quarto_t *q) {
+bool quarto_is_game_over(const quarto_t *q) {
   return (q->summary & M_OVER_BIT) != 0;
 }
 
-size_t quarto_game_turn(quarto_t *q) {
+size_t quarto_game_turn(const quarto_t *q) {
   return (q->summary & M_TURN_MASK) >> 5;
 }
 
-uint64_t quarto_board(quarto_t *q) {
+uint64_t quarto_board(const quarto_t *q) {
   return q->board;
 }
 
-uint16_t quarto_summary(quarto_t *q) {
+uint16_t quarto_summary(const quarto_t *q) {
   return (uint16_t) (q->summary >> 16);
 }
 
-player_t quarto_winner(quarto_t *q) {
+player_t quarto_winner(const quarto_t *q) {
   return quarto_is_game_over(q) ? (quarto_whos_turn(q)
     == PLAYER1 ? PLAYER2 : PLAYER1) : NEITHER;
 }
 
-piece_t quarto_current_piece(quarto_t *q) {
+piece_t quarto_current_piece(const quarto_t *q) {
   int v = (q->summary & M_PIECE_MASK) >> 10;
   switch (v) {
     case 0:
@@ -185,7 +185,7 @@ static bool check__diagonal(quarto_t *q) {
   int acc = 0b1111;
   int pred;
   if ((q->summary >> 31 & 1) != 0) {
-    pred = (q->board >> 60) & 0b1111;
+    pred = (int) ((q->board >> 60) & 0b1111);
     for (int i = 1; i < 4; ++i) {
       if ((q->summary >> (31 - i * 5) & 1) == 0) {
         acc = 0;
@@ -249,3 +249,41 @@ quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos) {
   }
   return NO_ERROR;
 }
+
+#if defined QUARTO_EXT && QUARTO_EXT != 0
+
+uint16_t quarto_remaining_pieces(const quarto_t *q) {
+  piece_t pieces[] = {
+    C1_SMALL_PLAIN_SQUARE,
+    C1_SMALL_PLAIN_ROUND,
+    C1_SMALL_HOLE_SQUARE,
+    C1_SMALL_HOLE_ROUND,
+    C1_HUGE_PLAIN_SQUARE,
+    C1_HUGE_PLAIN_ROUND,
+    C1_HUGE_HOLE_SQUARE,
+    C1_HUGE_HOLE_ROUND,
+    C2_SMALL_PLAIN_SQUARE,
+    C2_SMALL_PLAIN_ROUND,
+    C2_SMALL_HOLE_SQUARE,
+    C2_SMALL_HOLE_ROUND,
+    C2_HUGE_PLAIN_SQUARE,
+    C2_HUGE_PLAIN_ROUND,
+    C2_HUGE_HOLE_SQUARE,
+    C2_HUGE_HOLE_ROUND,
+  };
+  uint16_t remaining = UINT16_MAX;
+  for (int i = 0; i < 16; ++i) {
+    if ((q->summary >> (31 - i) & 1) == 1) {
+      uint8_t p = (q->board >> (60 - i * 4)) & 0b1111;
+      for (size_t k = 0; k < sizeof pieces / sizeof *pieces; ++k) {
+        if (pieces[k] == pieces[p]) {
+          remaining ^= 1 << (15 - k);
+          break;
+        }
+      }
+    }
+  }
+  return remaining;
+}
+
+#endif

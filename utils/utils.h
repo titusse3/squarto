@@ -20,12 +20,12 @@ typedef struct {
   RenderTexture *screens;
 } state_t;
 
-extern state_t init_state(const char *ss[2], const char *mds[NB_PIECES]);
-
 typedef struct {
   quarto_t *q;
   uint16_t used;
   float p_select[2];
 } game_state_t;
+
+extern state_t init_state(const char *ss[2], const char *mds[NB_PIECES]);
 
 #endif

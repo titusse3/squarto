@@ -140,12 +140,12 @@ extern void quarto_dispose(quarto_t **qptr);
 
 //  quarto_whos_turn : Retourne le joueur dont c'est le tour si la partie n'est
 //    pas fini. Si elle l'est, retourne NEITHER.
-extern player_t quarto_whos_turn(quarto_t *q);
+extern player_t quarto_whos_turn(const quarto_t *q);
 
 //  quarto_current_piece : Retourne la pièce avec la quelle le prochain joueur
 //    va devoir jouer. Dans le cas où la partie est finie la valeur retournée
 //    est indéterminée.
-extern piece_t quarto_current_piece(quarto_t *q);
+extern piece_t quarto_current_piece(const quarto_t *q);
 
 //  quarto_play : Joue un coup dans la partie de Quarto associée à q. Ce coup
 //    consiste à placer la pièce courante à la position pos et à choisi la pièce
@@ -156,22 +156,34 @@ extern piece_t quarto_current_piece(quarto_t *q);
 extern quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos);
 
 //  quarto_game_turn : Retourne le tour de jeu associé à q.
-extern size_t quarto_game_turn(quarto_t *q);
+extern size_t quarto_game_turn(const quarto_t *q);
 
 //  quarto_is_game_over : Retourne si la partie est finie.
-extern bool quarto_is_game_over(quarto_t *q);
+extern bool quarto_is_game_over(const quarto_t *q);
 
 //  quarto_winner : Retourne le joueur gagnant si la partie est finie.
-extern player_t quarto_winner(quarto_t *q);
+extern player_t quarto_winner(const quarto_t *q);
 
 //  quarto_board : Retourne le plateau de jeu associé à q sous forme de vecteur
 //    de bit. Chaque case du plateau est représenté par 4 bits. Si la case est
 //    vide alors la valeur de la case est indéterminée.
-extern uint64_t quarto_board(quarto_t *q);
+extern uint64_t quarto_board(const quarto_t *q);
 
 //  quarto_summary : Retourne le sommaire du plateau de jeu associé à q sous
 //    forme de vecteur de bit. Chaque bit représentant la vacuité de la case à
 //    l'indice.
-extern uint16_t quarto_summary(quarto_t *q);
+extern uint16_t quarto_summary(const quarto_t *q);
+
+#if defined QUARTO_EXT && QUARTO_EXT != 0
+
+// quarto_remaning_pieces : Rentourne un vecteur de 16 bits représentant les
+//    pièces restantes. Chaque bit représente une pièce. Si le bit est à 1
+//    alors la pièce est encore disponible, sinon elle a déjà été jouée.
+//    Le bit d'indice 0 représente la première pièce énumérer par l'énumération
+//    piece_t (qui vaut donc C1_SMALL_PLAIN_SQUARE dans notre cas). Les autres
+//    bits suivent l'ordre d'énumération.
+extern uint16_t quarto_remaining_pieces(const quarto_t *q);
+
+#endif
 
 #endif
