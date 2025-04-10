@@ -57,6 +57,7 @@ static bool min__max(const quarto_t *quarto, int (*heur)(const quarto_t *),
           (*move).pos = positions[j];
         }
       }
+      quarto_dispose(&copy);
     }
   }
   return true;
