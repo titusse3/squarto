@@ -274,7 +274,7 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
   }
   Camera3D camera = {
     .position = (Vector3) {
-      7.5f, 20.0f, 7.5f
+      7.5f, 25.0f, 7.5f
     },
     .target = (Vector3) {
       0.0f, 0.0f, 0.0f
