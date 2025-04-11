@@ -263,18 +263,17 @@ bool display_exit_menu(game_info_t *game_info, int fontSize, const char *msg,
   int rectX = (game_info->screen_w - rect_w) / 2;
   int rectY = (game_info->screen_h - rect_h) / 2;
   DrawRectangle(0, 0, game_info->screen_w, game_info->screen_h,
-      Fade(BLACK, 0.5f));
+      Fade(BLACK, 0.8f));
   DrawRectangle(rectX, rectY, rect_w, rect_h, BLACK);
-  DrawRectangle(rectX, rectY, rect_w, rect_h / 5, RED);
+  DrawRectangle(rectX, rectY, rect_w, rect_h / 5, BLACK);
   int quit_font_size = game_info->screen_h / 16;
-  int textWidth = MeasureText("Quit", quit_font_size);
-  DrawText("Quit", rectX + (rect_w - textWidth) / 2,
-      rectY + ((rect_h / 5) - quit_font_size) / 2, quit_font_size, WHITE);
+  int textWidth = MeasureText(SQUIT, quit_font_size);
+  DrawText(SQUIT, rectX + (rect_w - textWidth) / 2,
+      rectY + ((rect_h / 5) - quit_font_size) / 2, quit_font_size, PURPLE);
   int messageX = rectX + (rect_w - msg_size) / 2;
   int messageY = rectY + (rect_h - fontSize) / 2.5f;
-  DrawText(
-      msg,
-      messageX, messageY, fontSize, WHITE);
+  DrawText(msg, messageX, messageY, fontSize, WHITE);
+  DrawRectangleLinesEx((Rectangle){ rectX, rectY, rect_w, rect_h }, 3, PURPLE);
   int buttonHeight = rect_h / 10;
   int spacing = rect_w / 20;
   int buttonWidth = rect_w / 4;
@@ -282,6 +281,12 @@ bool display_exit_menu(game_info_t *game_info, int fontSize, const char *msg,
   int buttonX_no = rectX + (rect_w - totalButtonsWidth) / 2;
   int buttonX_yes = buttonX_no + buttonWidth + spacing;
   int buttonY = rectY + rect_h - buttonHeight - 70;
+  GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, 0xFF000000);
+  GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, 0xCC66FFFF);
+  GuiSetStyle(BUTTON, BORDER_COLOR_NORMAL, 0xCC66FFFF);
+  GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, 0xC452CCFF);
+  GuiSetStyle(BUTTON, BORDER_COLOR_FOCUSED, 0xCC66FFFF);
+  GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, 0xFFFFFFFF);
   if (GuiButton((Rectangle){ buttonX_no, buttonY, buttonWidth,
                              buttonHeight + 20 }, "No")) {
     game_info->exit_wind = false;
