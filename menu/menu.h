@@ -39,12 +39,12 @@ typedef enum {
 
 typedef struct {
   bool has_start;
-  // bool has_end;
   Texture2D img;
   Rectangle frameRec;
   int framesCounter;
   int currentFrame;
   int currentLine;
+  int frameDivisor;
 } animation_t;
 
 typedef struct {
@@ -55,7 +55,7 @@ typedef struct {
   btn_t menuType;
   union {
     struct {
-      int rules_num;
+      char rules_num;
       int rules_frames;
       Texture2D *rules_textures;
     } rules_values;
@@ -70,9 +70,8 @@ typedef struct {
   } content;
   btn_t sound_play;
   Sound sound;
-  Font win_animation_font;
-  animation_t win_animation;
-  animation_t idle_animation;
+  Font anim_font;
+  animation_t anims[2];
 } menu_content_t;
 
 extern void display_menu(game_info_t *game, menu_content_t *menu, state_t *st);
@@ -80,7 +79,8 @@ extern void display_menu(game_info_t *game, menu_content_t *menu, state_t *st);
 extern bool display_exit_menu(game_info_t *game_info, int fontSize,
     const char *msg, int msg_size);
 
-extern void display_animation(game_info_t *game_info, animation_t *info);
+extern void display_animation(game_info_t *game_info, animation_t *info,
+    Rectangle destRec);
 
 extern void display_end_animation(game_info_t *game_info, animation_t *info,
     Font f, const char *text, bool win);

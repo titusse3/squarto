@@ -37,8 +37,8 @@ static void bottom_corner_pagging(menu_content_t *menu, Rectangle parent) {
     parent.y + parent.height
   };
   DrawTriangle(vertex1, vertex2, vertex3, BLUE);
-  char s[4];
-  snprintf(s, 4, "%d/%d", menu->content.rules_values.rules_num + 1,
+  char s[8];
+  snprintf(s, 7, "%d/%d", menu->content.rules_values.rules_num + 1,
       MAX_RULES + 1);
   int tri_fsize = (int) (triHeight * 0.25f);
   float center_x = (vertex1.x + vertex2.x + vertex3.x) / 3.0f;

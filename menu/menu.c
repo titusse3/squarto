@@ -214,7 +214,7 @@ void display_menu(game_info_t *game, menu_content_t *menu, state_t *st) {
   Vector2 titlePos = {
     titleWidth / TITLE_POS_DIV, titleWidth / TITLE_POS_DIV
   };
-  DrawTextEx(menu->win_animation_font, game->game_name, titlePos, title_size, 2,
+  DrawTextEx(menu->anim_font, game->game_name, titlePos, title_size, 2,
       WHITE);
   int button_f = game->screen_h / (TITLE_DIVIDER * 2.2);
   //
@@ -288,8 +288,17 @@ bool display_exit_menu(game_info_t *game_info, int fontSize, const char *msg,
   return false;
 }
 
-void display_animation(game_info_t *game_info, animation_t *info) {
+void display_animation(game_info_t *game_info, animation_t *info,
+    Rectangle destRec) {
   info->has_start = true;
+  Vector2 origin = {
+    0, 0
+  };
+  DrawTexturePro(info->img, info->frameRec, destRec, origin, 0.0f, WHITE);
+}
+
+void display_end_animation(game_info_t *game_info, animation_t *info, Font f,
+    const char *text, bool win) {
   Rectangle destRec = {
     (game_info->screen_w - info->frameRec.width
     * (game_info->screen_w / (info->frameRec.width * 1.4f))) / 2,
@@ -300,15 +309,7 @@ void display_animation(game_info_t *game_info, animation_t *info) {
     info->frameRec.height
     * (game_info->screen_w / (info->frameRec.width * 1.4f))
   };
-  Vector2 origin = {
-    0, 0
-  };
-  DrawTexturePro(info->img, info->frameRec, destRec, origin, 0.0f, WHITE);
-}
-
-void display_end_animation(game_info_t *game_info, animation_t *info, Font f,
-    const char *text, bool win) {
-  display_animation(game_info, info);
+  display_animation(game_info, info, destRec);
   //
   int font_size = f.baseSize * 8;
   static float waveOffset = 0.0f;

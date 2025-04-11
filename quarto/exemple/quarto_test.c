@@ -85,14 +85,14 @@ int main(void) {
     PLAY(q, piece[i], position[i])
   }
 #elif true
-  quarto_t *q = quarto_init(C1_SMALL_PLAIN_SQUARE, D3);
+  quarto_t *q = quarto_init(C1_SMALL_PLAIN_SQUARE, D4);
   if (q == nullptr) {
     return EXIT_FAILURE;
   }
-  PLAY(q, C1_SMALL_HOLE_SQUARE, P5);
-  PLAY(q, C1_SMALL_HOLE_ROUND, P7);
-  PLAY(q, C1_HUGE_PLAIN_SQUARE, P13);
-  PLAY(q, C2_HUGE_HOLE_ROUND, P15);
+  PLAY(q, C1_SMALL_HOLE_SQUARE, P2);
+  PLAY(q, C1_SMALL_HOLE_ROUND, P4);
+  PLAY(q, C1_HUGE_PLAIN_SQUARE, P11);
+  PLAY(q, C2_HUGE_HOLE_ROUND, P13);
 #endif
   TEST;
   printf("Summary: %016b\n", quarto_summary(q));

@@ -140,6 +140,205 @@ static uint8_t mask_usable_diagonal(const quarto_t *q) {
   return mask;
 }
 
+// mask_usable_small_square : Même spécification que mask_usable en ne regardant
+//   que les petits carré du plateau.
+static uint8_t mask_usable_small_square(const quarto_t *q) {
+  uint8_t mask = 0b0000'0000;
+  uint64_t board = quarto_board(q);
+  uint16_t summary = quarto_summary(q);
+  for (int i = 0; i < 3; ++i) { // col
+    for (int j = 0; j < 3; ++j) { // line
+      int acc = 0b1111;
+      bool taken = false;
+      int pred;
+      int nb_error = 1;
+      for (int b1 = 0; b1 < 2; ++b1) {
+        for (int b2 = 0; b2 < 2; ++b2) {
+          if ((summary >> (31 - (i + b1) - (j + b2) * 4) & 1) == 0) {
+            if (nb_error == 0) {
+              nb_error = 1;
+              acc = 0;
+              goto end_square;
+            }
+            --nb_error;
+            continue;
+          }
+          int v = (board >> (60 - (i + b1) * 4 - (j + b2) * 16)) & 0b1111;
+          if (taken && (acc = (~(pred ^ v)) & acc) == 0) {
+            goto end_square;
+          }
+          pred = v;
+          taken = true;
+        }
+      }
+end_square:
+      for (int i = 0; i < 4; ++i) {
+        if ((acc >> i & 1) == 1) {
+          mask |= 1 << (7 - (i * 2 + (pred >> i & 1)));
+        }
+      }
+    }
+  }
+  return mask;
+}
+
+// mask_usable_huge_square : Même spécification que mask_usable en ne regardant
+//   que les grands carré du plateau.
+static uint8_t mask_usable_huge_square(const quarto_t *q) {
+  uint8_t mask = 0b0000'0000;
+  uint64_t board = quarto_board(q);
+  uint16_t summary = quarto_summary(q);
+  for (int i = 0; i < 2; ++i) { // col
+    for (int j = 0; j < 2; ++j) { // line
+      int acc = 0b1111;
+      bool taken = false;
+      int pred;
+      int nb_error = 1;
+      for (int b1 = 0; b1 < 3; b1 += 2) {
+        for (int b2 = 0; b2 < 3; b2 += 2) {
+          if ((summary >> (31 - (i + b1) - (j + b2) * 4) & 1) == 0) {
+            if (nb_error == 0) {
+              nb_error = 1;
+              acc = 0;
+              goto end_square;
+            }
+            --nb_error;
+            continue;
+          }
+          int v = (board >> (60 - (i + b1) * 4 - (j + b2) * 16)) & 0b1111;
+          if (taken && (acc = (~(pred ^ v)) & acc) == 0) {
+            goto end_square;
+          }
+          pred = v;
+          taken = true;
+        }
+      }
+end_square:
+      for (int i = 0; i < 4; ++i) {
+        if ((acc >> i & 1) == 1) {
+          mask |= 1 << (7 - (i * 2 + (pred >> i & 1)));
+        }
+      }
+    }
+  }
+  return mask;
+}
+
+// mask_usable_rot_square : Même spécification que mask_usable en ne regardant
+//   que les carré rotationné du plateau.
+static uint8_t mask_usable_rot_square(const quarto_t *q) {
+  int dx[] = {
+    -1, 0, 1, 0
+  };
+  int dy[] = {
+    0, 1, 0, -1
+  };
+  uint8_t mask = 0b0000'0000;
+  uint64_t board = quarto_board(q);
+  uint16_t summary = quarto_summary(q);
+  for (int i = 1; i < 3; ++i) { // col
+    for (int j = 1; j < 3; ++j) { // line
+      int acc = 0b1111;
+      bool taken = false;
+      int pred;
+      int nb_error = 1;
+      for (int k = 0; k < 4; ++k) {
+        if ((summary >> (31 - (i + dx[k]) - (j + dy[k]) * 4) & 1) == 0) {
+          if (nb_error == 0) {
+            nb_error = 1;
+            acc = 0;
+            break;
+          }
+          --nb_error;
+          continue;
+        }
+        int v = (board >> (60 - (i + dx[k]) * 4 - (j + dy[k]) * 16))
+            & 0b1111;
+        if (taken && (acc = (~(pred ^ v)) & acc) == 0) {
+          break;
+        }
+        pred = v;
+        taken = true;
+      }
+      for (int i = 0; i < 4; ++i) {
+        if ((acc >> i & 1) == 1) {
+          mask |= 1 << (7 - (i * 2 + (pred >> i & 1)));
+        }
+      }
+    }
+  }
+  dx[0] = 0;
+  dx[1] = 2;
+  dx[2] = 1;
+  dx[3] = -1;
+  0[dy] = -1;
+  1[dy] = 0;
+  2[dy] = 2;
+  3[dy] = 1;
+  int acc = 0b1111;
+  bool taken = false;
+  int pred;
+  int nb_error = 1;
+  for (int k = 0; k < 4; ++k) {
+    if ((summary >> (31 - (1 + dx[k]) - (1 + dy[k]) * 4) & 1) == 0) {
+      if (nb_error == 0) {
+        nb_error = 1;
+        acc = 0;
+        break;
+      }
+      --nb_error;
+      continue;
+    }
+    int v = (board >> (60 - (1 + dx[k]) * 4 - (1 + dy[k]) * 16))
+        & 0b1111;
+    if (taken && (acc = (~(pred ^ v)) & acc) == 0) {
+      break;
+    }
+    pred = v;
+    taken = true;
+  }
+  for (int i = 0; i < 4; ++i) {
+    if ((acc >> i & 1) == 1) {
+      mask |= 1 << (7 - (i * 2 + (pred >> i & 1)));
+    }
+  }
+  dx[0] = 0;
+  dx[1] = 1;
+  dx[2] = -1;
+  dx[3] = -2;
+  0[dy] = -2;
+  1[dy] = 0;
+  2[dy] = 1;
+  3[dy] = -1;
+  acc = 0b1111;
+  taken = false;
+  nb_error = 1;
+  for (int k = 0; k < 4; ++k) {
+    if ((summary >> (31 - (2 + dx[k]) - (2 + dy[k]) * 4) & 1) == 0) {
+      if (nb_error == 0) {
+        nb_error = 1;
+        acc = 0;
+        break;
+      }
+      --nb_error;
+      continue;
+    }
+    int v = (board >> (60 - (2 + dx[k]) * 4 - (2 + dy[k]) * 16))
+        & 0b1111;
+    if (taken && (acc = (~(pred ^ v)) & acc) == 0) {
+      break;
+    }
+    pred = v;
+    taken = true;
+  }
+  for (int i = 0; i < 4; ++i) {
+    if ((acc >> i & 1) == 1) {
+      mask |= 1 << (7 - (i * 2 + (pred >> i & 1)));
+    }
+  }
+  return mask;
+}
+
 // mask_usable : Retourne le masque des pièces jouable sur le plateau de jeu
 //   associé à q. Tel que cette pièce ne permet pas à l'adversaire de gagner au
 //   tour suivant.
@@ -154,7 +353,19 @@ static uint8_t mask_usable_diagonal(const quarto_t *q) {
 //    - 6 : 1 si les pièces de couleur C1 sont pas autorisé
 //    - 7 : 1 si les pièces de couleur C2 sont pas autorisé
 static uint8_t mask_usable(const quarto_t *q) {
-  return mask_usable_line(q) | mask_usable_column(q) | mask_usable_diagonal(q);
+  uint8_t mask;
+  switch (quarto_difficulty(q)) {
+    case D4:
+      mask |= mask_usable_rot_square(q);
+    case D3:
+      mask |= mask_usable_huge_square(q);
+    case D2:
+      mask |= mask_usable_small_square(q);
+    case D1:
+      mask |= mask_usable_line(q) | mask_usable_column(q)
+          | mask_usable_diagonal(q);
+  }
+  return mask;
 }
 
 // remaining_usable : Retourne le nombre de pièces qui peuvent encore être jouée

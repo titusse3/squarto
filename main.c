@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <limits.h>
+#include <stdbit.h>
 
 #include <raylib.h>
 #include <raymath.h>
@@ -12,6 +14,8 @@
 #include "mbck.h"
 #include "raygui.h"
 #include "quarto.h"
+#include "solver.h"
+#include "heuristic.h"
 
 #define BASE_SCREEN_WIDTH 1280
 #define BASE_SCREEN_HEIGHT 720
@@ -32,25 +36,24 @@ static void display_background(Texture2D background, Texture2D foreground,
 static void pieces_selectors(state_t *st, game_state_t *gs);
 
 static void init_animation(menu_content_t *game) {
-  game->win_animation.img = LoadTexture("resources/image/explosion.png");
-  game->win_animation.frameRec = (Rectangle) {
-    0, 0, game->win_animation.img.width / 4,
-    game->win_animation.img.height / 4
+  game->anims[0].img = LoadTexture("resources/image/explosion.png");
+  game->anims[0].frameRec = (Rectangle) {
+    0, 0, game->anims[0].img.width / 4, game->anims[0].img.height / 4
   };
+  game->anims[0].frameDivisor = 1;
   //
-  game->idle_animation.img = LoadTexture("resources/image/idle.png");
-  game->idle_animation.frameRec = (Rectangle) {
-    0, 0, game->idle_animation.img.width / 5,
-    game->idle_animation.img.height
+  game->anims[1].img = LoadTexture("resources/image/idle.png");
+  game->anims[1].frameRec = (Rectangle) {
+    0, 0, game->anims[1].img.width / 5, game->anims[1].img.height
   };
-  animation_t *anims[2] = {
-    &game->win_animation, &game->idle_animation
-  };
-  for (size_t i = 0; i < sizeof anims / sizeof *anims; i++) {
-    anims[i]->has_start = false;
-    anims[i]->currentFrame = 0;
-    anims[i]->currentLine = 0;
-    anims[i]->framesCounter = 0;
+  game->anims[1].frameDivisor = 5;
+  //
+  for (size_t i = 0; i < sizeof game->anims / sizeof *game->anims;
+      i++) {
+    game->anims[i].has_start = false;
+    game->anims[i].currentFrame = 0;
+    game->anims[i].currentLine = 0;
+    game->anims[i].framesCounter = 0;
   }
 }
 
@@ -122,62 +125,35 @@ int main(void) {
     }
   };
   //
-  game.win_animation_font = LoadFont("resources/fonts/alagard.png");
-  animation_t *anims[2] = {
-    &game.win_animation, &game.idle_animation
-  };
+  game.anim_font = LoadFont("resources/fonts/alagard.png");
   //
   init_animation(&game);
   //
-  anims[1]->has_start = true;
-  bool once = true;
+  game.anims[1].has_start = true;
+  //
   while (true) {
     //
-    if (once) {
-      display_animation(&game_info, anims[1]);
-      once = false;
-    }
-    for (size_t i = 0; i < sizeof anims / sizeof *anims; ++i) {
-      if (anims[i]->has_start) {
-        printf("Animation %zu\n", i);
-        anims[i]->framesCounter++;
-        if (anims[i]->framesCounter > 2) {
-          anims[i]->currentFrame++;
-          if (anims[i]->currentFrame >= 4) {
-            anims[i]->currentFrame = 0;
-            anims[i]->currentLine++;
-            if (anims[i]->currentLine >= 4) {
-              anims[i]->currentLine = 0;
-              anims[i]->has_start = false;
+    for (size_t i = 0; i < sizeof game.anims / sizeof *game.anims; ++i) {
+      if (game.anims[i].has_start) {
+        game.anims[i].framesCounter++;
+        if (game.anims[i].framesCounter > game.anims[i].frameDivisor) {
+          game.anims[i].currentFrame++;
+          if (game.anims[i].currentFrame >= 4) {
+            game.anims[i].currentFrame = 0;
+            game.anims[i].currentLine++;
+            if (game.anims[i].currentLine >= 4) {
+              game.anims[i].currentLine = 0;
+              game.anims[i].has_start = false;
             }
           }
-          anims[i]->framesCounter = 0;
+          game.anims[i].framesCounter = 0;
         }
-        anims[i]->frameRec.x = anims[i]->frameRec.width
-            * anims[i]->currentFrame;
-        anims[i]->frameRec.y = anims[i]->frameRec.height
-            * anims[i]->currentLine;
+        game.anims[i].frameRec.x = game.anims[i].frameRec.width
+            * game.anims[i].currentFrame;
+        game.anims[i].frameRec.y = game.anims[i].frameRec.height
+            * game.anims[i].currentLine;
       }
     }
-    // if (game.win_animation.has_end) {
-    //   game.win_animation.framesCounter++;
-    //   if (game.win_animation.framesCounter > 2) {
-    //     game.win_animation.currentFrame++;
-    //     if (game.win_animation.currentFrame >= 4) {
-    //       game.win_animation.currentFrame = 0;
-    //       game.win_animation.currentLine++;
-    //       if (game.win_animation.currentLine >= 4) {
-    //         game.win_animation.currentLine = 0;
-    //       }
-    //     }
-    //     game.win_animation.framesCounter = 0;
-    //   }
-    //   game.win_animation.frameRec.x = game.win_animation.frameRec.width
-    //       * game.win_animation.currentFrame;
-    //   game.win_animation.frameRec.y = game.win_animation.frameRec.height
-    //       * game.win_animation.currentLine;
-    // }
-    //
     game_info.screen_w = GetScreenWidth();
     game_info.screen_h = GetScreenHeight();
     if (WindowShouldClose()) {
@@ -229,6 +205,15 @@ int main(void) {
     } else {
       display_menu(&game_info, &game, &st);
     }
+    float factor = (float) game_info.screen_w / 250;
+    Rectangle anim_rect = {
+      .x = game_info.screen_w - game_info.screen_w / 3.0f,
+      .y = 0,
+      .width = game.anims[1].frameRec.width * factor,
+      .height = game.anims[1].frameRec.height * factor
+    };
+    DrawRectangleRec(anim_rect, Fade(BLACK, 0.5f));
+    display_animation(&game_info, &game.anims[1], anim_rect);
     if (game_info.exit_wind) {
       int font_size = game_info.screen_h / 26;
       int size = MeasureText("Do you really want to quit the game ?",
@@ -243,8 +228,10 @@ int main(void) {
   dispose_mbck(&m_bck);
   dispose_mbck(&m_fg);
   //
-  UnloadTexture(game.win_animation.img);
-  UnloadFont(game.win_animation_font);
+  for (size_t i = 0; i < sizeof game.anims / sizeof *game.anims; ++i) {
+    UnloadTexture(game.anims[i].img);
+  }
+  UnloadFont(game.anim_font);
   UnloadSound(game.sound);
   CloseAudioDevice();
   CloseWindow();
@@ -267,7 +254,7 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
   if (gs->q == nullptr) {
     srand(time(nullptr));
     size_t p = rand() % NB_PIECES;
-    gs->q = quarto_init(pieces[p], D1);
+    gs->q = quarto_init(pieces[p], D4);
     if (gs->q == nullptr) {
       display_exit_menu(game, game->screen_h / 16, "Error during allocation",
           MeasureText("Error during allocation", game->screen_h / 16));
@@ -298,15 +285,30 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
   UpdateLightValues(st->shader, st->lights[0]);
   if (!quarto_is_game_over(gs->q)) {
     select_case(st, &camera);
-    if (st->c_select[0] != UNDEF_COORD && gs->p_select[0] != UNDEF_COORD
-        && quarto_play(gs->q,
-        pieces[(size_t) (gs->p_select[0] * 4 + gs->p_select[1])],
-        positions[15 - (size_t) (st->c_select[0] * 4 + st->c_select[1])])
-        == NO_ERROR) {
-      gs->used |= 0b1 << (uint16_t) (gs->p_select[0] * 4 + gs->p_select[1]);
-      gs->p_select[0] = UNDEF_COORD;
-      gs->p_select[1] = UNDEF_COORD;
+    switch (quarto_whos_turn(gs->q)) {
+      case PLAYER1:
+        if (st->c_select[0] != UNDEF_COORD && gs->p_select[0] != UNDEF_COORD
+            && quarto_play(gs->q,
+            pieces[(size_t) (gs->p_select[0] * 4 + gs->p_select[1])],
+            positions[15 - (size_t) (st->c_select[0] * 4 + st->c_select[1])])
+            == NO_ERROR) {
+          gs->used |= 0b1 << (uint16_t) (gs->p_select[0] * 4 + gs->p_select[1]);
+        }
+        break;
+      case PLAYER2:
+        move_t move;
+        if (!negalpha_beta(gs->q, heuristic, 4, -INT_MAX, INT_MAX, &move)
+            || quarto_play(gs->q, move.piece, move.pos) != NO_ERROR) {
+          display_exit_menu(game, game->screen_h / 16,
+              "Internal serveur error",
+              MeasureText("Internal serveur error", game->screen_h / 16));
+          return;
+        }
+        unsigned int ps = (stdc_first_leading_one_ull(move.pos) - 1) / 4;
+        gs->used |= 0b1 << ps;
     }
+    gs->p_select[0] = UNDEF_COORD;
+    gs->p_select[1] = UNDEF_COORD;
   }
   BeginMode3D(camera);
   BeginShaderMode(st->shader);
@@ -325,8 +327,7 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
   if (p != NEITHER) {
     bool win = p == PLAYER1;
     const char *t = win ? "You w in !" : "You Loose !";
-    display_end_animation(game, &info->win_animation, info->win_animation_font,
-        t, win);
+    display_end_animation(game, &info->anims[0], info->anim_font, t, win);
   }
 }
 

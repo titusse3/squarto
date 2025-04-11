@@ -288,32 +288,89 @@ end_square:
 }
 
 static bool check__rot_square(quarto_t *q) {
+  int dx[] = {
+    -1, 0, 1, 0
+  };
+  int dy[] = {
+    0, 1, 0, -1
+  };
   for (int i = 1; i < 3; ++i) { // col
     for (int j = 1; j < 3; ++j) { // line
       int acc = 0b1111;
       bool taken = false;
       int pred;
-      for (int b1 = -1; b1 < 3; b1 += 2) {
-        for (int b2 = -1; b2 < 3; b2 += 2) {
-          if ((q->summary >> (31 - (i + b1) - (j + b2) * 4) & 1) == 0) {
-            acc = 0;
-            goto end_square;
-          }
-          int v = (q->board >> (60 - (i + b1) * 4 - (j + b2) * 16)) & 0b1111;
-          if (taken && (acc = (~(pred ^ v)) & acc) == 0) {
-            goto end_square;
-          }
-          pred = v;
-          taken = true;
+      for (int k = 0; k < 4; ++k) {
+        if ((q->summary >> (31 - (i + dx[k]) - (j + dy[k]) * 4) & 1) == 0) {
+          acc = 0;
+          break;
         }
+        int v = (q->board >> (60 - (i + dx[k]) * 4 - (j + dy[k]) * 16))
+            & 0b1111;
+        if (taken && (acc = (~(pred ^ v)) & acc) == 0) {
+          break;
+        }
+        pred = v;
+        taken = true;
       }
-end_square:
       if (acc != 0) {
         return true;
       }
     }
   }
-  return quarto_difficulty(q) != D2;
+  dx[0] = 0;
+  dx[1] = 2;
+  dx[2] = 1;
+  dx[3] = -1;
+  0[dy] = -1;
+  1[dy] = 0;
+  2[dy] = 2;
+  3[dy] = 1;
+  int acc = 0b1111;
+  bool taken = false;
+  int pred;
+  for (int k = 0; k < 4; ++k) {
+    if ((q->summary >> (31 - (1 + dx[k]) - (1 + dy[k]) * 4) & 1) == 0) {
+      acc = 0;
+      break;
+    }
+    int v = (q->board >> (60 - (1 + dx[k]) * 4 - (1 + dy[k]) * 16))
+        & 0b1111;
+    if (taken && (acc = (~(pred ^ v)) & acc) == 0) {
+      break;
+    }
+    pred = v;
+    taken = true;
+  }
+  if (acc != 0) {
+    return true;
+  }
+  dx[0] = 0;
+  dx[1] = 1;
+  dx[2] = -1;
+  dx[3] = -2;
+  0[dy] = -2;
+  1[dy] = 0;
+  2[dy] = 1;
+  3[dy] = -1;
+  acc = 0b1111;
+  taken = false;
+  for (int k = 0; k < 4; ++k) {
+    if ((q->summary >> (31 - (2 + dx[k]) - (2 + dy[k]) * 4) & 1) == 0) {
+      acc = 0;
+      break;
+    }
+    int v = (q->board >> (60 - (2 + dx[k]) * 4 - (2 + dy[k]) * 16))
+        & 0b1111;
+    if (taken && (acc = (~(pred ^ v)) & acc) == 0) {
+      break;
+    }
+    pred = v;
+    taken = true;
+  }
+  if (acc != 0) {
+    return true;
+  }
+  return false;
 }
 
 quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos) {
