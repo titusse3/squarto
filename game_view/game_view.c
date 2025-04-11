@@ -38,11 +38,17 @@ static void display_bot_animation(game_info_t *game, menu_content_t *menu) {
     if (dialogue_text[stage] != nullptr) { // Display message
       int text_width = MeasureText(dialogue_text[stage], font_size);
       Rectangle dialogue_box = {
-        .x = game->screen_w - anim_rect.width / 1.5 - text_width,
+        .x = anim_rect.x - text_width + anim_rect.width * 0.2f,
         .y = anim_rect.y + anim_rect.height / 2,
         .width = text_width + 40,
         .height = font_size + 20
       };
+      if (dialogue_box.x < 0) {
+        dialogue_box.x = 10; // Ensure it stays on screen
+      }
+      if (dialogue_box.y + dialogue_box.height > game->screen_h) {
+        dialogue_box.y = game->screen_h - dialogue_box.height - 10;
+      }
       DrawRectangleRec(dialogue_box, BLACK);
       bool finished = display_text_writing(game, menu, &dialogue_box,
           dialogue_text[stage], font_size, frame);
