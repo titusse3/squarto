@@ -452,51 +452,94 @@ bool sss_star(const quarto_t *quarto, int (*heur)(const quarto_t *),
     return false;
   }
   //*
+  fprintf(stderr, "DEBUG: Make tree finish\n");
+  //*
   bool r = true;
   sss_t *cur = pqueue_dequeue(p);
   while (cur->node != s->node || !cur->resolve) {
     if (!cur->resolve) {
       size_t child = ktree_get_first_child(k, cur->node);
-      if (cur->is_max) {
-        while (child != SIZE_MAX) {
-          sss_t *ss = malloc(sizeof *ss);
-          if (ss == nullptr) {
-            goto error;
-          }
-          ss->node = child;
-          ss->val = cur->val;
-          ss->resolve = false;
-          ss->is_max = false;
-          if (pqueue_enqueue(p, ss) == nullptr || holdall_put(hf, ss) != 0) {
-            goto error;
-          }
-          child = ktree_get_neighbor(k, child);
-        }
-      } else if (child != SIZE_MAX) {
-        sss_t *ss = malloc(sizeof *ss);
-        if (ss == nullptr) {
+      if (child == SIZE_MAX) {
+        node_t *ncur = ktree_get_ref_by_num(k, cur->node);
+        int h = heur(ncur->quarto);
+        cur->val = h < cur->val ? h : cur->val;
+        cur->resolve = true;
+        if (pqueue_enqueue(p, cur) == nullptr) {
           goto error;
         }
-        ss->node = child;
-        ss->val = cur->val;
-        ss->resolve = false;
-        ss->is_max = true;
-        if (pqueue_enqueue(p, ss) == nullptr || holdall_put(hf, ss) != 0) {
-          goto error;
+      } else {
+        if (cur->is_max) {
+          while (child != SIZE_MAX) {
+            sss_t *ss = malloc(sizeof *ss);
+            if (ss == nullptr) {
+              goto error;
+            }
+            ss->node = child;
+            ss->val = cur->val;
+            ss->resolve = false;
+            ss->is_max = false;
+            if (pqueue_enqueue(p, ss) == nullptr || holdall_put(hf, ss) != 0) {
+              goto error;
+            }
+            child = ktree_get_neighbor(k, child);
+          }
+        } else if (child != SIZE_MAX) {
+          cur->node = child;
+          cur->val = cur->val;
+          cur->resolve = false;
+          cur->is_max = true;
+          if (pqueue_enqueue(p, cur) == nullptr || holdall_put(hf, cur) != 0) {
+            goto error;
+          }
         }
       }
     } else {
       if (cur->is_max) {
         size_t neighbor = ktree_get_neighbor(k, cur->node);
         if (neighbor != SIZE_MAX) {
-          s->node = neighbor;
-          s->resolve = false;
+          cur->node = neighbor;
+          cur->resolve = false;
         } else {
+          size_t parent = ktree_get_parent_by_num(k, cur->node);
+          if (parent == s->node) {
+            node_t *root = ktree_get_ref_by_num(k, s->node);
+            node_t *ncur = ktree_get_ref_by_num(k, cur->node);
+            root->move.pos = ncur->move.pos;
+            root->move.piece = ncur->move.piece;
+          }
+          cur->node = parent;
+          cur->is_max = !cur->is_max;
+        }
+        if (pqueue_enqueue(p, cur) == nullptr) {
+          goto error;
         }
       } else {
+        size_t parent = ktree_get_parent_by_num(k, cur->node);
+        if (parent == s->node) {
+          node_t *root = ktree_get_ref_by_num(k, s->node);
+          node_t *ncur = ktree_get_ref_by_num(k, cur->node);
+          root->move.pos = ncur->move.pos;
+          root->move.piece = ncur->move.piece;
+        }
+        cur->node = parent;
+        cur->is_max = !cur->is_max;
+        if (pqueue_enqueue(p, cur) == nullptr) {
+          goto error;
+        }
+        cntxt_t *c = malloc(sizeof *c);
+        if (c == nullptr) {
+          goto error;
+        }
+        c->k = k;
+        c->root = parent;
+        pqueue_filter_cntxt(p, (bool (*)(const void *, void *)) is_successor,
+            c);
       }
     }
   }
+  node_t *root = ktree_get_ref_by_num(k, s->node);
+  move->pos = root->move.pos;
+  move->piece = root->move.piece;
   goto dispose;
 error:
   r = false;

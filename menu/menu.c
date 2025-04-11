@@ -9,6 +9,12 @@
 #include "rules_menu.h"
 #include "utils_menu.h"
 
+#define SPLAY "Play"
+#define SRULES "Rules"
+#define SHISTORY "History"
+#define SDIFFICULTY "Difficulty"
+#define SQUIT "Quit"
+
 #define HISTORY_TXT                                                            \
         "Quarto est un jeu de stratégie abstrait inventé en 1991 par le\n"     \
         "Suisse Blaise Müller. Ce jeu se distingue par son concept original:"  \
@@ -32,10 +38,10 @@ static void display_menu_button(int titleWidth, game_info_t *game,
   float fontSize = 55.0f;
   float spacing = 1.0f;
   Font font = GetFontDefault();
-  const char *btn_title[4] = {
-    "Play", "Rules", "Histoire", "Quit"
+  const char *btn_title[] = {
+    SPLAY, SRULES, SHISTORY, SQUIT
   };
-  btn_t btn_type[4] = {
+  btn_t btn_type[] = {
     PLAY, RULES, HISTORY, QUIT
   };
   bool is_mouse_over = false;
@@ -101,15 +107,9 @@ static void display_history(game_info_t *game, int left_padding, int offset,
   if (IsKeyPressed(KEY_SPACE)) {
     menu->content.history_values.history_frames += 60;
   }
-  float rectWidth = game->screen_w - left_padding - offset;
-  float rectHeight = game->screen_h - 2 * offset;
-  Rectangle rulesRect = {
-    left_padding, (game->screen_h - rectHeight) / 2, rectWidth, rectHeight
-  };
-  DrawRectangleRec(rulesRect, (Color) { 50, 50, 50, 200 });
-  DrawRectangleLinesEx(rulesRect, 2, WHITE);
+  MAKE_BLACK_BOX(game, left_padding, offset);
   //
-  Rectangle pink = rect_top_corner_title("Histoire", rulesRect, font_size,
+  Rectangle pink = rect_top_corner_title(SHISTORY, rulesRect, font_size,
       BROWN);
   //
   int img_width = menu->content.history_values.history_texture.width;
@@ -131,6 +131,20 @@ static void display_history(game_info_t *game, int left_padding, int offset,
       centered_y, font_size_txt, LIGHTGRAY);
 }
 
+static void display_choosing_difficulty(game_info_t *game, int left_padding,
+    int offset, int font_size, menu_content_t *menu) {
+  float rectWidth = game->screen_w - left_padding - offset;
+  float rectHeight = game->screen_h - 2 * offset;
+  Rectangle rulesRect = {
+    left_padding, (game->screen_h - rectHeight) / 2, rectWidth, rectHeight
+  };
+  DrawRectangleRec(rulesRect, (Color) { 50, 50, 50, 200 });
+  DrawRectangleLinesEx(rulesRect, 2, WHITE);
+  //
+  Rectangle pink = rect_top_corner_title(SDIFFICULTY, rulesRect, font_size,
+      BROWN);
+}
+
 void display_menu(game_info_t *game, menu_content_t *menu, state_t *st) {
   const int title_size = game->screen_h / TITLE_DIVIDER;
   int titleWidth = MeasureText(game->game_name, title_size);
@@ -141,20 +155,22 @@ void display_menu(game_info_t *game, menu_content_t *menu, state_t *st) {
   int button_f = game->screen_h / (TITLE_DIVIDER * 2.2);
   //
   GuiSetStyle(DEFAULT, TEXT_SIZE, button_f);
-  int button_w = MeasureText("Histoire", button_f);
+  int button_w = MeasureText(SHISTORY, button_f);
   display_menu_button(titleWidth, game, button_f, button_w, menu, st);
+  if (IsKeyPressed(KEY_ESCAPE)) {
+    menu->menuType = NONE;
+  }
   switch (menu->menuType) {
+    case CHOOSE_DIFFICULTY:
+      display_choosing_difficulty(game,
+          2 * titleWidth / TITLE_POS_DIV + titleWidth,
+          titleWidth / TITLE_POS_DIV, button_f * 0.9f, menu);
+      break;
     case RULES:
-      if (IsKeyPressed(KEY_ESCAPE)) {
-        menu->menuType = NONE;
-      }
       display_rules(game, 2 * titleWidth / TITLE_POS_DIV + titleWidth,
           titleWidth / TITLE_POS_DIV, button_f * 0.9f, menu, st);
       break;
     case HISTORY:
-      if (IsKeyPressed(KEY_ESCAPE)) {
-        menu->menuType = NONE;
-      }
       display_history(game, 2 * titleWidth / TITLE_POS_DIV + titleWidth,
           titleWidth / TITLE_POS_DIV, button_f * 0.9f, menu);
       break;

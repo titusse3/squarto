@@ -6,6 +6,16 @@
 
 #include "menu.h"
 
+#define MAKE_BLACK_BOX((game, left_padding, offset)) \
+        float rectWidth = (game)->screen_w - left_padding - offset; \
+        float rectHeight = (game)->screen_h - 2 * offset; \
+        Rectangle rulesRect = { \
+          left_padding, ((game)->screen_h - rectHeight) / 2, rectWidth, \
+          rectHeight \
+        }; \
+        DrawRectangleRec(rulesRect, (Color) { 50, 50, 50, 200 }); \
+        DrawRectangleLinesEx(rulesRect, 2, WHITE); \
+
 // display_img_player: Fonction prenant en charge l'affichage d'image.
 extern void display_img_player(menu_content_t *menu, Rectangle *container,
     float t);
