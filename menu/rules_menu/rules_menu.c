@@ -47,17 +47,6 @@ static void bottom_corner_pagging(menu_content_t *menu, Rectangle parent) {
       center_y - tri_fsize / 3, tri_fsize, WHITE);
 }
 
-static bool display_text_writing(game_info_t *game, menu_content_t *menu,
-    Rectangle *container, const char *text) {
-  int font_size = container->width / 30;
-  int l = MeasureText(text, font_size);
-  int number_to_display = menu->content.rules_values.rules_frames / 3;
-  DrawText(TextSubtext(text, 0, number_to_display),
-      container->x + (container->width - l) / 2,
-      container->y + container->height / 5, font_size, LIGHTGRAY);
-  return number_to_display >= strlen(text);
-}
-
 static void display_rule_bottom_btn(game_info_t *game, menu_content_t *menu,
     Rectangle *container) {
   float btnPadHor = container->width * 0.01f;
@@ -520,9 +509,12 @@ void display_rules(game_info_t *game, int left_padding, int offset,
   bottom_corner_pagging(menu, rulesRect);
   //
   display_rule_bottom_btn(game, menu, &rulesRect);
+  int foffset = menu->content.rules_values.rules_frames / 3;
+  int mfont_size = rulesRect.width / 30;
   switch (menu->content.rules_values.rules_num) {
     case 0:
-      if (display_text_writing(game, menu, &rulesRect, RULE_ZERO)) {
+      if (display_text_writing(game, menu, &rulesRect, RULE_ZERO, mfont_size,
+          foffset)) {
         float t = menu->content.rules_values.rules_frames / 180.0f;
         if (t > 1.0f) {
           t = 1.0f;
@@ -531,32 +523,38 @@ void display_rules(game_info_t *game, int left_padding, int offset,
       }
       break;
     case 1:
-      if (display_text_writing(game, menu, &rulesRect, RULE_ONE)) {
+      if (display_text_writing(game, menu, &rulesRect, RULE_ONE, mfont_size,
+          foffset)) {
         display_rule_frame_1(menu, st, &rulesRect);
       }
       break;
     case 2:
-      if (display_text_writing(game, menu, &rulesRect, RULE_TWO)) {
+      if (display_text_writing(game, menu, &rulesRect, RULE_TWO, mfont_size,
+          foffset)) {
         display_rule_frame_2(menu, st, &rulesRect);
       }
       break;
     case 3:
-      if (display_text_writing(game, menu, &rulesRect, RULE_THREE)) {
+      if (display_text_writing(game, menu, &rulesRect, RULE_THREE, mfont_size,
+          foffset)) {
         display_rule_frame_3(menu, st, &rulesRect);
       }
       break;
     case 4:
-      if (display_text_writing(game, menu, &rulesRect, RULE_FOUR)) {
+      if (display_text_writing(game, menu, &rulesRect, RULE_FOUR, mfont_size,
+          foffset)) {
         display_rule_frame_4(menu, st, &rulesRect);
       }
       break;
     case 5:
-      if (display_text_writing(game, menu, &rulesRect, RULE_FIVE)) {
+      if (display_text_writing(game, menu, &rulesRect, RULE_FIVE, mfont_size,
+          foffset)) {
         display_rule_frame_5(menu, st, &rulesRect);
       }
       break;
     case 6:
-      if (display_text_writing(game, menu, &rulesRect, RULE_SIX)) {
+      if (display_text_writing(game, menu, &rulesRect, RULE_SIX, mfont_size,
+          foffset)) {
         display_rule_frame_6(menu, st, &rulesRect);
       }
       break;

@@ -1,5 +1,7 @@
 #include "utils_menu.h"
 
+#include <string.h>
+
 void display_img_player(menu_content_t *menu, Rectangle *container,
     float t) {
   float scale = 0.4f;
@@ -36,4 +38,14 @@ Rectangle rect_top_corner_title(const char *title, Rectangle parent,
       rect.x + rect.width / 2 - title_size / 2,
       rect.y + rect.height / 2 - font_size / 2, font_size, WHITE);
   return rect;
+}
+
+bool display_text_writing(game_info_t *game, menu_content_t *menu,
+    Rectangle *container, const char *text, int font_size, int offset) {
+  int l = MeasureText(text, font_size);
+  int number_to_display = offset;
+  DrawText(TextSubtext(text, 0, number_to_display),
+      container->x + (container->width - l) / 2,
+      container->y + container->height / 5, font_size, LIGHTGRAY);
+  return number_to_display >= strlen(text);
 }

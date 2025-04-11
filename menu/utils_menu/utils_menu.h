@@ -29,4 +29,7 @@ extern void display_img_player(menu_content_t *menu, Rectangle *container,
 extern Rectangle rect_top_corner_title(const char *title, Rectangle parent,
     int font_size, Color color_rect);
 
+extern bool display_text_writing(game_info_t *game, menu_content_t *menu,
+    Rectangle *container, const char *text, int font_size, int offset);
+
 #endif

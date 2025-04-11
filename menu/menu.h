@@ -66,6 +66,7 @@ typedef struct {
     struct {
       difficulty_t difficulty;
       bool has_end;
+      int frames;
     } game_values;
   } content;
   btn_t sound_play;
