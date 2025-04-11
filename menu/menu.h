@@ -65,7 +65,14 @@ typedef struct {
     } history_values;
     struct {
       difficulty_t difficulty;
-      bool has_end;
+      enum {
+        MINIMAX = 0,
+        NEGAMAX = 1,
+        ALPHABETA = 2,
+        NEGALPHABETA = 3,
+        SSS_S = 4
+      } solver;
+      bool dropwdonw_open;
       int frames;
     } game_values;
   } content;

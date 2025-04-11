@@ -8,6 +8,12 @@
 #include "solver.h"
 #include "heuristic.h"
 
+#define SNEGAMAX "Negamax"
+#define SMINIMAX "Minimax"
+#define SALPHABETA "Alpha-Beta"
+#define SNEGALPHABETA "NegAlpha-Beta"
+#define SSSS_S "SSS*"
+
 static void display_bot_animation(game_info_t *game, menu_content_t *menu) {
   float factor = (float) game->screen_w / 290;
   Rectangle anim_rect = {
@@ -31,11 +37,10 @@ static void display_bot_animation(game_info_t *game, menu_content_t *menu) {
       menu->content.game_values.frames / 3);
   //
   // Chooser difficulty
+  //
   const char *solvers[] = {
-    "Negamax", "Negascout", "Minimax"
+    SMINIMAX, SNEGAMAX, SALPHABETA, SNEGALPHABETA, SSSS_S
   };
-  static int selected_solver = 0;
-  static bool dropdown_open = false;
   float dropdown_width = game->screen_w / 6.0f;
   float dropdown_height = game->screen_h / 15.0f;
   Rectangle dropdown_rect = {
@@ -46,16 +51,17 @@ static void display_bot_animation(game_info_t *game, menu_content_t *menu) {
   };
   // Draw dropdown box
   DrawRectangleRec(dropdown_rect, DARKGRAY);
-  DrawText(solvers[selected_solver], dropdown_rect.x + 10, dropdown_rect.y + 10,
-      game->screen_h / 30, WHITE);
+  DrawText(solvers[menu->content.game_values.solver], dropdown_rect.x + 10,
+      dropdown_rect.y + 10, game->screen_h / 30, WHITE);
   // Handle dropdown toggle
   if (CheckCollisionPointRec(GetMousePosition(), dropdown_rect)
       && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-    dropdown_open = !dropdown_open;
+    menu->content.game_values.dropwdonw_open
+      = !menu->content.game_values.dropwdonw_open;
   }
   // Draw dropdown options if open
-  if (dropdown_open) {
-    for (int i = 0; i < 3; ++i) {
+  if (menu->content.game_values.dropwdonw_open) {
+    for (int i = 0; i < sizeof solvers / sizeof *solvers; ++i) {
       Rectangle option_rect = {
         .x = dropdown_rect.x,
         .y = dropdown_rect.y + dropdown_height + i * dropdown_height,
@@ -66,8 +72,8 @@ static void display_bot_animation(game_info_t *game, menu_content_t *menu) {
       if (CheckCollisionPointRec(GetMousePosition(), option_rect)) {
         DrawRectangleRec(option_rect, Fade(LIGHTGRAY, 0.8f));
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-          selected_solver = i;
-          dropdown_open = false;
+          menu->content.game_values.solver = i;
+          menu->content.game_values.dropwdonw_open = false;
         }
       }
       DrawText(solvers[i], option_rect.x + 10, option_rect.y + 10,
@@ -268,15 +274,15 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
         break;
       case PLAYER2:
         move_t move;
-        if (!negalpha_beta(gs->q, heuristic, 4, -INT_MAX, INT_MAX, &move)
-            || quarto_play(gs->q, move.piece, move.pos) != NO_ERROR) {
+        if (!negalpha_beta(gs->q, heuristic, 4, -INT_MAX, INT_MAX, &move)) {
           display_exit_menu(game, game->screen_h / 16,
               "Internal serveur error",
               MeasureText("Internal serveur error", game->screen_h / 16));
           return;
         }
-        unsigned int ps = (stdc_first_leading_one_ull(move.pos) - 1) / 4;
-        gs->used |= 0b1 << ps;
+        quarto_play(gs->q, move.piece, move.pos)
+        uint16_t ps = (stdc_first_leading_one_ull(move.pos) - 1) / 4;
+        gs->used |= 1 << ps;
     }
     gs->p_select[0] = UNDEF_COORD;
     gs->p_select[1] = UNDEF_COORD;

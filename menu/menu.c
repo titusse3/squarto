@@ -201,6 +201,8 @@ static void display_choosing_difficulty(game_info_t *game, int left_padding,
                    button_rect.y + button_height / 2 },
         desc_font_size, 1, WHITE);
     if (is_mouse_over && IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+      menu->content.game_values.dropwdonw_open = false;
+      menu->content.game_values.solver = 0;
       menu->content.game_values.frames = 0;
       menu->content.game_values.difficulty = i;
       menu->menuType = NONE;
