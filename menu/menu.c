@@ -167,9 +167,10 @@ static void display_choosing_difficulty(game_info_t *game, int left_padding,
     S_EASY_DESC, S_MEDIUM_DESC, S_HARD_DESC, S_VERY_HARD_DESC
   };
   int num_options = 4;
-  int button_height = rulesRect.height / 6;
+  int button_height = rulesRect.height / (num_options * 1.5); // Increased
+                                                              // height
   int button_width = rulesRect.width * 0.9f;
-  int spacing = rulesRect.height / 20;
+  int spacing = rulesRect.height / (num_options * 5);
   int total_height = num_options * button_height + (num_options - 1) * spacing;
   int start_y = rulesRect.y + (rulesRect.height - total_height) / 2;
   for (int i = 0; i < num_options; i++) {
@@ -193,13 +194,13 @@ static void display_choosing_difficulty(game_info_t *game, int left_padding,
                    button_rect.y + button_height / 4 - title_size.y / 2 },
         title_font_size, 1,
         (is_mouse_over ? WHITE : text_color));
-    int desc_font_size = font_size * 0.6f;
+    int desc_font_size = font_size * 0.5f;
     Vector2 desc_size = MeasureTextEx(GetFontDefault(),
         difficulty_descriptions[i], desc_font_size, 1);
     DrawTextEx(GetFontDefault(), difficulty_descriptions[i],
         (Vector2){ button_rect.x + (button_rect.width - desc_size.x) / 2,
-                   button_rect.y + button_height / 2 },
-        desc_font_size, 1, WHITE);
+                   button_rect.y + (button_height * 3 / 4) - desc_size.y / 2 },
+        desc_font_size, 1, WHITE); // Centered description
     if (is_mouse_over && IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
       menu->content.game_values.dropwdonw_open = false;
       menu->content.game_values.solver = 0;
