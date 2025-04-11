@@ -26,27 +26,9 @@
 #define QUIT_MSG \
         "Do you really want to quit the game ?\nYou will miss a lot of fun..."
 
-static void init_animation(menu_content_t *game) {
-  game->anims[0].img = LoadTexture("resources/image/explosion.png");
-  game->anims[0].frameRec = (Rectangle) {
-    0, 0, game->anims[0].img.width / 4, game->anims[0].img.height / 4
-  };
-  game->anims[0].frameDivisor = 1;
-  //
-  game->anims[1].img = LoadTexture("resources/image/idle.png");
-  game->anims[1].frameRec = (Rectangle) {
-    0, 0, game->anims[1].img.width / 5, game->anims[1].img.height
-  };
-  game->anims[1].frameDivisor = 5;
-  //
-  for (size_t i = 0; i < sizeof game->anims / sizeof *game->anims;
-      i++) {
-    game->anims[i].has_start = false;
-    game->anims[i].currentFrame = 0;
-    game->anims[i].currentLine = 0;
-    game->anims[i].framesCounter = 0;
-  }
-}
+static void init_animation(menu_content_t *game);
+
+static void animation_step(menu_content_t *game);
 
 int main(void) {
   InitWindow(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, GAME_NAME);
@@ -123,28 +105,8 @@ int main(void) {
   game.anims[1].has_start = true;
   //
   while (true) {
+    animation_step(&game);
     //
-    for (size_t i = 0; i < sizeof game.anims / sizeof *game.anims; ++i) {
-      if (game.anims[i].has_start) {
-        game.anims[i].framesCounter++;
-        if (game.anims[i].framesCounter > game.anims[i].frameDivisor) {
-          game.anims[i].currentFrame++;
-          if (game.anims[i].currentFrame >= 4) {
-            game.anims[i].currentFrame = 0;
-            game.anims[i].currentLine++;
-            if (game.anims[i].currentLine >= 4) {
-              game.anims[i].currentLine = 0;
-              game.anims[i].has_start = false;
-            }
-          }
-          game.anims[i].framesCounter = 0;
-        }
-        game.anims[i].frameRec.x = game.anims[i].frameRec.width
-            * game.anims[i].currentFrame;
-        game.anims[i].frameRec.y = game.anims[i].frameRec.height
-            * game.anims[i].currentLine;
-      }
-    }
     game_info.screen_w = GetScreenWidth();
     game_info.screen_h = GetScreenHeight();
     if (WindowShouldClose()) {
@@ -219,4 +181,50 @@ int main(void) {
   CloseAudioDevice();
   CloseWindow();
   return EXIT_SUCCESS;
+}
+
+void init_animation(menu_content_t *game) {
+  game->anims[0].img = LoadTexture("resources/image/explosion.png");
+  game->anims[0].frameRec = (Rectangle) {
+    0, 0, game->anims[0].img.width / 4, game->anims[0].img.height / 4
+  };
+  game->anims[0].frameDivisor = 1;
+  //
+  game->anims[1].img = LoadTexture("resources/image/idle.png");
+  game->anims[1].frameRec = (Rectangle) {
+    0, 0, game->anims[1].img.width / 5, game->anims[1].img.height
+  };
+  game->anims[1].frameDivisor = 5;
+  //
+  for (size_t i = 0; i < sizeof game->anims / sizeof *game->anims;
+      i++) {
+    game->anims[i].has_start = false;
+    game->anims[i].currentFrame = 0;
+    game->anims[i].currentLine = 0;
+    game->anims[i].framesCounter = 0;
+  }
+}
+
+void animation_step(menu_content_t *game) {
+  for (size_t i = 0; i < sizeof game->anims / sizeof *game->anims; ++i) {
+    if (game->anims[i].has_start) {
+      game->anims[i].framesCounter++;
+      if (game->anims[i].framesCounter > game->anims[i].frameDivisor) {
+        game->anims[i].currentFrame++;
+        if (game->anims[i].currentFrame >= 4) {
+          game->anims[i].currentFrame = 0;
+          game->anims[i].currentLine++;
+          if (game->anims[i].currentLine >= 4) {
+            game->anims[i].currentLine = 0;
+            game->anims[i].has_start = false;
+          }
+        }
+        game->anims[i].framesCounter = 0;
+      }
+      game->anims[i].frameRec.x = game->anims[i].frameRec.width
+          * game->anims[i].currentFrame;
+      game->anims[i].frameRec.y = game->anims[i].frameRec.height
+          * game->anims[i].currentLine;
+    }
+  }
 }
