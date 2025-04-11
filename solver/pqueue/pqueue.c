@@ -89,3 +89,10 @@ void pqueue_filter_cntxt(pqueue_t *p,
     }
   }
 }
+
+void *pqueue_peak(pqueue_t *p) {
+  if (p->head == nullptr) {
+    return nullptr;
+  }
+  return (void *) p->head->ref;
+}

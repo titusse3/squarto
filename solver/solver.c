@@ -299,6 +299,7 @@ typedef struct {
   int val;
   size_t node;
   bool resolve;
+  bool is_max;
 } sss_t;
 
 // make_tree: Construit l'arbre de jeu associé à la racine root de l'arbre k. Si
@@ -375,6 +376,15 @@ static int fake_free(void *p) {
   return 0;
 }
 
+typedef struct {
+  ktree_t *k;
+  size_t root;
+} cntxt_t;
+
+bool is_successor(const sss_t *s, cntxt_t *c) {
+  return ktree_is_descendant(c->k, c->root, s->node);
+}
+
 bool sss_star(const quarto_t *quarto, int (*heur)(const quarto_t *),
     unsigned int depth, bool is_max, move_t *move) {
   if (depth == 0 && !quarto_is_game_over(quarto)) {
@@ -412,6 +422,7 @@ bool sss_star(const quarto_t *quarto, int (*heur)(const quarto_t *),
   }
   s->resolve = false;
   s->val = INT_MAX;
+  s->is_max = is_max;
   if (pqueue_enqueue(p, s) == nullptr) {
     holdall_dispose(&hn);
     holdall_dispose(&hf);
@@ -441,6 +452,55 @@ bool sss_star(const quarto_t *quarto, int (*heur)(const quarto_t *),
     return false;
   }
   //*
+  bool r = true;
+  sss_t *cur = pqueue_dequeue(p);
+  while (cur->node != s->node || !cur->resolve) {
+    if (!cur->resolve) {
+      size_t child = ktree_get_first_child(k, cur->node);
+      if (cur->is_max) {
+        while (child != SIZE_MAX) {
+          sss_t *ss = malloc(sizeof *ss);
+          if (ss == nullptr) {
+            goto error;
+          }
+          ss->node = child;
+          ss->val = cur->val;
+          ss->resolve = false;
+          ss->is_max = false;
+          if (pqueue_enqueue(p, ss) == nullptr || holdall_put(hf, ss) != 0) {
+            goto error;
+          }
+          child = ktree_get_neighbor(k, child);
+        }
+      } else if (child != SIZE_MAX) {
+        sss_t *ss = malloc(sizeof *ss);
+        if (ss == nullptr) {
+          goto error;
+        }
+        ss->node = child;
+        ss->val = cur->val;
+        ss->resolve = false;
+        ss->is_max = true;
+        if (pqueue_enqueue(p, ss) == nullptr || holdall_put(hf, ss) != 0) {
+          goto error;
+        }
+      }
+    } else {
+      if (cur->is_max) {
+        size_t neighbor = ktree_get_neighbor(k, cur->node);
+        if (neighbor != SIZE_MAX) {
+          s->node = neighbor;
+          s->resolve = false;
+        } else {
+        }
+      } else {
+      }
+    }
+  }
+  goto dispose;
+error:
+  r = false;
+dispose:
   //*
   n->quarto = nullptr;
   holdall_apply(hn, (int (*)(void *)) node_dispose);
@@ -451,8 +511,5 @@ bool sss_star(const quarto_t *quarto, int (*heur)(const quarto_t *),
   pqueue_dispose(&p);
   //*
   //*
-  is_max = is_max;
-  move = move;
-  heur = heur;
-  return true;
+  return r;
 }

@@ -6,6 +6,19 @@
 
 #include "utils.h"
 
+#define SPACE_BETWEEN_BUTTONS 11
+
+#define NB_PIECES 4
+
+#define MENU_PADDING 10
+
+#define TITLE_DIVIDER 8
+#define TITLE_POS_DIV 6
+
+#define TEXT_PADDING_MENU 20
+
+#define UNDEF_COORD -1.0f
+
 typedef struct game_info_t {
   int screen_w;
   int screen_h;
@@ -18,6 +31,7 @@ typedef struct game_info_t {
 typedef enum {
   RULES,
   HISTORY,
+  CHOOSE_DIFFICULTY,
   PLAY,
   QUIT,
   NONE

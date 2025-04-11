@@ -48,6 +48,11 @@ extern void pqueue_dispose(pqueue_t **pptr);
 //    Renvoie nullptr en cas de dépassement de capacité ; renvoie sinon ref.
 extern void *pqueue_enqueue(pqueue_t *p, const void *ref);
 
+// pqueue_peak : renvoie nullptr si la file de priorité pointée par p est
+//    vide.
+//    Renvoie sinon la référence associé au premier élément de la file.
+extern void *pqueue_peak(pqueue_t *p);
+
 // pqueue_dequeue : renvoie nullptr si la file de priorité pointée par p est
 //    vide.
 //    Renvoie sinon la référence de l'objet en tête de file et le retire de
