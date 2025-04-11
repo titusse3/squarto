@@ -74,6 +74,7 @@ typedef struct {
       } solver;
       bool dropwdonw_open;
       int frames;
+      int stage;
     } game_values;
   } content;
   btn_t sound_play;

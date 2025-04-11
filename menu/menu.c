@@ -204,6 +204,7 @@ static void display_choosing_difficulty(game_info_t *game, int left_padding,
       menu->content.game_values.dropwdonw_open = false;
       menu->content.game_values.solver = 0;
       menu->content.game_values.frames = 0;
+      menu->content.game_values.stage = 0;
       menu->content.game_values.difficulty = i;
       menu->menuType = NONE;
       menu->currentScreen = GAME;
