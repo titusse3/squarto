@@ -1,9 +1,13 @@
+quarto_dir = ../
 CC = gcc
 CFLAGS = -std=c23 \
+	-O2 -I$(quarto_dir)
   # -Wall -Wconversion -Werror -Wextra -Wpedantic -Wwrite-strings \
-  # -O2
+  
+vpath %.c $(quarto_dir)
+vpath %.h $(quarto_dir)
 objects = quarto.o quarto_test.o
-executable = quarto_test
+executable = exemple
 makefile_indicator = .\#makefile\#
 
 .PHONY: all clean

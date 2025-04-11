@@ -31,6 +31,29 @@ static void display_background(Texture2D background, Texture2D foreground,
 
 static void pieces_selectors(state_t *st, game_state_t *gs);
 
+static void init_animation(menu_content_t *game) {
+  game->win_animation.img = LoadTexture("resources/image/explosion.png");
+  game->win_animation.frameRec = (Rectangle) {
+    0, 0, game->win_animation.img.width / 4,
+    game->win_animation.img.height / 4
+  };
+  //
+  game->idle_animation.img = LoadTexture("resources/image/idle.png");
+  game->idle_animation.frameRec = (Rectangle) {
+    0, 0, game->idle_animation.img.width / 5,
+    game->idle_animation.img.height
+  };
+  animation_t *anims[2] = {
+    &game->win_animation, &game->idle_animation
+  };
+  for (size_t i = 0; i < sizeof anims / sizeof *anims; i++) {
+    anims[i]->has_start = false;
+    anims[i]->currentFrame = 0;
+    anims[i]->currentLine = 0;
+    anims[i]->framesCounter = 0;
+  }
+}
+
 int main(void) {
   InitWindow(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, GAME_NAME);
   SetExitKey(0);
@@ -99,36 +122,61 @@ int main(void) {
     }
   };
   //
-  game.win_info.explosion = LoadTexture("resources/image/explosion.png");
-  game.win_info.frameRec = (Rectangle) {
-    0, 0, game.win_info.explosion.width / 4, game.win_info.explosion.height / 4
+  game.win_animation_font = LoadFont("resources/fonts/alagard.png");
+  animation_t *anims[2] = {
+    &game.win_animation, &game.idle_animation
   };
-  game.win_info.f = LoadFont("resources/fonts/alagard.png");
-  game.win_info.has_end = false;
-  int currentFrame = 0;
-  int currentLine = 0;
-  int framesCounter = 0;
   //
+  init_animation(&game);
+  //
+  anims[1]->has_start = true;
+  bool once = true;
   while (true) {
     //
-    if (game.win_info.has_end) {
-      framesCounter++;
-      if (framesCounter > 2) {
-        currentFrame++;
-        if (currentFrame >= 4) {
-          currentFrame = 0;
-          currentLine++;
-          if (currentLine >= 4) {
-            currentLine = 0;
-          }
-        }
-        framesCounter = 0;
-      }
-      game.win_info.frameRec.x = game.win_info.frameRec.width
-          * currentFrame;
-      game.win_info.frameRec.y = game.win_info.frameRec.height
-          * currentLine;
+    if (once) {
+      display_animation(&game_info, anims[1]);
+      once = false;
     }
+    for (size_t i = 0; i < sizeof anims / sizeof *anims; ++i) {
+      if (anims[i]->has_start) {
+        printf("Animation %zu\n", i);
+        anims[i]->framesCounter++;
+        if (anims[i]->framesCounter > 2) {
+          anims[i]->currentFrame++;
+          if (anims[i]->currentFrame >= 4) {
+            anims[i]->currentFrame = 0;
+            anims[i]->currentLine++;
+            if (anims[i]->currentLine >= 4) {
+              anims[i]->currentLine = 0;
+              anims[i]->has_start = false;
+            }
+          }
+          anims[i]->framesCounter = 0;
+        }
+        anims[i]->frameRec.x = anims[i]->frameRec.width
+            * anims[i]->currentFrame;
+        anims[i]->frameRec.y = anims[i]->frameRec.height
+            * anims[i]->currentLine;
+      }
+    }
+    // if (game.win_animation.has_end) {
+    //   game.win_animation.framesCounter++;
+    //   if (game.win_animation.framesCounter > 2) {
+    //     game.win_animation.currentFrame++;
+    //     if (game.win_animation.currentFrame >= 4) {
+    //       game.win_animation.currentFrame = 0;
+    //       game.win_animation.currentLine++;
+    //       if (game.win_animation.currentLine >= 4) {
+    //         game.win_animation.currentLine = 0;
+    //       }
+    //     }
+    //     game.win_animation.framesCounter = 0;
+    //   }
+    //   game.win_animation.frameRec.x = game.win_animation.frameRec.width
+    //       * game.win_animation.currentFrame;
+    //   game.win_animation.frameRec.y = game.win_animation.frameRec.height
+    //       * game.win_animation.currentLine;
+    // }
     //
     game_info.screen_w = GetScreenWidth();
     game_info.screen_h = GetScreenHeight();
@@ -195,8 +243,8 @@ int main(void) {
   dispose_mbck(&m_bck);
   dispose_mbck(&m_fg);
   //
-  UnloadTexture(game.win_info.explosion);
-  UnloadFont(game.win_info.f);
+  UnloadTexture(game.win_animation.img);
+  UnloadFont(game.win_animation_font);
   UnloadSound(game.sound);
   CloseAudioDevice();
   CloseWindow();
@@ -273,10 +321,12 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
                    (float) st->screens->texture.width,
                    (float) -st->screens->texture.height},
       (Vector2) {0.0f, 0.0f}, WHITE);
-  if (quarto_winner(gs->q) == PLAYER1) {
-    display_end_animation(game, &info->win_info, "You w in !", true);
-  } else if (quarto_winner(gs->q) == PLAYER2) {
-    display_end_animation(game, &info->win_info, "You Loose !", false);
+  player_t p = quarto_winner(gs->q);
+  if (p != NEITHER) {
+    bool win = p == PLAYER1;
+    const char *t = win ? "You w in !" : "You Loose !";
+    display_end_animation(game, &info->win_animation, info->win_animation_font,
+        t, win);
   }
 }
 

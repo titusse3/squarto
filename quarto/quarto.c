@@ -230,20 +230,26 @@ static bool check__diagonal(quarto_t *q) {
 }
 
 static bool check__small_square(quarto_t *q) {
-  int acc = 0b1111;
   for (int i = 0; i < 3; ++i) { // col
     for (int j = 0; j < 3; ++j) { // line
-      if ((q->summary >> (31 - i - j * 4) & 1) == 0
-          || (q->summary >> (31 - (i + 1) - j * 4) & 1) == 0
-          || (q->summary >> (31 - i - (j + 1) * 4) & 1) == 0
-          || (q->summary >> (31 - (i + 1) - (j + 1) * 4) & 1) == 0) {
-        acc = 0;
-        break;
+      int acc = 0b1111;
+      bool taken = false;
+      int pred;
+      for (int b1 = 0; b1 < 2; ++b1) {
+        for (int b2 = 0; b2 < 2; ++b2) {
+          if ((q->summary >> (31 - (i + b1) - (j + b2) * 4) & 1) == 0) {
+            acc = 0;
+            goto end_square;
+          }
+          int v = (q->board >> (60 - (i + b1) * 4 - (j + b2) * 16)) & 0b1111;
+          if (taken && (acc = (~(pred ^ v)) & acc) == 0) {
+            goto end_square;
+          }
+          pred = v;
+          taken = true;
+        }
       }
-      int p1 = (q->board >> (60 - i * 20)) & 0b1111;
-      int p2;
-      int p3;
-      int p4;
+end_square:
       if (acc != 0) {
         return true;
       }
@@ -253,11 +259,61 @@ static bool check__small_square(quarto_t *q) {
 }
 
 static bool check__huge_square(quarto_t *q) {
+  for (int i = 0; i < 2; ++i) { // col
+    for (int j = 0; j < 2; ++j) { // line
+      int acc = 0b1111;
+      bool taken = false;
+      int pred;
+      for (int b1 = 0; b1 < 3; b1 += 2) {
+        for (int b2 = 0; b2 < 3; b2 += 2) {
+          if ((q->summary >> (31 - (i + b1) - (j + b2) * 4) & 1) == 0) {
+            acc = 0;
+            goto end_square;
+          }
+          int v = (q->board >> (60 - (i + b1) * 4 - (j + b2) * 16)) & 0b1111;
+          if (taken && (acc = (~(pred ^ v)) & acc) == 0) {
+            goto end_square;
+          }
+          pred = v;
+          taken = true;
+        }
+      }
+end_square:
+      if (acc != 0) {
+        return true;
+      }
+    }
+  }
   return false;
 }
 
 static bool check__rot_square(quarto_t *q) {
-  return false;
+  for (int i = 1; i < 3; ++i) { // col
+    for (int j = 1; j < 3; ++j) { // line
+      int acc = 0b1111;
+      bool taken = false;
+      int pred;
+      for (int b1 = -1; b1 < 3; b1 += 2) {
+        for (int b2 = -1; b2 < 3; b2 += 2) {
+          if ((q->summary >> (31 - (i + b1) - (j + b2) * 4) & 1) == 0) {
+            acc = 0;
+            goto end_square;
+          }
+          int v = (q->board >> (60 - (i + b1) * 4 - (j + b2) * 16)) & 0b1111;
+          if (taken && (acc = (~(pred ^ v)) & acc) == 0) {
+            goto end_square;
+          }
+          pred = v;
+          taken = true;
+        }
+      }
+end_square:
+      if (acc != 0) {
+        return true;
+      }
+    }
+  }
+  return quarto_difficulty(q) != D2;
 }
 
 quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos) {
@@ -286,14 +342,17 @@ quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos) {
       if (check__rot_square(q)) {
         q->summary |= M_OVER_BIT;
       }
+      [[fallthrough]];
     case D3:
       if (check__huge_square(q)) {
         q->summary |= M_OVER_BIT;
       }
+      [[fallthrough]];
     case D2:
       if (check__small_square(q)) {
         q->summary |= M_OVER_BIT;
       }
+      [[fallthrough]];
     case D1:
       if (check__line(q) || check__column(q) || check__diagonal(q)) {
         q->summary |= M_OVER_BIT;

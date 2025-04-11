@@ -8,7 +8,7 @@
 #include "heuristic.h"
 
 int main(void) {
-  quarto_t *q = quarto_init(C1_HUGE_PLAIN_ROUND);
+  quarto_t *q = quarto_init(C1_HUGE_PLAIN_ROUND, D1);
   if (q == NULL) {
     fprintf(stderr, "Failed to initialize quarto\n");
     return EXIT_FAILURE;

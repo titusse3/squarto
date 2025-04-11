@@ -201,7 +201,7 @@ static void display_choosing_difficulty(game_info_t *game, int left_padding,
                    button_rect.y + button_height / 2 },
         desc_font_size, 1, WHITE);
     if (is_mouse_over && IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
-      menu->content.difficulty = i;
+      menu->content.game_values.difficulty = i;
       menu->menuType = NONE;
       menu->currentScreen = GAME;
     }
@@ -214,7 +214,8 @@ void display_menu(game_info_t *game, menu_content_t *menu, state_t *st) {
   Vector2 titlePos = {
     titleWidth / TITLE_POS_DIV, titleWidth / TITLE_POS_DIV
   };
-  DrawTextEx(menu->win_info.f, game->game_name, titlePos, title_size, 2, WHITE);
+  DrawTextEx(menu->win_animation_font, game->game_name, titlePos, title_size, 2,
+      WHITE);
   int button_f = game->screen_h / (TITLE_DIVIDER * 2.2);
   //
   GuiSetStyle(DEFAULT, TEXT_SIZE, button_f);
@@ -287,9 +288,8 @@ bool display_exit_menu(game_info_t *game_info, int fontSize, const char *msg,
   return false;
 }
 
-void display_end_animation(game_info_t *game_info, win_display_info *info,
-    const char *text, bool win) {
-  info->has_end = true;
+void display_animation(game_info_t *game_info, animation_t *info) {
+  info->has_start = true;
   Rectangle destRec = {
     (game_info->screen_w - info->frameRec.width
     * (game_info->screen_w / (info->frameRec.width * 1.4f))) / 2,
@@ -303,18 +303,23 @@ void display_end_animation(game_info_t *game_info, win_display_info *info,
   Vector2 origin = {
     0, 0
   };
-  DrawTexturePro(info->explosion, info->frameRec, destRec, origin, 0.0f, WHITE);
+  DrawTexturePro(info->img, info->frameRec, destRec, origin, 0.0f, WHITE);
+}
+
+void display_end_animation(game_info_t *game_info, animation_t *info, Font f,
+    const char *text, bool win) {
+  display_animation(game_info, info);
   //
-  int font_size = info->f.baseSize * 8;
+  int font_size = f.baseSize * 8;
   static float waveOffset = 0.0f;
   waveOffset += 0.1f;
-  Vector2 textSize = MeasureTextEx(info->f, text, font_size, 1);
+  Vector2 textSize = MeasureTextEx(f, text, font_size, 1);
   for (int i = 0; i < strlen(text); i++) {
     float offset = sinf(waveOffset + i * 0.5f) * 10.0f;
-    DrawTextPro(info->f, (char[]){ text[i], '\0' },
+    DrawTextPro(f, (char[]){ text[i], '\0' },
         (Vector2){ game_info->screen_w / 2 - textSize.x / 2 + i * (textSize.x
                    / strlen(text)),
-                   game_info->screen_h / 2 - info->f.baseSize * 2.5f + offset },
+                   game_info->screen_h / 2 - f.baseSize * 2.5f + offset },
         (Vector2){ 0, 0 }, 0.0f, font_size, 1, (win ? GREEN : RED));
   }
   //
