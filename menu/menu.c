@@ -12,8 +12,21 @@
 #define SPLAY "Play"
 #define SRULES "Rules"
 #define SHISTORY "History"
-#define SDIFFICULTY "Difficulty"
+#define SDIFFICULTY "Select difficulty"
 #define SQUIT "Quit"
+
+// DIFFICULTY NAMES
+#define S_EASY "Mise en Orbite"
+#define S_MEDIUM "Orbites en Folie"
+#define S_HARD "Tempête d'Astéroïdes"
+#define S_VERY_HARD "Supernova Ultime"
+// DIFFICULTY DESCRIPTIONS
+#define S_EASY_DESC "L'alignement provoque la victoire."
+#define S_MEDIUM_DESC "L'alignement ou le petit carré provoque la victoire."
+#define S_HARD_DESC \
+        "Les même conditions que précédament avec en plus les grands carrés."
+#define S_VERY_HARD_DESC \
+        "Toutes les conditions précédente en plus du carrés tournant."
 
 #define HISTORY_TXT                                                            \
         "Quarto est un jeu de stratégie abstrait inventé en 1991 par le\n"     \
@@ -59,7 +72,9 @@ static void display_menu_button(int titleWidth, game_info_t *game,
         PlaySound(menu->sound);
         menu->sound_play = btn_type[i];
       }
-      text_color = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : MAROON;
+      text_color = IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? GRAY : (Color) {
+        196, 82, 204, 255
+      };
       if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
         if (btn_type[i] == PLAY) {
           // menu->currentScreen = GAME;
@@ -94,6 +109,14 @@ static void display_menu_button(int titleWidth, game_info_t *game,
     }
     float x = rect.x + (rect.width - text_size.x);
     float y = rect.y + (rect.height - text_size.y);
+    if (menu->menuType == RULES && btn_type[i] == RULES
+        || menu->menuType == HISTORY && btn_type[i] == HISTORY
+        || menu->menuType == CHOOSE_DIFFICULTY && btn_type[i] == PLAY
+        || game->exit_wind && btn_type[i] == QUIT) {
+      text_color = (Color) {
+        104, 58, 107, 255
+      };
+    }
     DrawTextEx(font, btn_title[i], (Vector2){ x, y }, fontSize, spacing,
         text_color);
   }
@@ -107,10 +130,10 @@ static void display_history(game_info_t *game, int left_padding, int offset,
   if (IsKeyPressed(KEY_SPACE)) {
     menu->content.history_values.history_frames += 60;
   }
-  MAKE_BLACK_BOX(game, left_padding, offset);
+  DISPLAY_BCK_WINDOW(game, left_padding, offset);
   //
   Rectangle pink = rect_top_corner_title(SHISTORY, rulesRect, font_size,
-      BROWN);
+      PURPLE);
   //
   int img_width = menu->content.history_values.history_texture.width;
   int img_height = menu->content.history_values.history_texture.height;
@@ -133,16 +156,56 @@ static void display_history(game_info_t *game, int left_padding, int offset,
 
 static void display_choosing_difficulty(game_info_t *game, int left_padding,
     int offset, int font_size, menu_content_t *menu) {
-  float rectWidth = game->screen_w - left_padding - offset;
-  float rectHeight = game->screen_h - 2 * offset;
-  Rectangle rulesRect = {
-    left_padding, (game->screen_h - rectHeight) / 2, rectWidth, rectHeight
+  DISPLAY_BCK_WINDOW(game, left_padding, offset);
+  // DISPLAY_BCK_WINDOW donne accés à la varaible rulesRect
+  Rectangle purple = rect_top_corner_title(SDIFFICULTY, rulesRect, font_size,
+      PURPLE);
+  const char *difficulty_options[] = {
+    S_EASY, S_MEDIUM, S_HARD, S_VERY_HARD
   };
-  DrawRectangleRec(rulesRect, (Color) { 50, 50, 50, 200 });
-  DrawRectangleLinesEx(rulesRect, 2, WHITE);
-  //
-  Rectangle pink = rect_top_corner_title(SDIFFICULTY, rulesRect, font_size,
-      BROWN);
+  const char *difficulty_descriptions[] = {
+    S_EASY_DESC, S_MEDIUM_DESC, S_HARD_DESC, S_VERY_HARD_DESC
+  };
+  int num_options = 4;
+  int button_height = rulesRect.height / 6;
+  int button_width = rulesRect.width * 0.9f;
+  int spacing = rulesRect.height / 20;
+  int total_height = num_options * button_height + (num_options - 1) * spacing;
+  int start_y = rulesRect.y + (rulesRect.height - total_height) / 2;
+  for (int i = 0; i < num_options; i++) {
+    Rectangle button_rect = {
+      rulesRect.x + (rulesRect.width - button_width) / 2,
+      start_y + i * (button_height + spacing),
+      button_width,
+      button_height
+    };
+    bool is_mouse_over = CheckCollisionPointRec(GetMousePosition(),
+        button_rect);
+    Color button_color = is_mouse_over ? DARKPURPLE : BLACK;
+    Color text_color = PURPLE; // Same color as the rectangle borders
+    DrawRectangleRec(button_rect, button_color);
+    DrawRectangleLinesEx(button_rect, 2, PURPLE);
+    int title_font_size = font_size * 1.1f;
+    Vector2 title_size = MeasureTextEx(GetFontDefault(),
+        difficulty_options[i], title_font_size, 1);
+    DrawTextEx(GetFontDefault(), difficulty_options[i],
+        (Vector2){ button_rect.x + (button_rect.width - title_size.x) / 2,
+                   button_rect.y + button_height / 4 - title_size.y / 2 },
+        title_font_size, 1,
+        (is_mouse_over ? WHITE : text_color));
+    int desc_font_size = font_size * 0.6f;
+    Vector2 desc_size = MeasureTextEx(GetFontDefault(),
+        difficulty_descriptions[i], desc_font_size, 1);
+    DrawTextEx(GetFontDefault(), difficulty_descriptions[i],
+        (Vector2){ button_rect.x + (button_rect.width - desc_size.x) / 2,
+                   button_rect.y + button_height / 2 },
+        desc_font_size, 1, WHITE);
+    if (is_mouse_over && IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+      menu->content.difficulty = i;
+      menu->menuType = NONE;
+      menu->currentScreen = GAME;
+    }
+  }
 }
 
 void display_menu(game_info_t *game, menu_content_t *menu, state_t *st) {
@@ -173,6 +236,8 @@ void display_menu(game_info_t *game, menu_content_t *menu, state_t *st) {
     case HISTORY:
       display_history(game, 2 * titleWidth / TITLE_POS_DIV + titleWidth,
           titleWidth / TITLE_POS_DIV, button_f * 0.9f, menu);
+      break;
+    default:
       break;
   }
   //

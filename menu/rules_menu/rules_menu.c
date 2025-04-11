@@ -502,11 +502,7 @@ static void display_rule_frame_6(menu_content_t *menu, state_t *st,
 
 void display_rules(game_info_t *game, int left_padding, int offset,
     int font_size, menu_content_t *menu, state_t *st) {
-  float rectWidth = game->screen_w - left_padding - offset;
-  float rectHeight = game->screen_h - 2 * offset;
-  Rectangle rulesRect = {
-    left_padding, (game->screen_h - rectHeight) / 2, rectWidth, rectHeight
-  };
+  DISPLAY_BCK_WINDOW(game, left_padding, offset);
   if (st->mk_screen) {
     st->screens = malloc(sizeof *st->screens);
     if (st->screens == nullptr) {
@@ -518,11 +514,9 @@ void display_rules(game_info_t *game, int left_padding, int offset,
     *st->screens = LoadRenderTexture(rulesRect.width, rulesRect.height / 1.5f);
     st->mk_screen = false;
   }
-  DrawRectangleRec(rulesRect, (Color) { 50, 50, 50, 200 });
-  DrawRectangleLinesEx(rulesRect, 2, WHITE);
   //
   Rectangle pink = rect_top_corner_title("Rules", rulesRect, font_size,
-      PINK);
+      PURPLE);
   bottom_corner_pagging(menu, rulesRect);
   //
   display_rule_bottom_btn(game, menu, &rulesRect);

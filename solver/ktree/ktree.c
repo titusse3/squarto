@@ -39,17 +39,11 @@ node_t *node__get_by_num(node_t *k, size_t n) {
   if (k->num == n) {
     return k;
   }
-  // ces frères
-  node_t *neight = k->neightbor;
-  while (neight != nullptr) {
-    node_t *r;
-    if ((r = node__get_by_num(neight, n)) != nullptr) {
-      return r;
-    }
-    neight = neight->neightbor;
+  node_t *result = node__get_by_num(k->child, n);
+  if (result != nullptr) {
+    return result;
   }
-  // son enfant
-  return node__get_by_num(k->child, n);
+  return node__get_by_num(k->neightbor, n);
 }
 
 // === KTREE ===================================================================
@@ -78,11 +72,16 @@ size_t ktree_insert(ktree_t *k, size_t n, const void *ref) {
   if (node == nullptr) {
     return SIZE_MAX;
   }
-  node->num = k->size++;
+  node->num = k->size;
+  ++k->size;
   node->ref = ref;
   node->neightbor = nullptr;
   node->child = nullptr;
   if (n == SIZE_MAX) {
+    if (k->root != nullptr) {
+      free(node);
+      return SIZE_MAX;
+    }
     k->root = node;
     node->parent = nullptr;
     return node->num;
@@ -93,15 +92,8 @@ size_t ktree_insert(ktree_t *k, size_t n, const void *ref) {
     return SIZE_MAX;
   }
   node->parent = parent;
-  if (parent->child == nullptr) {
-    parent->child = node;
-    return node->num;
-  }
-  node_t *neight = parent->child;
-  while (neight->neightbor != nullptr) {
-    neight = neight->neightbor;
-  }
-  neight->neightbor = node;
+  node->neightbor = parent->child;
+  parent->child = node;
   return node->num;
 }
 

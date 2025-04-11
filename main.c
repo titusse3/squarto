@@ -136,6 +136,7 @@ int main(void) {
       game_info.exit_wind = true;
     }
     if (IsWindowResized()) {
+      update_mbck_scale(m_bck, game_info.screen_w, game_info.screen_h);
       if (!st.mk_screen) {
         free(st.screens);
         st.mk_screen = true;
@@ -211,14 +212,14 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
           MeasureText("Error during allocation", game->screen_h / 16));
       return;
     }
-    st->screens[0]
-      = LoadRenderTexture(game->screen_h / 2, game->screen_h / 1.5);
+    st->screens[0] = LoadRenderTexture(game->screen_h / 2,
+        game->screen_h / 1.5);
     st->mk_screen = false;
   }
   if (gs->q == nullptr) {
     srand(time(nullptr));
     size_t p = rand() % NB_PIECES;
-    gs->q = quarto_init(pieces[p]);
+    gs->q = quarto_init(pieces[p], D1);
     if (gs->q == nullptr) {
       display_exit_menu(game, game->screen_h / 16, "Error during allocation",
           MeasureText("Error during allocation", game->screen_h / 16));

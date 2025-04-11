@@ -19,7 +19,7 @@
 
 #define UNDEF_COORD -1.0f
 
-typedef struct game_info_t {
+typedef struct {
   int screen_w;
   int screen_h;
   const char *game_name;
@@ -60,6 +60,7 @@ typedef struct {
       int history_frames;
       Texture2D history_texture;
     } history_values;
+    difficulty_t difficulty;
   } content;
   btn_t sound_play;
   Sound sound;

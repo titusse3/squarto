@@ -8,6 +8,7 @@
 #define M_TURN_BIT   ((uint32_t) 0b0000'0000'0000'0000'0100'0000'0000'0000)
 #define M_PIECE_MASK ((uint32_t) 0b0000'0000'0000'0000'0011'1100'0000'0000)
 #define M_TURN_MASK  ((uint32_t) 0b0000'0000'0000'0000'0000'0011'1110'0000)
+#define M_DIFF_MASK  ((uint32_t) 0b0000'0000'0000'0000'0000'0000'0001'1000)
 
 #define MAX_TURN 15
 
@@ -22,16 +23,17 @@ struct quarto_t {
   // 1 bits pour le tour
   // 4 bits pour la pièce selectionnée
   // 5 bits pour le tour au équelle le jeu est
+  // 2 bits pour la difficulté
   uint32_t summary;
   uint64_t board;
 };
 
-quarto_t *quarto_init(piece_t start) {
+quarto_t *quarto_init(piece_t start, difficulty_t diff) {
   quarto_t *q = malloc(sizeof *q);
   if (q == nullptr) {
     return nullptr;
   }
-  q->summary = 0;
+  q->summary = diff << 3;
   SELECT_PIECE(q->summary, (uint32_t) (start & P15));
   q->board = 0;
   return q;
@@ -53,6 +55,10 @@ void quarto_dispose(quarto_t **qptr) {
   }
   free(*qptr);
   *qptr = nullptr;
+}
+
+difficulty_t quarto_difficulty(const quarto_t *q) {
+  return (q->summary & M_DIFF_MASK) >> 3;
 }
 
 player_t quarto_whos_turn(const quarto_t *q) {
@@ -223,6 +229,37 @@ static bool check__diagonal(quarto_t *q) {
   return acc != 0;
 }
 
+static bool check__small_square(quarto_t *q) {
+  int acc = 0b1111;
+  for (int i = 0; i < 3; ++i) { // col
+    for (int j = 0; j < 3; ++j) { // line
+      if ((q->summary >> (31 - i - j * 4) & 1) == 0
+          || (q->summary >> (31 - (i + 1) - j * 4) & 1) == 0
+          || (q->summary >> (31 - i - (j + 1) * 4) & 1) == 0
+          || (q->summary >> (31 - (i + 1) - (j + 1) * 4) & 1) == 0) {
+        acc = 0;
+        break;
+      }
+      int p1 = (q->board >> (60 - i * 20)) & 0b1111;
+      int p2;
+      int p3;
+      int p4;
+      if (acc != 0) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+static bool check__huge_square(quarto_t *q) {
+  return false;
+}
+
+static bool check__rot_square(quarto_t *q) {
+  return false;
+}
+
 quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos) {
   if (quarto_is_game_over(q)) {
     return GAME_ALREADY_OVER;
@@ -244,8 +281,23 @@ quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos) {
   // on met la pièce sur le plateau
   q->board |= p2 & pos;
   SELECT_PIECE(q->summary, (uint32_t) (p & P15));
-  if (check__line(q) || check__column(q) || check__diagonal(q)) {
-    q->summary |= M_OVER_BIT;
+  switch (quarto_difficulty(q)) {
+    case D4:
+      if (check__rot_square(q)) {
+        q->summary |= M_OVER_BIT;
+      }
+    case D3:
+      if (check__huge_square(q)) {
+        q->summary |= M_OVER_BIT;
+      }
+    case D2:
+      if (check__small_square(q)) {
+        q->summary |= M_OVER_BIT;
+      }
+    case D1:
+      if (check__line(q) || check__column(q) || check__diagonal(q)) {
+        q->summary |= M_OVER_BIT;
+      }
   }
   return NO_ERROR;
 }

@@ -111,8 +111,8 @@ typedef enum {
 } position_t;
 
 typedef enum {
-  PLAYER1,
-  PLAYER2,
+  PLAYER1 = 0b0,
+  PLAYER2 = 0b1,
   NEITHER
 } player_t;
 
@@ -123,11 +123,19 @@ typedef enum {
   GAME_ALREADY_OVER,
 } quarto_return_t;
 
+typedef enum {
+  D1 = 0b00,
+  D2 = 0b01,
+  D3 = 0b10,
+  D4 = 0b11
+} difficulty_t;
+
 // quarto_init : Retourne la structure associée à un jeu de Quarto avec comme
-//    première pièce sélectionner par le PLAYER2 la pièce start.
+//    difficulté diff et comme première pièce sélectionner par le PLAYER2 la
+//    pièce start.
 //  Retourne un pointeur vers la structure associée à un jeu de Quarto en cas de
 //    succès, nullptr dans le cas contraire.
-extern quarto_t *quarto_init(piece_t start);
+extern quarto_t *quarto_init(piece_t start, difficulty_t diff);
 
 // quarto_copy : Retourne une copie du plateau de jeu associé à q.
 // Retourne un pointeur vers la structure associée à un jeu de Quarto en cas de
@@ -138,6 +146,9 @@ extern quarto_t *quarto_copy(const quarto_t *q);
 //    *qptr et met *qptr à la valeur nullptr.
 extern void quarto_dispose(quarto_t **qptr);
 
+//  quarto_current_piece : Retourne la difficulté actuel du jeu.
+extern difficulty_t quarto_difficulty(const quarto_t *q);
+
 //  quarto_whos_turn : Retourne le joueur dont c'est le tour si la partie n'est
 //    pas fini. Si elle l'est, retourne NEITHER.
 extern player_t quarto_whos_turn(const quarto_t *q);
@@ -146,14 +157,6 @@ extern player_t quarto_whos_turn(const quarto_t *q);
 //    va devoir jouer. Dans le cas où la partie est finie la valeur retournée
 //    est indéterminée.
 extern piece_t quarto_current_piece(const quarto_t *q);
-
-//  quarto_play : Joue un coup dans la partie de Quarto associée à q. Ce coup
-//    consiste à placer la pièce courante à la position pos et à choisi la pièce
-//    p pour le joueur d'après. Dans le cas où il n'y a plus de pièce
-//    disponible, le joueur peut choisir une pièce déjà poser et elle ne sera
-//    pas prise en compte.
-//    Retourne le code associé a ce mouvement.
-extern quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos);
 
 //  quarto_game_turn : Retourne le tour de jeu associé à q.
 extern size_t quarto_game_turn(const quarto_t *q);
@@ -173,6 +176,14 @@ extern uint64_t quarto_board(const quarto_t *q);
 //    forme de vecteur de bit. Chaque bit représentant la vacuité de la case à
 //    l'indice.
 extern uint16_t quarto_summary(const quarto_t *q);
+
+//  quarto_play : Joue un coup dans la partie de Quarto associée à q. Ce coup
+//    consiste à placer la pièce courante à la position pos et à choisi la pièce
+//    p pour le joueur d'après. Dans le cas où il n'y a plus de pièce
+//    disponible, le joueur peut choisir une pièce déjà poser et elle ne sera
+//    pas prise en compte.
+//    Retourne le code associé a ce mouvement.
+extern quarto_return_t quarto_play(quarto_t *q, piece_t p, position_t pos);
 
 #if defined QUARTO_EXT && QUARTO_EXT != 0
 

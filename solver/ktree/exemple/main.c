@@ -73,11 +73,11 @@ int main(void) {
     }
   }
   assert(ktree_get_root_num(k) == ind[0]);
-  assert(ktree_get_first_child(k, ind[0]) == ind[1]);
+  assert(ktree_get_first_child(k, ind[0]) == ind[3]);
   assert(ktree_get_first_child(k, ind[10]) == SIZE_MAX);
-  assert(ktree_get_neighbor(k, ind[1]) == ind[2]);
-  assert(ktree_get_neighbor(k, ind[2]) == ind[3]);
-  assert(ktree_get_neighbor(k, ind[3]) == SIZE_MAX);
+  assert(ktree_get_neighbor(k, ind[1]) == SIZE_MAX);
+  assert(ktree_get_neighbor(k, ind[2]) == ind[1]);
+  assert(ktree_get_neighbor(k, ind[3]) == ind[2]);
   assert(ktree_get_ref_by_num(k, ind[0]) == vals);
   for (size_t n = 1; n < 4; ++n) {
     assert(ktree_get_ref_by_num(k, ind[n]) == vals + n);

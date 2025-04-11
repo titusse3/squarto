@@ -1,0 +1,391 @@
+DEBUG: Make tree finish
+DEBUG: Current node: {
+  num: 0
+  val: 2147483647
+  resolve: false
+  is_max: true
+}
+DEBUG: Current node: {
+  num: 50430
+  val: 2147483647
+  resolve: false
+  is_max: true
+}
+DEBUG: Current node: {
+  num: 50219
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 50008
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 49797
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 49586
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 49375
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 49164
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 48953
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 48742
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 48531
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 48320
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 48109
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 47898
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 47687
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 47476
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 47265
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 47054
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 46843
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 46632
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 46421
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 46210
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 45999
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 45788
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 45577
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 45366
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 45155
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 44944
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 44733
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 44522
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 44311
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 44100
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 43889
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 43678
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 43467
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 43256
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 43045
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 42834
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 42623
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 42412
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 42201
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 41990
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 41779
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 41568
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 41357
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 41146
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 40935
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 40724
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 40513
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 40302
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 40091
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 39880
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 39669
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 39458
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 39247
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 39036
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 38825
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 38614
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 38403
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 38192
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 37981
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 37770
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 37559
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 37348
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
+DEBUG: Current node: {
+  num: 37137
+  val: 2147483647
+  resolve: false
+  is_max: false
+}
