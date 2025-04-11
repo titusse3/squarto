@@ -249,8 +249,11 @@ void display_menu(game_info_t *game, menu_content_t *menu, state_t *st) {
       break;
   }
   //
+  float button_size = game->screen_h * 0.05f; // Make the button square
   Rectangle buttonBounds = {
-    game->screen_w - 50, game->screen_h - 40, 40, 30
+    game->screen_w - button_size - button_size / 2,
+    game->screen_h - button_size - button_size / 2,
+    button_size, button_size
   };
   if (GuiButton(buttonBounds, (game->play_music ? "#132#" : "#131#"))) {
     game->play_music = !game->play_music;
@@ -282,12 +285,6 @@ bool display_exit_menu(game_info_t *game_info, int fontSize, const char *msg,
   int buttonX_no = rectX + (rect_w - totalButtonsWidth) / 2;
   int buttonX_yes = buttonX_no + buttonWidth + spacing;
   int buttonY = rectY + rect_h - buttonHeight - 70;
-  GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, 0xFF000000);
-  GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, 0xCC66FFFF);
-  GuiSetStyle(BUTTON, BORDER_COLOR_NORMAL, 0xCC66FFFF);
-  GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, 0xC452CCFF);
-  GuiSetStyle(BUTTON, BORDER_COLOR_FOCUSED, 0xCC66FFFF);
-  GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, 0xFFFFFFFF);
   if (GuiButton((Rectangle){ buttonX_no, buttonY, buttonWidth,
                              buttonHeight + 20 }, "No")) {
     game_info->exit_wind = false;

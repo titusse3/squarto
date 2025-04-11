@@ -98,11 +98,16 @@ int main(void) {
     }
   };
   //
+  GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, 0xFF000000);
+  GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, 0xCC66FFFF);
+  GuiSetStyle(BUTTON, BORDER_COLOR_NORMAL, 0xCC66FFFF);
+  GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, 0xC452CCFF);
+  GuiSetStyle(BUTTON, BORDER_COLOR_FOCUSED, 0xCC66FFFF);
+  GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, 0xFFFFFFFF);
+  //
   game.anim_font = LoadFont("resources/fonts/alagard.png");
   //
   init_animation(&game);
-  //
-  game.anims[1].has_start = true;
   //
   while (true) {
     animation_step(&game);
