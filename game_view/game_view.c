@@ -8,6 +8,7 @@
 #include "utils_menu.h"
 #include "solver.h"
 #include "heuristic.h"
+#include "raygui.h"
 
 #define SNEGAMAX "Negamax"
 #define SMINIMAX "Minimax"
@@ -66,53 +67,29 @@ static void display_bot_animation(game_info_t *game, menu_content_t *menu) {
     menu->content.game_values.frames = 0;
   }
   //
-  // Chooser difficulty
+  // Responsive difficulty chooser using GUI button
   //
-  bool open_dropdown = menu->content.game_values.dropwdonw_open;
   const char *solvers[] = {
     SMINIMAX, SNEGAMAX, SALPHABETA, SNEGALPHABETA, SSSS_S
   };
-  const char *solvers_close[] = {
-    SMINIMAX SYM_C, SNEGAMAX SYM_C, SALPHABETA SYM_C, SNEGALPHABETA SYM_C,
-    SSSS_S SYM_C
-  };
-  float dropdown_width = game->screen_w / 5.5f;
-  float dropdown_height = game->screen_h / 15.0f;
+  float dropdown_width = game->screen_w / 5.0f;
+  float dropdown_height = game->screen_h / 20.0f;
   Rectangle dropdown_rect = {
-    .x = game->screen_w - dropdown_width - 20,
-    .y = anim_rect.y + anim_rect.height + 20,
+    .x = game->screen_w - dropdown_width * 1.1f,
+    .y = game->screen_h - anim_rect.height * 1.5f,
     .width = dropdown_width,
     .height = dropdown_height
   };
-  DrawRectangleRec(dropdown_rect, DARKGRAY);
-  DrawText((open_dropdown ? solvers
-      : solvers_close)[menu->content.game_values.solver],
-      dropdown_rect.x + 10, dropdown_rect.y + 10, game->screen_h / 30, WHITE);
-  if (CheckCollisionPointRec(GetMousePosition(), dropdown_rect)
-      && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-    menu->content.game_values.dropwdonw_open
-      = !open_dropdown;
+  int solv = menu->content.game_values.solver;
+  bool dropdown_open = menu->content.game_values.dropwdonw_open;
+  GuiSetStyle(DEFAULT, TEXT_SIZE, game->screen_h / 25);
+  if (GuiDropdownBox(dropdown_rect,
+      SMINIMAX ";"SNEGAMAX ";"SALPHABETA ";"SNEGALPHABETA ";"SSSS_S,
+      &solv, dropdown_open)) {
+    menu->content.game_values.solver = solv;
+    menu->content.game_values.dropwdonw_open = !dropdown_open;
   }
-  if (open_dropdown) {
-    for (int i = 0; i < sizeof solvers / sizeof *solvers; ++i) {
-      Rectangle option_rect = {
-        .x = dropdown_rect.x,
-        .y = dropdown_rect.y + dropdown_height + i * dropdown_height,
-        .width = dropdown_width,
-        .height = dropdown_height
-      };
-      DrawRectangleRec(option_rect, DARKGRAY);
-      if (CheckCollisionPointRec(GetMousePosition(), option_rect)) {
-        DrawRectangleRec(option_rect, Fade(LIGHTGRAY, 0.8f));
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-          menu->content.game_values.solver = i;
-          menu->content.game_values.dropwdonw_open = false;
-        }
-      }
-      DrawText(solvers[i], option_rect.x + 10, option_rect.y + 10,
-          game->screen_h / 30, WHITE);
-    }
-  }
+  GuiSetStyle(DEFAULT, TEXT_SIZE, game->screen_h / 30); // Reset font size
 }
 
 static void draw_board_game(state_t *st, quarto_t *quarto) {
@@ -125,7 +102,7 @@ static void draw_board_game(state_t *st, quarto_t *quarto) {
           1.5f,
           1.5f,
           1.5f,
-          st->c_select[0] == x && st->c_select[1] == z ? GREEN : LIGHTGRAY
+          st->c_select[0] == x && st->c_select[1] == z ? PURPLE : LIGHTGRAY
           );
       DrawCubeWires(
           (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
