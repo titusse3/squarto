@@ -48,7 +48,7 @@ Texture2D *load_rules_ressources(void) {
 
 static void display_menu_button(int titleWidth, game_info_t *game,
     int button_f, int button_w, menu_content_t *menu, state_t *st) {
-  float fontSize = 55.0f;
+  float fontSize = game->screen_h / (TITLE_DIVIDER * 1.7f);
   float spacing = 1.0f;
   Font font = GetFontDefault();
   const char *btn_title[] = {
@@ -213,13 +213,15 @@ static void display_choosing_difficulty(game_info_t *game, int left_padding,
 }
 
 void display_menu(game_info_t *game, menu_content_t *menu, state_t *st) {
-  const int title_size = game->screen_h / TITLE_DIVIDER;
+  const int title_size = game->screen_h / TITLE_DIVIDER * 1.2;
   int titleWidth = MeasureText(game->game_name, title_size);
   Vector2 titlePos = {
-    titleWidth / TITLE_POS_DIV, titleWidth / TITLE_POS_DIV
+    game->screen_w / 12,
+    game->screen_h / 11
   };
-  DrawTextEx(menu->anim_font, game->game_name, titlePos, title_size, 2,
-      WHITE);
+  DrawTextEx(menu->anim_font, game->game_name,
+      (Vector2){ titlePos.x + 4, titlePos.y + 4 }, title_size, 2, GRAY);
+  DrawTextEx(menu->anim_font, game->game_name, titlePos, title_size, 2, WHITE);
   int button_f = game->screen_h / (TITLE_DIVIDER * 2.2);
   //
   GuiSetStyle(DEFAULT, TEXT_SIZE, button_f);
