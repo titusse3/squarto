@@ -18,57 +18,43 @@
 
 #define SYM_C "\t+"
 
-static void display_bot_animation(game_info_t *game, menu_content_t *menu) {
-  float factor = (float) game->screen_w / 290;
-  Rectangle anim_rect = {
-    .x = game->screen_w - game->screen_w / 4.3f,
-    .y = -menu->anims[1].frameRec.height * factor / 3.0f,
-    .width = menu->anims[1].frameRec.width * factor,
-    .height = menu->anims[1].frameRec.height * factor
-  };
-  display_animation(game, &menu->anims[1], anim_rect);
-  int font_size = game->screen_h / 20;
-  const char *dialogue_text[] = {
-    "Je vais te battre !", nullptr, "Tu es trop lent !", nullptr,
-    "Je vais te briser les os !", nullptr, "C'est mon jeu !", nullptr
-  };
-  size_t number = sizeof dialogue_text / sizeof *dialogue_text;
-  int frame = menu->content.game_values.frames / 3;
-  int stage = menu->content.game_values.stage;
-  if (stage < number) {
-    if (dialogue_text[stage] != nullptr) { // Display message
-      int text_width = MeasureText(dialogue_text[stage], font_size);
-      Rectangle dialogue_box = {
-        .x = anim_rect.x - text_width + anim_rect.width * 0.2f,
-        .y = anim_rect.y + anim_rect.height / 2,
-        .width = text_width + 40,
-        .height = font_size + 20
-      };
-      if (dialogue_box.x < 0) {
-        dialogue_box.x = 10; // Ensure it stays on screen
-      }
-      if (dialogue_box.y + dialogue_box.height > game->screen_h) {
-        dialogue_box.y = game->screen_h - dialogue_box.height - 10;
-      }
-      DrawRectangleRec(dialogue_box, BLACK);
-      bool finished = display_text_writing(game, menu, &dialogue_box,
-          dialogue_text[stage], font_size, frame);
-      if (finished && frame % 75 == 0) {
-        menu->content.game_values.frames = 0;
-        menu->content.game_values.stage = stage + 1;
-      }
-    }
-    if (dialogue_text[stage] == nullptr && frame >= 100) {
-      menu->content.game_values.frames = 0;
-      menu->content.game_values.stage = stage + 1;
-    }
-  } else { // Reset for the next message
-    menu->content.game_values.stage = 0;
-    menu->content.game_values.frames = 0;
-  }
-  //
-  // Responsive difficulty chooser using GUI button
-  //
+#define BOT_MSG1 "Je vais te battre !"
+#define BOT_MSG2 "Tu es trop lent !"
+#define BOT_MSG3 "Je vais te briser les os !"
+#define BOT_MSG4 "C'est mon jeu !"
+
+#define MSG_DURATION 75
+#define MSG_INTERVAL 100
+
+#define ALLOCATION_MSG "Error during allocation"
+#define SOLVER_ERROR "Solver error"
+
+#define ERROR_DISPLAY(game, msg)                                               \
+        display_exit_menu(game, (game)->screen_h / 16, (msg),                  \
+    MeasureText((msg), (game)->screen_h / 16));                                \
+        return;                                                                \
+
+// display_bot_animation: Fonction qui permet l'affichage des animations du bot.
+static void display_bot_animation(game_info_t *game, menu_content_t *menu,
+    float factor);
+
+static void display_diffictulty_chooser(game_info_t *game,
+    menu_content_t *menu, float factor);
+
+// draw_board_game: Fonction qui permet de dessiner le plateau de jeu.
+static void draw_board_game(state_t *st, quarto_t *quarto);
+
+// pieces_selectors: Fonction qui permet de selectionner les pieces du jeu.
+static void pieces_selectors(state_t *st, game_state_t *gs);
+
+// draw_pieces: Fonction qui permet de dessiner les pieces du jeu.
+static void draw_pieces(state_t *st, game_state_t *gs, Camera3D *camera);
+
+// select_case: Fonction qui permet de selectionner une case du plateau de jeu.
+static void select_case(state_t *st, Camera3D *camera);
+
+void display_diffictulty_chooser(game_info_t *game, menu_content_t *menu,
+    float factor) {
   const char *solvers[] = {
     SMINIMAX, SNEGAMAX, SALPHABETA, SNEGALPHABETA, SSSS_S
   };
@@ -76,7 +62,7 @@ static void display_bot_animation(game_info_t *game, menu_content_t *menu) {
   float dropdown_height = game->screen_h / 20.0f;
   Rectangle dropdown_rect = {
     .x = game->screen_w - dropdown_width * 1.1f,
-    .y = game->screen_h - anim_rect.height * 1.5f,
+    .y = game->screen_h - menu->anims[1].frameRec.height * factor * 1.5f,
     .width = dropdown_width,
     .height = dropdown_height
   };
@@ -89,10 +75,59 @@ static void display_bot_animation(game_info_t *game, menu_content_t *menu) {
     menu->content.game_values.solver = solv;
     menu->content.game_values.dropwdonw_open = !dropdown_open;
   }
-  GuiSetStyle(DEFAULT, TEXT_SIZE, game->screen_h / 30); // Reset font size
+  GuiSetStyle(DEFAULT, TEXT_SIZE, game->screen_h / 30);
 }
 
-static void draw_board_game(state_t *st, quarto_t *quarto) {
+void display_bot_animation(game_info_t *game, menu_content_t *menu,
+    float factor) {
+  Rectangle anim_rect = {
+    .x = game->screen_w - game->screen_w / 4.3f,
+    .y = -menu->anims[1].frameRec.height * factor / 3.0f,
+    .width = menu->anims[1].frameRec.width * factor,
+    .height = menu->anims[1].frameRec.height * factor
+  };
+  display_animation(game, &menu->anims[1], anim_rect);
+  int font_size = game->screen_h / 20;
+  const char *dialogue_text[] = {
+    BOT_MSG1, nullptr, BOT_MSG2, nullptr, BOT_MSG3, nullptr, BOT_MSG4, nullptr
+  };
+  size_t number = sizeof dialogue_text / sizeof *dialogue_text;
+  int frame = menu->content.game_values.frames / 3;
+  int stage = menu->content.game_values.stage;
+  if (stage < number) {
+    if (dialogue_text[stage] != nullptr) {
+      int text_width = MeasureText(dialogue_text[stage], font_size);
+      Rectangle dialogue_box = {
+        .x = anim_rect.x - text_width + anim_rect.width * 0.2f,
+        .y = anim_rect.y + anim_rect.height / 2,
+        .width = text_width + 40,
+        .height = font_size + 20
+      };
+      if (dialogue_box.x < 0) {
+        dialogue_box.x = 10;
+      }
+      if (dialogue_box.y + dialogue_box.height > game->screen_h) {
+        dialogue_box.y = game->screen_h - dialogue_box.height - 10;
+      }
+      DrawRectangleRec(dialogue_box, BLACK);
+      bool finished = display_text_writing(game, menu, &dialogue_box,
+          dialogue_text[stage], font_size, frame);
+      if (finished && frame % MSG_DURATION == 0) {
+        menu->content.game_values.frames = 0;
+        menu->content.game_values.stage = stage + 1;
+      }
+    }
+    if (dialogue_text[stage] == nullptr && frame >= MSG_INTERVAL) {
+      menu->content.game_values.frames = 0;
+      menu->content.game_values.stage = stage + 1;
+    }
+  } else {
+    menu->content.game_values.stage = 0;
+    menu->content.game_values.frames = 0;
+  }
+}
+
+void draw_board_game(state_t *st, quarto_t *quarto) {
   uint16_t sum = quarto_summary(quarto);
   uint64_t board = quarto_board(quarto);
   for (size_t x = 0; x < 4; ++x) {
@@ -128,7 +163,7 @@ static void draw_board_game(state_t *st, quarto_t *quarto) {
   }
 }
 
-static void pieces_selectors(state_t *st, game_state_t *gs) {
+void pieces_selectors(state_t *st, game_state_t *gs) {
   float rect_heigth = st->screens->texture.height / 4.0f;
   float rect_width = st->screens->texture.width / 4.0f;
   for (size_t i = 0; i < 4; ++i) {
@@ -155,7 +190,7 @@ static void pieces_selectors(state_t *st, game_state_t *gs) {
   }
 }
 
-static void draw_pieces(state_t *st, game_state_t *gs, Camera3D *camera) {
+void draw_pieces(state_t *st, game_state_t *gs, Camera3D *camera) {
   camera->position = (Vector3) {
     21.0f, 5.25f, 4.0f
   };
@@ -195,7 +230,7 @@ static void draw_pieces(state_t *st, game_state_t *gs, Camera3D *camera) {
   EndTextureMode();
 }
 
-static void select_case(state_t *st, Camera3D *camera) {
+void select_case(state_t *st, Camera3D *camera) {
   Ray ray = {};
   RayCollision collision = {};
   float x = 0;
@@ -230,9 +265,7 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
   if (st->mk_screen) {
     st->screens = malloc(sizeof *st->screens);
     if (st->screens == nullptr) {
-      display_exit_menu(game, game->screen_h / 16, "Error during allocation",
-          MeasureText("Error during allocation", game->screen_h / 16));
-      return;
+      ERROR_DISPLAY(game, ALLOCATION_MSG);
     }
     st->screens[0] = LoadRenderTexture(game->screen_h / 2,
         game->screen_h / 1.5);
@@ -243,9 +276,7 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
     size_t p = rand() % NB_PIECES;
     gs->q = quarto_init(pieces[p], info->content.game_values.difficulty);
     if (gs->q == nullptr) {
-      display_exit_menu(game, game->screen_h / 16, "Error during allocation",
-          MeasureText("Error during allocation", game->screen_h / 16));
-      return;
+      ERROR_DISPLAY(game, ALLOCATION_MSG);
     }
     gs->used = 1 << (uint16_t) p;
   }
@@ -295,43 +326,28 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
         switch (info->content.game_values.solver) {
           case MINIMAX:
             if (!min_max(gs->q, max_heuristic, 2, true, &move)) {
-              display_exit_menu(game, game->screen_h / 16,
-                  "Internal serveur error",
-                  MeasureText("Internal serveur error", game->screen_h / 16));
-              return;
+              ERROR_DISPLAY(game, SOLVER_ERROR);
             }
             break;
           case NEGAMAX:
             if (!nega_max(gs->q, heuristic, 2, &move)) {
-              display_exit_menu(game, game->screen_h / 16,
-                  "Internal serveur error",
-                  MeasureText("Internal serveur error", game->screen_h / 16));
-              return;
+              ERROR_DISPLAY(game, SOLVER_ERROR);
             }
             break;
           case ALPHABETA:
             if (!alpha_beta(gs->q, max_heuristic, 4, -INT_MAX, INT_MAX, true,
                 &move)) {
-              display_exit_menu(game, game->screen_h / 16,
-                  "Internal serveur error",
-                  MeasureText("Internal serveur error", game->screen_h / 16));
-              return;
+              ERROR_DISPLAY(game, SOLVER_ERROR);
             }
             break;
           case NEGALPHABETA:
             if (!negalpha_beta(gs->q, heuristic, 4, -INT_MAX, INT_MAX, &move)) {
-              display_exit_menu(game, game->screen_h / 16,
-                  "Internal serveur error",
-                  MeasureText("Internal serveur error", game->screen_h / 16));
-              return;
+              ERROR_DISPLAY(game, SOLVER_ERROR);
             }
             break;
           case SSS_S:
             if (!sss_star(gs->q, max_heuristic, 1, true, &move)) {
-              display_exit_menu(game, game->screen_h / 16,
-                  "Internal serveur error",
-                  MeasureText("Internal serveur error", game->screen_h / 16));
-              return;
+              ERROR_DISPLAY(game, SOLVER_ERROR);
             }
             break;
         }
@@ -356,7 +372,9 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
                    (float) st->screens->texture.width,
                    (float) -st->screens->texture.height},
       (Vector2) {0.0f, 0.0f}, WHITE);
-  display_bot_animation(game, info);
+  float factor = (float) game->screen_w / 290;
+  display_bot_animation(game, info, factor);
+  display_diffictulty_chooser(game, info, factor);
   player_t p = quarto_winner(gs->q);
   if (p != NEITHER) {
     bool win = p == PLAYER1;
