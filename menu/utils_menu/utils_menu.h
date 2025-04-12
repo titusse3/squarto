@@ -6,6 +6,8 @@
 
 #include "menu.h"
 
+// DISPLAY_BCK_WINDOW: Macro permettant d'afficher une fenêtre de fond pour un
+//    menu.
 #define DISPLAY_BCK_WINDOW(game, left_padding, offset)                         \
         float rectWidth = (game)->screen_w - left_padding - offset;            \
         float rectHeight = (game)->screen_h - 2 * offset;                      \
@@ -29,6 +31,8 @@ extern void display_img_player(menu_content_t *menu, Rectangle *container,
 extern Rectangle rect_top_corner_title(const char *title, Rectangle parent,
     int font_size, Color color_rect);
 
+// display_text_writing: Fonction prenant en charge l'affichage d'une animation
+//    de texte qui s'écrit lettre par lettre.
 extern bool display_text_writing(game_info_t *game, menu_content_t *menu,
     Rectangle *container, const char *text, int font_size, int offset);
 

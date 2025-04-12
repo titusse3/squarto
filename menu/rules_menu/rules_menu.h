@@ -7,6 +7,7 @@
 #include "menu.h"
 #include "utils_menu.h"
 
+// MAX_RULES: Nombre maximum de règles à afficher.
 #define MAX_RULES 6
 
 // display_rules: Fonction prenant en charge la logique permettant d'afficher

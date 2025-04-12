@@ -83,14 +83,20 @@ typedef struct {
   animation_t anims[2];
 } menu_content_t;
 
+// display_menu: Fonction permettant d'afficher le menu principal du jeu.
 extern void display_menu(game_info_t *game, menu_content_t *menu, state_t *st);
 
+// display_exit_menu: Fonction permettant d'afficher le menu de sortie du jeu.
 extern bool display_exit_menu(game_info_t *game_info, int fontSize,
     const char *msg, int msg_size);
 
+// display_animation: Fonction permettant d'afficher l'animation pointé par
+//    info.
 extern void display_animation(game_info_t *game_info, animation_t *info,
     Rectangle destRec);
 
+// display_end_animation: Fonction permettant d'afficher l'animation de fin de
+//    partie.
 extern void display_end_animation(game_info_t *game_info, animation_t *info,
     Font f, const char *text, bool win);
 

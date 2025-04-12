@@ -23,11 +23,31 @@
 #define BASE_SCREEN_WIDTH 1280
 #define BASE_SCREEN_HEIGHT 720
 #define GAME_NAME "Quarto"
+#define TITLE_QUIT "Do you really want to quit the game ?"
 #define QUIT_MSG \
         "Do you really want to quit the game ?\nYou will miss a lot of fun..."
 
+#define STYLE                                                                  \
+        GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, 0xFF000000);                    \
+        GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, 0xCC66FFFF);                    \
+        GuiSetStyle(BUTTON, BORDER_COLOR_NORMAL, 0xCC66FFFF);                  \
+        GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, 0xC452CCFF);                   \
+        GuiSetStyle(BUTTON, BORDER_COLOR_FOCUSED, 0xCC66FFFF);                 \
+        GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, 0xFFFFFFFF);                   \
+        GuiSetStyle(DROPDOWNBOX, BASE_COLOR_NORMAL, 0x000000BF);               \
+        GuiSetStyle(DROPDOWNBOX, TEXT_COLOR_NORMAL, 0xCC66FFFF);               \
+        GuiSetStyle(DROPDOWNBOX, BORDER_COLOR_NORMAL, 0xCC66FFFF);             \
+        GuiSetStyle(DROPDOWNBOX, BASE_COLOR_FOCUSED, 0xC452CCFF);              \
+        GuiSetStyle(DROPDOWNBOX, BORDER_COLOR_FOCUSED, 0xCC66FFFF);            \
+        GuiSetStyle(DROPDOWNBOX, TEXT_COLOR_FOCUSED, 0xFFFFFFFF);              \
+        GuiSetStyle(DROPDOWNBOX, BASE_COLOR_PRESSED, 0x89398FFF);              \
+        GuiSetStyle(DROPDOWNBOX, TEXT_COLOR_PRESSED, 0xFFFFFFFF);              \
+
+// init_animation: Fonction permettant d'initialiser les animations.
 static void init_animation(menu_content_t *game);
 
+// animation_step: Fonction permettant de faire avancer les animations d'une
+//    frame.
 static void animation_step(menu_content_t *game);
 
 int main(void) {
@@ -98,24 +118,7 @@ int main(void) {
     }
   };
   //
-  GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, 0xFF000000);
-  GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, 0xCC66FFFF);
-  GuiSetStyle(BUTTON, BORDER_COLOR_NORMAL, 0xCC66FFFF);
-  GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, 0xC452CCFF);
-  GuiSetStyle(BUTTON, BORDER_COLOR_FOCUSED, 0xCC66FFFF);
-  GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, 0xFFFFFFFF);
-  //
-  GuiSetStyle(DROPDOWNBOX, BASE_COLOR_NORMAL, 0x000000BF);
-  GuiSetStyle(DROPDOWNBOX, TEXT_COLOR_NORMAL, 0xCC66FFFF);
-  GuiSetStyle(DROPDOWNBOX, BORDER_COLOR_NORMAL, 0xCC66FFFF);
-  GuiSetStyle(DROPDOWNBOX, BASE_COLOR_FOCUSED, 0xC452CCFF);
-  GuiSetStyle(DROPDOWNBOX, BORDER_COLOR_FOCUSED, 0xCC66FFFF);
-  GuiSetStyle(DROPDOWNBOX, TEXT_COLOR_FOCUSED, 0xFFFFFFFF);
-  //
-  GuiSetStyle(DROPDOWNBOX, BASE_COLOR_PRESSED, 0x89398FFF);
-  GuiSetStyle(DROPDOWNBOX, TEXT_COLOR_PRESSED, 0xFFFFFFFF);
-  // GuiSetStyle(DROPDOWNBOX, BASE, 0x000000FF);
-  // GuiSetStyle(DROPDOWNBOX, BORDER_COLOR_DISABLED, 0xFF000000);
+  STYLE;
   //
   game.anim_font = LoadFont("resources/fonts/alagard.png");
   //
@@ -178,8 +181,7 @@ int main(void) {
     }
     if (game_info.exit_wind) {
       int font_size = game_info.screen_h / 26;
-      int size = MeasureText("Do you really want to quit the game ?",
-          font_size);
+      int size = MeasureText(TITLE_QUIT, font_size);
       if (display_exit_menu(&game_info, font_size, QUIT_MSG, size)) {
         break;
       }
