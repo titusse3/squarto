@@ -1,3 +1,5 @@
-game
 *.o
 .#makefile#
+*/exemple/exemple
+squarto
+./*.tar.gz
