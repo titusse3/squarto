@@ -315,6 +315,8 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
               == NO_ERROR)) {
             gs->used |= 0b1 <<
                 (uint16_t) (gs->p_select[0] * 4 + gs->p_select[1]);
+          } else {
+            fprintf(stderr, "DEBUG: There where an error\n");
           }
           gs->p_select[0] = UNDEF_COORD;
           gs->p_select[1] = UNDEF_COORD;
@@ -328,6 +330,8 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
             if (!min_max(gs->q, max_heuristic, 2, true, &move)) {
               ERROR_DISPLAY(game, SOLVER_ERROR);
             }
+            fprintf(stderr, "DEBUG: MINIMAX - piece: %04b\n",
+                (int) (move.piece) & 0b1111);
             break;
           case NEGAMAX:
             if (!nega_max(gs->q, heuristic, 2, &move)) {
