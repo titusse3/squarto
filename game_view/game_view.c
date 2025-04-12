@@ -332,7 +332,7 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
             }
             fprintf(stderr, "DEBUG: MINIMAX - piece: %04b\n",
                 (int) (move.piece) & 0b1111);
-            break;
+            break; // test
           case NEGAMAX:
             if (!nega_max(gs->q, heuristic, 2, &move)) {
               ERROR_DISPLAY(game, SOLVER_ERROR);
