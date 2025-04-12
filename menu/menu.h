@@ -86,7 +86,7 @@ typedef struct {
   btn_t sound_play;
   Sound sound;
   Font anim_font;
-  animation_t anims[2];
+  animation_t anims[3];
 } menu_content_t;
 
 // display_menu: Fonction permettant d'afficher le menu principal du jeu.
@@ -104,6 +104,6 @@ extern void display_animation(game_info_t *game_info, animation_t *info,
 // display_end_animation: Fonction permettant d'afficher l'animation de fin de
 //    partie.
 extern void display_end_animation(game_info_t *game_info, animation_t *info,
-    Font f, const char *text, bool win);
+    Font f, player_t p);
 
 #endif

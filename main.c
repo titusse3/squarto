@@ -215,6 +215,12 @@ void init_animation(menu_content_t *game) {
   };
   game->anims[1].frameDivisor = 5;
   //
+  game->anims[2].img = LoadTexture("resources/image/death.png");
+  game->anims[2].frameRec = (Rectangle) {
+    0, 0, game->anims[2].img.width / 8, game->anims[2].img.height
+  };
+  game->anims[2].frameDivisor = 10;
+  //
   for (size_t i = 0; i < sizeof game->anims / sizeof *game->anims;
       i++) {
     game->anims[i].has_start = false;

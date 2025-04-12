@@ -302,7 +302,7 @@ void display_animation(game_info_t *game_info, animation_t *info,
 }
 
 void display_end_animation(game_info_t *game_info, animation_t *info, Font f,
-    const char *text, bool win) {
+    player_t p) {
   Rectangle destRec = {
     (game_info->screen_w - info->frameRec.width
     * (game_info->screen_w / (info->frameRec.width * 1.4f))) / 2,
@@ -318,14 +318,20 @@ void display_end_animation(game_info_t *game_info, animation_t *info, Font f,
   int font_size = f.baseSize * 8;
   static float waveOffset = 0.0f;
   waveOffset += 0.1f;
-  Vector2 textSize = MeasureTextEx(f, text, font_size, 1);
-  for (int i = 0; i < strlen(text); i++) {
+  const char *text[] = {
+    "You w in !", "You Loose !", "It's a d raw !"
+  };
+  Color cs[] = {
+    GREEN, RED, ORANGE
+  };
+  Vector2 textSize = MeasureTextEx(f, text[p], font_size, 1);
+  for (int i = 0; i < strlen(text[p]); i++) {
     float offset = sinf(waveOffset + i * 0.5f) * 10.0f;
-    DrawTextPro(f, (char[]){ text[i], '\0' },
+    DrawTextPro(f, (char[]){ text[p][i], '\0' },
         (Vector2){ game_info->screen_w / 2 - textSize.x / 2 + i * (textSize.x
-                   / strlen(text)),
+                   / strlen(text[p])),
                    game_info->screen_h / 2 - f.baseSize * 2.5f + offset },
-        (Vector2){ 0, 0 }, 0.0f, font_size, 1, (win ? GREEN : RED));
+        (Vector2){ 0, 0 }, 0.0f, font_size, 1, cs[p]);
   }
   //
 }

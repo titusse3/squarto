@@ -28,7 +28,7 @@
 
 // display_bot_animation: Fonction qui permet l'affichage des animations du bot.
 static void display_bot_animation(game_info_t *game, menu_content_t *menu,
-    float factor);
+    float factor, bool game_finished);
 
 static void display_diffictulty_chooser(game_info_t *game,
     menu_content_t *menu, float factor);
@@ -71,13 +71,17 @@ void display_diffictulty_chooser(game_info_t *game, menu_content_t *menu,
 }
 
 void display_bot_animation(game_info_t *game, menu_content_t *menu,
-    float factor) {
+    float factor, bool game_finished) {
   Rectangle anim_rect = {
     .x = game->screen_w - game->screen_w / 4.3f,
     .y = -menu->anims[1].frameRec.height * factor / 3.0f,
     .width = menu->anims[1].frameRec.width * factor,
     .height = menu->anims[1].frameRec.height * factor
   };
+  if (game_finished) {
+    display_animation(game, &menu->anims[2], anim_rect);
+    return;
+  }
   display_animation(game, &menu->anims[1], anim_rect);
   int font_size = game->screen_h / 20;
   const char *dialogue_text[] = {
@@ -351,17 +355,12 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
                    (float) -st->screens->texture.height},
       (Vector2) {0.0f, 0.0f}, WHITE);
   float factor = (float) game->screen_w / 290;
-  display_diffictulty_chooser(game, info, factor);
-  if (quarto_is_game_over(gs->q)) {
+  bool is_finished = quarto_is_game_over(gs->q);
+  if (is_finished) {
     player_t p = quarto_winner(gs->q);
-    if (p == NEITHER) {
-      display_end_animation(game, &info->anims[0], info->anim_font,
-          "It's a draw !", true);
-    }
-    bool win = p == PLAYER1;
-    const char *t = win ? "You w in !" : "You Loose !";
-    display_end_animation(game, &info->anims[0], info->anim_font, t, win);
+    display_end_animation(game, &info->anims[0], info->anim_font, p);
   } else {
-    display_bot_animation(game, info, factor);
+    display_diffictulty_chooser(game, info, factor);
   }
+  display_bot_animation(game, info, factor, is_finished);
 }
