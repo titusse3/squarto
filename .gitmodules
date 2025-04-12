@@ -1,3 +1,6 @@
 [submodule "mbck"]
 	path = mbck
 	url = git@github.com:titusse3/mbck.git
+[submodule "quarto"]
+	path = quarto
+	url = git@github.com:titusse3/quarto.git
