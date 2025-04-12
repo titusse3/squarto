@@ -164,7 +164,6 @@ void draw_board_game(state_t *st, quarto_t *quarto) {
 }
 
 void pieces_selectors(state_t *st, game_state_t *gs) {
-  fprintf(stderr, "DEBUG: used: %016b\n", quarto_remaining_pieces(gs->q));
   float rect_heigth = st->screens->texture.height / 4.0f;
   float rect_width = st->screens->texture.width / 4.0f;
   for (size_t i = 0; i < 4; ++i) {
@@ -340,8 +339,6 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
         if (!ret) {
           ERROR_DISPLAY(game, SOLVER_ERROR);
         }
-        fprintf(stderr, "DEBUG: ROBOT - piece: %04b\n",
-            (int) (move.piece) & 0b1111);
         gs->p_select[0] = UNDEF_COORD;
         gs->p_select[1] = UNDEF_COORD;
         quarto_play(gs->q, move.piece, move.pos);

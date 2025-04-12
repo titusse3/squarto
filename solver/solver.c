@@ -453,20 +453,9 @@ bool sss_star(const quarto_t *quarto, int (*heur)(const quarto_t *),
     pqueue_dispose(&p);
     return false;
   }
-  //*
-  fprintf(stderr, "DEBUG: Make tree finish\n");
-  //*
   bool r = true;
   sss_t *cur = pqueue_dequeue(p);
   while (!(cur->node == root && cur->resolve)) {
-    // fprintf(stderr, "DEBUG: Current node: {\n"
-    //     "  num: %zu\n"
-    //     "  val: %d\n"
-    //     "  resolve: %s\n"
-    //     "  is_max: %s\n"
-    //     "}\n",
-    //     cur->node, cur->val, cur->resolve ? "true" : "false",
-    //     cur->is_max ? "true" : "false");
     if (!cur->resolve) {
       size_t child = ktree_get_first_child(k, cur->node);
       if (child == SIZE_MAX) {
@@ -548,7 +537,6 @@ bool sss_star(const quarto_t *quarto, int (*heur)(const quarto_t *),
 error:
   r = false;
 dispose:
-  //*
   n->quarto = nullptr;
   holdall_apply(hn, (int (*)(void *)) node_dispose);
   holdall_apply(hf, (int (*)(void *)) fake_free);
@@ -556,7 +544,5 @@ dispose:
   holdall_dispose(&hf);
   ktree_dispose(&k);
   pqueue_dispose(&p);
-  //*
-  //*
   return r;
 }

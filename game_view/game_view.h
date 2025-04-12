@@ -6,6 +6,7 @@
 
 #include "menu.h"
 
+// draw_game: Fonction qui permet de dessiner le jeu Quarto.
 extern void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
     piece_t *pieces, position_t *positions, game_state_t *gs);
 

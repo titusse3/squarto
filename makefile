@@ -11,6 +11,7 @@ holdall_dir = solver/holdall
 ktree_dir = solver/ktree
 pqueue_dir = solver/pqueue
 game_view_dir = game_view/
+raylib_dir = raylib/include
 CC = gcc
 CFLAGS = -std=c23 \
 	-I$(menu_dir) -I$(rlights_dir) -I$(utils_dir) -I$(quarto_dir) -I$(mbck_dir) \
@@ -21,25 +22,29 @@ vpath %.c $(menu_dir) $(rlights_dir) $(utils_dir) $(quarto_dir) $(mbck_dir) \
 	$(pqueue_dir) $(solver_dir) $(heuristic_dir) $(game_view_dir)
 vpath %.h $(menu_dir) $(rlights_dir) $(utils_dir) $(quarto_dir) $(mbck_dir) \
 	$(rules_menu_dir) $(utils_menu_dir) $(holdall_dir) $(ktree_dir) \
-	$(pqueue_dir) $(solver_dir) $(heuristic_dir) $(game_view_dir)
+	$(pqueue_dir) $(solver_dir) $(heuristic_dir) $(game_view_dir) $(raylib_dir)
 objects = menu.o rules_menu.o utils_menu.o main.o rlights.o utils.o mbck.o \
 	holdall.o ktree.o pqueue.o quarto.o solver.o heuristic.o game_view.o
-executable = game
+executable = squarto
 makefile_indicator = .\#makefile\#
+resources_dir = resources/
 
-.PHONY: all clean
+.PHONY: all clean test release
 
-all: $(executable) test
+all: $(executable)
 
 test: $(executable)
-	./$(executable)
+	clear && ./$(executable)
+
+release: $(executable)
+	tar czvf $(executable)_release_$(shell date +%s).tar.gz $(executable) $(resources_dir)
 
 clean:
 	$(RM) $(objects) $(executable)
 	@$(RM) $(makefile_indicator)
 
 $(executable): $(objects)
-	$(CC) $(objects) -o $(executable) -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+	$(CC) $(objects) -o $(executable) ./raylib/lib/libraylib.a -lGL -lm -lpthread -ldl -lrt -lX11
 
 mbck.o: mbck.c mbck.h
 game_view.o: game_view.c game_view.h menu.h utils_menu.h solver.h heuristic.h
