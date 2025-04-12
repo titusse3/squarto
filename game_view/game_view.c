@@ -164,6 +164,7 @@ void draw_board_game(state_t *st, quarto_t *quarto) {
 }
 
 void pieces_selectors(state_t *st, game_state_t *gs) {
+  fprintf(stderr, "DEBUG: used: %016b\n", quarto_remaining_pieces(gs->q));
   float rect_heigth = st->screens->texture.height / 4.0f;
   float rect_width = st->screens->texture.width / 4.0f;
   for (size_t i = 0; i < 4; ++i) {
@@ -174,7 +175,8 @@ void pieces_selectors(state_t *st, game_state_t *gs) {
       };
       bool is_selected = (gs->p_select[0] == 3 - i && gs->p_select[1] == 3 - j);
       if (CheckCollisionPointRec(GetMousePosition(), r) && !is_selected
-          && (gs->used >> ((3 - i) * 4 + 3 - j) & 0b1) == 0) {
+          && (quarto_remaining_pieces(gs->q) >>
+          (15 - ((3 - i) * 4 + 3 - j)) & 0b1) != 0) {
         DrawRectangleRec(r, Fade(LIGHTGRAY, 0.8f));
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
           gs->p_select[0] = 3 - i;
@@ -220,7 +222,7 @@ void draw_pieces(state_t *st, game_state_t *gs, Camera3D *camera) {
           (Vector3) {0.55f,
                      ((x * 4 + z) & 0b0100) != 0 ? 0.2f : 0.1f,
                      0.55f},
-          (gs->used >> (x * 4 + z) & 0b1) != 0
+          (quarto_remaining_pieces(gs->q) >> (15 - (x * 4 + z)) & 0b1) == 0
           ? DARKGRAY : ((x * 4 + z) & 0b1000) != 0 ? BLUE : RED
           );
     }
@@ -278,7 +280,6 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
     if (gs->q == nullptr) {
       ERROR_DISPLAY(game, ALLOCATION_MSG);
     }
-    gs->used = 1 << (uint16_t) p;
   }
   Camera3D camera = {
     .position = (Vector3) {
@@ -306,60 +307,44 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
     switch (quarto_whos_turn(gs->q)) {
       case PLAYER1:
         quarto_return_t qrt;
+        size_t ipi = gs->p_select[0] * 4 + gs->p_select[1];
+        size_t ipo = 15 - (size_t) (st->c_select[0] * 4 + st->c_select[1]);
         if (st->c_select[0] != UNDEF_COORD && gs->p_select[0] != UNDEF_COORD) {
-          if ((qrt = quarto_play(gs->q,
-              pieces[
-                (size_t) (gs->p_select[0] * 4 + gs->p_select[1])],
-              positions[
-                15 - (size_t) (st->c_select[0] * 4 + st->c_select[1])])
-              == NO_ERROR)) {
-            gs->used |= 0b1 <<
-                (uint16_t) (gs->p_select[0] * 4 + gs->p_select[1]);
-          } else {
-            fprintf(stderr, "DEBUG: There where an error\n");
+          if (quarto_play(gs->q, pieces[ipi], positions[ipo]) == NO_ERROR) {
+            gs->p_select[0] = UNDEF_COORD;
+            gs->p_select[1] = UNDEF_COORD;
           }
-          gs->p_select[0] = UNDEF_COORD;
-          gs->p_select[1] = UNDEF_COORD;
-          fprintf(stderr, "DEBUG: Quarto return: %d\n", qrt);
         }
         break;
       case PLAYER2:
         move_t move;
+        bool ret;
         switch (info->content.game_values.solver) {
           case MINIMAX:
-            if (!min_max(gs->q, max_heuristic, 2, true, &move)) {
-              ERROR_DISPLAY(game, SOLVER_ERROR);
-            }
+            ret = min_max(gs->q, max_heuristic, 2, true, &move);
             break;
           case NEGAMAX:
-            if (!nega_max(gs->q, heuristic, 2, &move)) {
-              ERROR_DISPLAY(game, SOLVER_ERROR);
-            }
+            ret = nega_max(gs->q, heuristic, 2, &move);
             break;
           case ALPHABETA:
-            if (!alpha_beta(gs->q, max_heuristic, 4, -INT_MAX, INT_MAX, true,
-                &move)) {
-              ERROR_DISPLAY(game, SOLVER_ERROR);
-            }
+            ret = alpha_beta(gs->q, max_heuristic, 4, -INT_MAX, INT_MAX, true,
+                &move);
             break;
           case NEGALPHABETA:
-            if (!negalpha_beta(gs->q, heuristic, 4, -INT_MAX, INT_MAX, &move)) {
-              ERROR_DISPLAY(game, SOLVER_ERROR);
-            }
+            ret = negalpha_beta(gs->q, heuristic, 4, -INT_MAX, INT_MAX, &move);
             break;
           case SSS_S:
-            if (!sss_star(gs->q, max_heuristic, 1, true, &move)) {
-              ERROR_DISPLAY(game, SOLVER_ERROR);
-            }
+            ret = sss_star(gs->q, max_heuristic, 1, true, &move);
             break;
         }
-        fprintf(stderr, "DEBUG: MINIMAX - piece: %04b\n",
+        if (!ret) {
+          ERROR_DISPLAY(game, SOLVER_ERROR);
+        }
+        fprintf(stderr, "DEBUG: ROBOT - piece: %04b\n",
             (int) (move.piece) & 0b1111);
         gs->p_select[0] = UNDEF_COORD;
         gs->p_select[1] = UNDEF_COORD;
         quarto_play(gs->q, move.piece, move.pos);
-        uint16_t ps = (stdc_first_leading_one_ull(move.pos) - 1) / 4;
-        gs->used |= 1 << ps;
         break;
     }
   }
@@ -379,8 +364,12 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
   float factor = (float) game->screen_w / 290;
   display_bot_animation(game, info, factor);
   display_diffictulty_chooser(game, info, factor);
-  player_t p = quarto_winner(gs->q);
-  if (p != NEITHER) {
+  if (quarto_is_game_over(gs->q)) {
+    player_t p = quarto_winner(gs->q);
+    if (p == NEITHER) {
+      display_end_animation(game, &info->anims[0], info->anim_font,
+          "It's a draw !", true);
+    }
     bool win = p == PLAYER1;
     const char *t = win ? "You w in !" : "You Loose !";
     display_end_animation(game, &info->anims[0], info->anim_font, t, win);

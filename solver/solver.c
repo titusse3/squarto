@@ -53,7 +53,7 @@ static bool min__max(const quarto_t *quarto, int (*heur)(const quarto_t *),
         if (!min__max(copy, heur, depth - 1, !is_max, &val2, &move2)) {
           return false;
         }
-        if (is_max ? val2 > *val : val2 < *val) {
+        if (is_max ? val2 >= *val : val2 <= *val) {
           *val = val2;
           (*move).piece = pieces[i];
           (*move).pos = positions[j];
@@ -117,7 +117,7 @@ static bool nega__max(const quarto_t *quarto, int (*heur)(const quarto_t *),
         if (!nega__max(copy, heur, depth - 1, &val2, &move2)) {
           return false;
         }
-        if (-val2 > *val) {
+        if (-val2 >= *val) {
           *val = -val2;
           (*move).piece = pieces[i];
           (*move).pos = positions[j];
@@ -188,13 +188,13 @@ static bool alpha__beta(const quarto_t *quarto, int (*heur)(const quarto_t *),
           return false;
         }
         if (is_max) {
-          if (val2 > alpha) {
+          if (val2 >= alpha) {
             alpha = val2;
             (*move).piece = pieces[i];
             (*move).pos = positions[j];
           }
         } else {
-          if (val2 < beta) {
+          if (val2 <= beta) {
             beta = val2;
             (*move).piece = pieces[i];
             (*move).pos = positions[j];
@@ -267,12 +267,12 @@ static bool negalpha__beta(const quarto_t *quarto,
             &move2)) {
           return false;
         }
-        if (-val2 > v) {
+        if (-val2 >= v) {
           v = -val2;
           (*move).piece = pieces[i];
           (*move).pos = positions[j];
         }
-        if (v > alpha) {
+        if (v >= alpha) {
           alpha = v;
         }
       }
