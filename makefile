@@ -16,7 +16,8 @@ CC = gcc
 CFLAGS = -std=c23 \
 	-I$(menu_dir) -I$(rlights_dir) -I$(utils_dir) -I$(quarto_dir) -I$(mbck_dir) \
 	-I$(rules_menu_dir) -I$(utils_menu_dir) -I$(holdall_dir) -I$(ktree_dir) \
-	-I$(pqueue_dir) -I$(solver_dir) -I$(heuristic_dir) -I$(game_view_dir) -DQUARTO_EXT=1
+	-I$(pqueue_dir) -I$(solver_dir) -I$(heuristic_dir) -I$(game_view_dir) \
+	-I$(raylib_dir) -DQUARTO_EXT=1
 vpath %.c $(menu_dir) $(rlights_dir) $(utils_dir) $(quarto_dir) $(mbck_dir) \
 	$(rules_menu_dir) $(utils_menu_dir) $(holdall_dir) $(ktree_dir) \
 	$(pqueue_dir) $(solver_dir) $(heuristic_dir) $(game_view_dir)
