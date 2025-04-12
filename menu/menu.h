@@ -19,6 +19,12 @@
 
 #define UNDEF_COORD -1.0f
 
+// DIFFICULTY NAMES
+#define S_EASY "Mise en Orbite"
+#define S_MEDIUM "Orbites en Folie"
+#define S_HARD "Tempête d'Astéroïdes"
+#define S_VERY_HARD "Supernova Ultime"
+
 typedef struct {
   int screen_w;
   int screen_h;

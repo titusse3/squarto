@@ -15,11 +15,6 @@
 #define SDIFFICULTY "Select difficulty"
 #define SQUIT "Quit"
 
-// DIFFICULTY NAMES
-#define S_EASY "Mise en Orbite"
-#define S_MEDIUM "Orbites en Folie"
-#define S_HARD "Tempête d'Astéroïdes"
-#define S_VERY_HARD "Supernova Ultime"
 // DIFFICULTY DESCRIPTIONS
 #define S_EASY_DESC "L'alignement provoque la victoire."
 #define S_MEDIUM_DESC "L'alignement ou le petit carré provoque la victoire."

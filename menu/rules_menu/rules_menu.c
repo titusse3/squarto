@@ -5,19 +5,40 @@
 
 #include "raygui.h"
 
-#define RULE_ZERO "Quarto est un jeu de stratégie pour deux joueur"
-#define RULE_ONE "Le plateau est une grille de 4x4"
-#define RULE_TWO "Il y a 16 pièces, chacune avec 4 caractéristiques"
-#define RULE_THREE                                                             \
-        "L'objectif du jeu est d'aligner 4 pièces\n avec une caractéristique " \
-        "commune"
-#define RULE_FOUR                                                              \
-        "Le second joueur choisi une pièce\n qu'il donne au premier"
-#define RULE_FIVE                                                              \
-        "Le premier joueur place la pièce sur le plateau\n et on recommance "  \
-        "avec le second joueur"
-#define RULE_SIX                                                               \
-        "Le jeu se termine lorsqu'un joueur aligne 4 pièces"
+// MAX_RULES: Nombre maximum de règles à afficher.
+#define MAX_RULES 7
+
+#define RULE_0 "Quarto est un jeu de stratégie pour deux joueur"
+#define RULE_1 "Le plateau est une grille de 4x4"
+#define RULE_2 "Il y a 16 pièces, chacune avec 4 caractéristiques"
+
+#define RULE_3                                                                 \
+        "Le second joueur choisi une pièce\n"                                  \
+        "qu'il donne au premier"                                               \
+
+#define RULE_4                                                                 \
+        "Le premier joueur place la pièce sur le plateau\n"                    \
+        "et on recommance avec le second joueur"                               \
+
+#define RULE_5                                                                 \
+        "Le jeu admet plusieurs niveaus de difficulté.\n"                      \
+        "A chaque niveau on conserve les conditions de \n"                     \
+        "victoire niveau précédente."                                          \
+
+#define RULE_6                                                                 \
+        "Dans le premier niveau (" S_EASY "), pour\n"                          \
+        "gagner, il faut aligner 4 pièces avec une \n"                         \
+        "caractéristique commune."                                             \
+
+#define RULE_7                                                                 \
+        "Dans le second niveau (" S_MEDIUM "), pour\n"                         \
+        "gagner, il faut former petit carré de 4 pièces\n"                     \
+        "avec une caractéristique commune."                                    \
+
+#define RULE_8                                                                 \
+        "Dans le troisieme niveau (" S_HARD "), pour\n"                        \
+        "gagner, il faut former grand carré de 4 pièces\n"                     \
+        "avec une caractéristique commune."                                    \
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -206,76 +227,6 @@ static void display_rule_frame_3(menu_content_t *menu, state_t *st,
     Rectangle *rulesRect) {
   Camera3D camera = {
     .position = (Vector3) {
-      7.5f, 20.0f, 7.5f
-    },
-    .target = (Vector3) {
-      0.0f, 0.0f, 0.0f
-    },
-    .up = (Vector3) {
-      0.0f, 1.0f, 0.0f
-    }, .fovy = 30.0f, .projection = CAMERA_PERSPECTIVE
-  };
-  SetShaderValue(
-      st->shader,
-      st->shader.locs[SHADER_LOC_VECTOR_VIEW],
-      &camera.position,
-      SHADER_UNIFORM_VEC3
-      );
-  st->lights[0].position = camera.position;
-  UpdateLightValues(st->shader, st->lights[0]);
-  st->lights[1].position = camera.position;
-  UpdateLightValues(st->shader, st->lights[1]);
-  BeginTextureMode(*st->screens);
-  ClearBackground(BLANK);
-  BeginMode3D(camera);
-  BeginShaderMode(st->shader);
-  for (float x = 0; x < 4.0f; ++x) {
-    for (float z = 0; z < 4.0f; ++z) {
-      DrawCube(
-          (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
-          1.5f,
-          1.5f,
-          1.5f,
-          LIGHTGRAY
-          );
-      DrawCubeWires(
-          (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
-          1.5f,
-          1.5f,
-          1.5f,
-          BLACK
-          );
-      if (x == 2) {
-        DrawModelEx(
-            st->pieces[(size_t) z],
-            (Vector3) {x * 1.5f - 2.25f, 0.75f, z * 1.5f - 2.25f},
-            (Vector3) {0.0f, 0.0f, 0.0f},
-            0.0f,
-            (Vector3) {0.55f, 0.2f, 0.55},
-            (long int) z % 2 == 0 ? BLUE : RED
-            );
-      }
-    }
-  }
-  EndShaderMode();
-  EndMode3D();
-  EndTextureMode();
-  DrawTextureRec(
-      st->screens->texture,
-      (Rectangle) {0.0f,
-                   0.0f,
-                   (float) st->screens->texture.width,
-                   (float) -st->screens->texture.height},
-      (Vector2) {rulesRect->x,
-                 rulesRect->y + rulesRect->height / 4},
-      WHITE
-      );
-}
-
-static void display_rule_frame_4(menu_content_t *menu, state_t *st,
-    Rectangle *rulesRect) {
-  Camera3D camera = {
-    .position = (Vector3) {
       10.0f, 20.0f, 10.0f
     },
     .target = (Vector3) {
@@ -339,7 +290,7 @@ static void display_rule_frame_4(menu_content_t *menu, state_t *st,
       );
 }
 
-static void display_rule_frame_5(menu_content_t *menu, state_t *st,
+static void display_rule_frame_4(menu_content_t *menu, state_t *st,
     Rectangle *rulesRect) {
   Camera3D camera = {
     .position = (Vector3) {
@@ -419,6 +370,47 @@ static void display_rule_frame_5(menu_content_t *menu, state_t *st,
       );
 }
 
+static void display_rule_frame_5(menu_content_t *menu, state_t *st,
+    Rectangle *rulesRect) {
+  const char *difficulty_options[] = {
+    S_EASY, S_MEDIUM, S_HARD, S_VERY_HARD
+  };
+  int num_options = sizeof difficulty_options / sizeof *difficulty_options;
+  float container_width = rulesRect->width * 0.6f;
+  float container_height = rulesRect->height * 0.5f;
+  Rectangle container = {
+    rulesRect->x + (rulesRect->width - container_width) / 2,
+    rulesRect->height - rulesRect->y - (rulesRect->height - container_height)
+    * 0.95f,
+    container_width,
+    container_height
+  };
+  int button_height = container.height / (num_options * 1.5);
+  int button_width = container.width * 0.9f;
+  int spacing = container.height / (num_options * 5);
+  int total_height = num_options * button_height + (num_options - 1) * spacing;
+  int start_y = container.y + (container.height - total_height) / 2;
+  for (int i = 0; i < num_options; i++) {
+    Rectangle button_rect = {
+      container.x + (container.width - button_width) / 2,
+      start_y + i * (button_height + spacing),
+      button_width,
+      button_height
+    };
+    Color button_color = BLACK;
+    Color text_color = PURPLE;
+    DrawRectangleRec(button_rect, button_color);
+    DrawRectangleLinesEx(button_rect, 2, PURPLE);
+    int title_font_size = container.width * 0.05f;
+    Vector2 title_size = MeasureTextEx(GetFontDefault(),
+        difficulty_options[i], title_font_size, 1);
+    DrawTextEx(GetFontDefault(), difficulty_options[i],
+        (Vector2){ button_rect.x + (button_rect.width - title_size.x) / 2,
+                   button_rect.y + (button_height - title_size.y) / 2 },
+        title_font_size, 1, text_color);
+  }
+}
+
 static void display_rule_frame_6(menu_content_t *menu, state_t *st,
     Rectangle *rulesRect) {
   Camera3D camera = {
@@ -489,6 +481,146 @@ static void display_rule_frame_6(menu_content_t *menu, state_t *st,
                  rulesRect->y + rulesRect->height / 4}, WHITE);
 }
 
+static void display_rule_frame_7(menu_content_t *menu, state_t *st,
+    Rectangle *rulesRect) {
+  Camera3D camera = {
+    .position = (Vector3) {
+      7.5f, 20.0f, 7.5f
+    },
+    .target = (Vector3) {
+      0.0f, 0.0f, 0.0f
+    },
+    .up = (Vector3) {
+      0.0f, 1.0f, 0.0f
+    },
+    .fovy = 30.0f,
+    .projection = CAMERA_PERSPECTIVE
+  };
+  SetShaderValue(
+      st->shader,
+      st->shader.locs[SHADER_LOC_VECTOR_VIEW],
+      &camera.position,
+      SHADER_UNIFORM_VEC3
+      );
+  st->lights[0].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[0]);
+  st->lights[1].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[1]);
+  BeginTextureMode(*st->screens);
+  ClearBackground(BLANK);
+  BeginMode3D(camera);
+  BeginShaderMode(st->shader);
+  for (float x = 0; x < 4.0f; ++x) {
+    for (float z = 0; z < 4.0f; ++z) {
+      DrawCube(
+          (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
+          1.5f,
+          1.5f,
+          1.5f,
+          LIGHTGRAY
+          );
+      DrawCubeWires(
+          (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
+          1.5f,
+          1.5f,
+          1.5f,
+          BLACK
+          );
+      if (x < 3 && x > 0 && z < 3 && z > 0) {
+        DrawModelEx(
+            st->pieces[(size_t) ((x - 1) * 2 + (z - 1))],
+            (Vector3) {x * 1.5f - 2.25f, 0.75f, z * 1.5f - 2.25f},
+            (Vector3) {0.0f, 0.0f, 0.0f},
+            0.0f,
+            (Vector3) {0.55f, 0.35f, 0.55},
+            (long int) z % 2 != 0 ? BLUE : RED
+            );
+      }
+    }
+  }
+  EndShaderMode();
+  EndMode3D();
+  EndTextureMode();
+  DrawTextureRec(
+      st->screens->texture,
+      (Rectangle) {0.0f,
+                   0.0f,
+                   (float) st->screens->texture.width,
+                   (float) -st->screens->texture.height},
+      (Vector2) {rulesRect->x,
+                 rulesRect->y + rulesRect->height / 4}, WHITE);
+}
+
+static void display_rule_frame_8(menu_content_t *menu, state_t *st,
+    Rectangle *rulesRect) {
+  Camera3D camera = {
+    .position = (Vector3) {
+      7.5f, 20.0f, 7.5f
+    },
+    .target = (Vector3) {
+      0.0f, 0.0f, 0.0f
+    },
+    .up = (Vector3) {
+      0.0f, 1.0f, 0.0f
+    },
+    .fovy = 30.0f,
+    .projection = CAMERA_PERSPECTIVE
+  };
+  SetShaderValue(
+      st->shader,
+      st->shader.locs[SHADER_LOC_VECTOR_VIEW],
+      &camera.position,
+      SHADER_UNIFORM_VEC3
+      );
+  st->lights[0].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[0]);
+  st->lights[1].position = camera.position;
+  UpdateLightValues(st->shader, st->lights[1]);
+  BeginTextureMode(*st->screens);
+  ClearBackground(BLANK);
+  BeginMode3D(camera);
+  BeginShaderMode(st->shader);
+  for (float x = 0; x < 4.0f; ++x) {
+    for (float z = 0; z < 4.0f; ++z) {
+      DrawCube(
+          (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
+          1.5f,
+          1.5f,
+          1.5f,
+          LIGHTGRAY
+          );
+      DrawCubeWires(
+          (Vector3) {x * 1.5f - 2.25f, 0.0f, z * 1.5f - 2.25f},
+          1.5f,
+          1.5f,
+          1.5f,
+          BLACK
+          );
+      if (x < 3 && x > 0 && z < 3 && z > 0) {
+        DrawModelEx(
+            st->pieces[(size_t) ((x - 1) * 2 + (z - 1))],
+            (Vector3) {x * 1.5f - 2.25f, 0.75f, z * 1.5f - 2.25f},
+            (Vector3) {0.0f, 0.0f, 0.0f},
+            0.0f,
+            (Vector3) {0.55f, 0.35f, 0.55},
+            (long int) z % 2 != 0 ? BLUE : RED
+            );
+      }
+    }
+  }
+  EndShaderMode();
+  EndMode3D();
+  EndTextureMode();
+  DrawTextureRec(
+      st->screens->texture,
+      (Rectangle) {0.0f,
+                   0.0f,
+                   (float) st->screens->texture.width,
+                   (float) -st->screens->texture.height},
+      (Vector2) {rulesRect->x,
+                 rulesRect->y + rulesRect->height / 4}, WHITE);
+}
+
 void display_rules(game_info_t *game, int left_padding, int offset,
     int font_size, menu_content_t *menu, state_t *st) {
   DISPLAY_BCK_WINDOW(game, left_padding, offset);
@@ -496,9 +628,7 @@ void display_rules(game_info_t *game, int left_padding, int offset,
     st->screens = malloc(sizeof *st->screens);
     if (st->screens == nullptr) {
       // error d'alloc
-      display_exit_menu(game, font_size, "Error during allocation",
-          MeasureText("Error during allocation", font_size));
-      return;
+      ERROR_DISPLAY(game, ALLOCATION_MSG);
     }
     *st->screens = LoadRenderTexture(rulesRect.width, rulesRect.height / 1.5f);
     st->mk_screen = false;
@@ -513,7 +643,7 @@ void display_rules(game_info_t *game, int left_padding, int offset,
   int mfont_size = rulesRect.width / 30;
   switch (menu->content.rules_values.rules_num) {
     case 0:
-      if (display_text_writing(game, menu, &rulesRect, RULE_ZERO, mfont_size,
+      if (display_text_writing(game, menu, &rulesRect, RULE_0, mfont_size,
           foffset)) {
         float t = menu->content.rules_values.rules_frames / 180.0f;
         if (t > 1.0f) {
@@ -523,39 +653,45 @@ void display_rules(game_info_t *game, int left_padding, int offset,
       }
       break;
     case 1:
-      if (display_text_writing(game, menu, &rulesRect, RULE_ONE, mfont_size,
+      if (display_text_writing(game, menu, &rulesRect, RULE_1, mfont_size,
           foffset)) {
         display_rule_frame_1(menu, st, &rulesRect);
       }
       break;
     case 2:
-      if (display_text_writing(game, menu, &rulesRect, RULE_TWO, mfont_size,
+      if (display_text_writing(game, menu, &rulesRect, RULE_2, mfont_size,
           foffset)) {
         display_rule_frame_2(menu, st, &rulesRect);
       }
       break;
     case 3:
-      if (display_text_writing(game, menu, &rulesRect, RULE_THREE, mfont_size,
+      if (display_text_writing(game, menu, &rulesRect, RULE_3, mfont_size,
           foffset)) {
         display_rule_frame_3(menu, st, &rulesRect);
       }
       break;
     case 4:
-      if (display_text_writing(game, menu, &rulesRect, RULE_FOUR, mfont_size,
+      if (display_text_writing(game, menu, &rulesRect, RULE_4, mfont_size,
           foffset)) {
         display_rule_frame_4(menu, st, &rulesRect);
       }
       break;
     case 5:
-      if (display_text_writing(game, menu, &rulesRect, RULE_FIVE, mfont_size,
+      if (display_text_writing(game, menu, &rulesRect, RULE_5, mfont_size,
           foffset)) {
         display_rule_frame_5(menu, st, &rulesRect);
       }
       break;
     case 6:
-      if (display_text_writing(game, menu, &rulesRect, RULE_SIX, mfont_size,
+      if (display_text_writing(game, menu, &rulesRect, RULE_6, mfont_size,
           foffset)) {
         display_rule_frame_6(menu, st, &rulesRect);
+      }
+      break;
+    case 7:
+      if (display_text_writing(game, menu, &rulesRect, RULE_7, mfont_size,
+          foffset)) {
+        display_rule_frame_7(menu, st, &rulesRect);
       }
       break;
     default:

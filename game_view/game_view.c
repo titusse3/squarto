@@ -26,14 +26,6 @@
 #define MSG_DURATION 75
 #define MSG_INTERVAL 100
 
-#define ALLOCATION_MSG "Error during allocation"
-#define SOLVER_ERROR "Solver error"
-
-#define ERROR_DISPLAY(game, msg)                                               \
-        display_exit_menu(game, (game)->screen_h / 16, (msg),                  \
-    MeasureText((msg), (game)->screen_h / 16));                                \
-        return;                                                                \
-
 // display_bot_animation: Fonction qui permet l'affichage des animations du bot.
 static void display_bot_animation(game_info_t *game, menu_content_t *menu,
     float factor);
@@ -359,7 +351,6 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
                    (float) -st->screens->texture.height},
       (Vector2) {0.0f, 0.0f}, WHITE);
   float factor = (float) game->screen_w / 290;
-  display_bot_animation(game, info, factor);
   display_diffictulty_chooser(game, info, factor);
   if (quarto_is_game_over(gs->q)) {
     player_t p = quarto_winner(gs->q);
@@ -370,5 +361,7 @@ void draw_game(state_t *st, game_info_t *game, menu_content_t *info,
     bool win = p == PLAYER1;
     const char *t = win ? "You w in !" : "You Loose !";
     display_end_animation(game, &info->anims[0], info->anim_font, t, win);
+  } else {
+    display_bot_animation(game, info, factor);
   }
 }

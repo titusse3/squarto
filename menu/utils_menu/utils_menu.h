@@ -6,6 +6,14 @@
 
 #include "menu.h"
 
+#define ALLOCATION_MSG "Error during allocation"
+#define SOLVER_ERROR "Solver error"
+
+#define ERROR_DISPLAY(game, msg)                                               \
+        display_exit_menu(game, (game)->screen_h / 16, (msg),                  \
+    MeasureText((msg), (game)->screen_h / 16));                                \
+        return;
+
 // DISPLAY_BCK_WINDOW: Macro permettant d'afficher une fenêtre de fond pour un
 //    menu.
 #define DISPLAY_BCK_WINDOW(game, left_padding, offset)                         \
