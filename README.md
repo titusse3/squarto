@@ -18,7 +18,7 @@ avant de compiler ou d'exécuter le projet :
 
 1. Clonez ce dépôt :
   ```bash
-  git clone https://github.com/votre-utilisateur/squarto.git
+  git clone https://github.com/titusse3/squarto
   cd squarto
   ```
 
