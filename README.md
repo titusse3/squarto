@@ -11,8 +11,8 @@ Un article décrivant la mise en place de ce jeu est disponible sur mon
 Assurez-vous d'avoir les bibliothèques suivantes installées sur votre système 
 avant de compiler ou d'exécuter le projet :
 
-- **lX11** : Bibliothèque pour la gestion des fenêtres sous Linux.
-- **lGL** : Bibliothèque OpenGL pour le rendu graphique.
+- **X11** : Bibliothèque pour la gestion des fenêtres sous Linux.
+- **GL** : Bibliothèque OpenGL pour le rendu graphique.
 
 ## Installation et Exécution
 
