@@ -1,2 +1,0 @@
-- https://pimen.itch.io/fire-spell-effect-02
-- https://gabry-corti.itch.io/microwave
